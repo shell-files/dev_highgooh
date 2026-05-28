@@ -213,9 +213,9 @@ const Login = () => {
                   <form className="input-group" onSubmit={handleLogin}>
                     {renderInput("loginEmail", "email", "이메일을 입력해주세요", formData.loginEmail)}
                     {renderInput("loginPassword", "password", "비밀번호를 입력해주세요", formData.loginPassword)}
-                    <div className="links">
+                    {/* <div className="links">
                       <span onClick={() => navigate("/signup")}>회원 가입</span> | <span onClick={() => showInquiry('account')}>이메일 찾기</span> | <span className="active-link" onClick={() => setView("forgot")}>비밀번호 찾기</span>
-                    </div>
+                    </div> */}
                     <button className="login-action-button" type="submit" disabled={loading}>
                       {loading ? <span className="button-spinner" /> : "로그인"}
                     </button>
