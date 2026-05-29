@@ -2,7 +2,7 @@ name: Windows PC Job
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 jobs:
   build:
@@ -14,6 +14,20 @@ jobs:
         with:
           path: .
       
+      - name: Create .env file
+        shell: cmd
+        run: |
+          echo MARIADB_DRIVER=${{ secrets.MARIADB_DRIVER }} > backend\.env
+          echo MARIADB_URL=${{ secrets.MARIADB_URL }} >> backend\.env
+          echo MARIADB_USER=${{ secrets.MARIADB_USER }} >> backend\.env
+          echo MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }} >> backend\.env
+          echo RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }} >> backend\.env
+          echo RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }} >> backend\.env
+      
+      - name: Build Java
+        working-directory: ./backend
+        run: mvnw.cmd clean package -DskipTests
+
       - name: Docker Down
         working-directory: .
         run: docker compose down
@@ -21,4 +35,4 @@ jobs:
 
       - name: Docker Up
         working-directory: .
-        run: docker compose up -d
+        run: docker compose up -d --build
