@@ -24,9 +24,9 @@ jobs:
           echo RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }} >> backend\.env
           echo RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }} >> backend\.env
       
-      - name: Build Java
-        working-directory: ./backend
-        run: .\mvnw.cmd clean package -DskipTests
+      # - name: Build Java
+      #   working-directory: ./backend
+      #   run: .\mvnw.cmd clean package -DskipTests
 
       - name: Docker Down
         working-directory: .
