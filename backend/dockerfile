@@ -1,15 +1,18 @@
+# 1단계: Maven 환경에서 JAR 파일 빌드 / builder stage
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
+WORKDIR /build
+COPY . .
+# 소스코드를 빌드하여 JAR 생성
+RUN ./mvnw clean package -DskipTests
+
 # 1. 베이스 이미지 설정 (Java 실행 환경인 JDK 또는 JRE 지정)
 FROM eclipse-temurin:21-jre-jammy
-
 # 2. 컨테이너 내부 작업 디렉토리 설정
 WORKDIR /app
-
 # 3. 위에서 빌드한 JAR 파일을 컨테이너 내부로 복사
 # target/ 폴더 안의 jar 파일을 backend.jar라는 이름으로 복사합니다.
-COPY target/*.jar backend.jar
-
+COPY --from=builder /build/target/*.jar backend.jar
 # 4. 스프링 부트가 사용할 포트 명시 (기본값 8080)
 EXPOSE 8080
-
 # 5. 컨테이너가 시작될 때 실행할 명령어
 ENTRYPOINT ["java", "-jar", "backend.jar"]
