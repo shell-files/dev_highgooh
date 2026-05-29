@@ -24,7 +24,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      -./backend/src/main/resources/secrets:/app/src/main/resources/secrets:ro
+      - ./backend/src/main/resources/secrets:/app/src/main/resources/secrets:ro
 
     # environment:
     #   - MARIADB_DRIVER=${MARIADB_DRIVER}
