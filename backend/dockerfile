@@ -1,7 +1,15 @@
 # 1단계: Maven 환경에서 JAR 파일 빌드 / builder stage
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
+FROM maven:3.9.16-eclipse-temurin-21 AS builder
 WORKDIR /build
-COPY . .
+# 설정 파일들만 먼저 컨테이너로 복사합니다.
+COPY pom.xml .
+COPY .mvn ./.mvn
+COPY mvnw .
+COPY mvnw.cmd .
+# 의존성만 미리 다운로드해 두는 메이븐 명령어입니다.
+RUN ./mvnw dependency:go-offline
+# 이제 진짜 내 자바 소스코드를 복사합니다.
+COPY src ./src
 # 소스코드를 빌드하여 JAR 생성
 RUN ./mvnw clean package -DskipTests
 
