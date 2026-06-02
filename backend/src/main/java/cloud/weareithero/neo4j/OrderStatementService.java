@@ -1,5 +1,7 @@
 package cloud.weareithero.neo4j;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,19 +45,40 @@ public class OrderStatementService {
     StringBuilder contextBuilder = new StringBuilder();
     for (OrderNode order : orderHistory) {
       contextBuilder.append(String.format("- 주문번호(orderId): %s (날짜: %s)\n", order.getOrderId(), order.getOrderDate()));
+
+      // [개선] 상품ID별로 수량을 합산하기 위한 임시 맵
+      Map<String, Integer> productQuantityMap = new LinkedHashMap<>();
+      Map<String, String> productNameMap = new HashMap<>(); // 상품명 보관용
+      
       for (ContainsEdge edge : order.getProducts()) { 
-        ProductNode product = edge.getProduct(); // 관계 엔티티로부터 TargetNode 추출
-        int quantity = edge.getQuantity();       // 관계 선에 저장된 수량 추출
+        ProductNode product = edge.getProduct();
+        String pId = product.getProductId();
         
-        contextBuilder.append(String.format("  ▶ 상품ID: %s | 상품명: %s | 수량: %d개\n", 
-          product.getProductId(), product.getProductName(), quantity));
+        productQuantityMap.put(pId, edge.getQuantity());
+        productNameMap.put(pId, product.getProductName());
       }
+
+      // 중복이 제거되고 결과만 StringBuilder에 추가
+      for (String pId : productQuantityMap.keySet()) {
+        int totalQuantity = productQuantityMap.get(pId);
+        String pName = productNameMap.get(pId);
+        
+        contextBuilder.append(String.format("  ▶ 상품ID: %s | 상품명: %s | 수량: %d개\n", pId, pName, totalQuantity));
+      }
+
+      // for (ContainsEdge edge : order.getProducts()) { 
+      //   ProductNode product = edge.getProduct(); // 관계 엔티티로부터 TargetNode 추출
+      //   int quantity = edge.getQuantity();       // 관계 선에 저장된 수량 추출
+        
+      //   contextBuilder.append(String.format("  ▶ 상품ID: %s | 상품명: %s | 수량: %d개\n", 
+      //     product.getProductId(), product.getProductName(), quantity));
+      // }
     }
 
     // 3. Ollama 프롬프트 작성 (지식 그래프 컨텍스트 주입)
     String promptMessage = """
       당신은 신뢰할 수 있는 자산 및 주문 관리 시스템입니다.
-      아래 제공된 '지식 그래프 기반 주문 컨텍스트'만을 바탕으로 고객에게 보낼 공식 [주문 내역 보고서] 서식으로 작성해주세요.
+      아래 제공된 '지식 그래프 기반 주문 컨텍스트'만을 바탕으로 고객에게 보낼 공식 [주문 내역 보고서]를 정중하고 깔끔한 서식으로 작성해주세요.
       그 외의 상상해낸 정보는 절대 포함하지 마십시오.
       
       [고객명]: {customerName}
@@ -77,16 +100,12 @@ public class OrderStatementService {
 
     Generation generation = chatModel.call(prompt).getResult();
     String rawResponse = generation.getOutput().getText();
-    // log.info("Ollama 원본 응답: {}", rawResponse);
-    String cleanedResponse = rawResponse;
-    if (rawResponse.contains("{")) {
-      cleanedResponse = rawResponse.substring(rawResponse.indexOf("{"), rawResponse.lastIndexOf("}") + 1);
-    }
+    log.info("Ollama 원본 응답: {}", rawResponse);
 
     try {
-      return outputConverter.convert(cleanedResponse);
+      return outputConverter.convert(rawResponse);
     } catch (Exception e) {
-      log.error("AI 응답을 OrdersDTO로 파싱하는 중 예외 발생: {}", e);
+      log.error("AI 응답을 OrdersDTO로 파싱하는 중 예외 발생. 원본 데이터: {}", rawResponse, e);
       throw new RuntimeException("주문 데이터 생성 중 포맷 오류가 발생했습니다.", e);
     }
   }
