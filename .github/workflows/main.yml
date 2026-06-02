@@ -29,6 +29,8 @@ jobs:
           echo MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }} >> backend\.env
           echo RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }} >> backend\.env
           echo RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }} >> backend\.env
+          echo OLLAMA_HOST=${{ secrets.OLLAMA_HOST }} >> backend\.env
+          echo OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }} >> backend\.env
       
       # - name: Build Java
       #   working-directory: ./backend
