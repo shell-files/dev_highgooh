@@ -26,6 +26,7 @@ spring:
         options:
           # model: llama3:latest # ${OLLAMA_MODEL}
           model: ${OLLAMA_MODEL}
+          format: json
           temperature: 0
   neo4j:
     uri: bolt://192.168.0.205:7687

@@ -77,12 +77,16 @@ public class OrderStatementService {
 
     Generation generation = chatModel.call(prompt).getResult();
     String rawResponse = generation.getOutput().getText();
-    log.info("Ollama 원본 응답: {}", rawResponse);
+    // log.info("Ollama 원본 응답: {}", rawResponse);
+    String cleanedResponse = rawResponse;
+    if (rawResponse.contains("{")) {
+      cleanedResponse = rawResponse.substring(rawResponse.indexOf("{"), rawResponse.lastIndexOf("}") + 1);
+    }
 
     try {
-      return outputConverter.convert(rawResponse);
+      return outputConverter.convert(cleanedResponse);
     } catch (Exception e) {
-      log.error("AI 응답을 OrdersDTO로 파싱하는 중 예외 발생. 원본 데이터: {}", rawResponse, e);
+      log.error("AI 응답을 OrdersDTO로 파싱하는 중 예외 발생: {}", e);
       throw new RuntimeException("주문 데이터 생성 중 포맷 오류가 발생했습니다.", e);
     }
   }
