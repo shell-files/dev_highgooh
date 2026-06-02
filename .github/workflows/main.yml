@@ -31,6 +31,10 @@ jobs:
           echo RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }} >> backend\.env
           echo OLLAMA_HOST=${{ secrets.OLLAMA_HOST }} >> backend\.env
           echo OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }} >> backend\.env
+          echo NEO4J_URI=${{ secrets.NEO4J_URI }} >> backend\.env
+          echo NEO4J_USER=${{ secrets.NEO4J_USER }} >> backend\.env
+          echo NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} >> backend\.env
+          echo KAFKA_SERVER=${{ secrets.KAFKA_SERVER }} >> backend\.env
       
       # - name: Build Java
       #   working-directory: ./backend
