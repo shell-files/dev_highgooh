@@ -33,6 +33,10 @@ public class AuthServiceImp implements AuthService {
 
   private final String COOKIE_NAME = "AUTH-TOKEN";
   
+  public String checkDomain(String domain) {
+    return domain.replace("aigo.", "");
+  }
+
   @Override
   public ResponseDTO getAuth() {
     Boolean status = false;
@@ -78,7 +82,7 @@ public class AuthServiceImp implements AuthService {
           log.info("Token : {}", jweToken);
 
           Cookie cookie = new Cookie(COOKIE_NAME, jweToken);
-          cookie.setDomain(request.getServerName());
+          cookie.setDomain(  checkDomain(request.getServerName()) );
           cookie.setPath("/");
           cookie.setMaxAge(-1);
           // cookie.setMaxAge(60 * 30);
@@ -112,7 +116,7 @@ public class AuthServiceImp implements AuthService {
         authMapper.delToken(principal.getId());
 
         Cookie cookie = new Cookie(COOKIE_NAME, null);
-        cookie.setDomain(request.getServerName());
+        cookie.setDomain( checkDomain(request.getServerName()) );
         cookie.setPath("/");
         cookie.setMaxAge(0);
         cookie.setHttpOnly(true);

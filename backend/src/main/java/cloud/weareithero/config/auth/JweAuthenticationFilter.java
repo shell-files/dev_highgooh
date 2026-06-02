@@ -37,11 +37,15 @@ public class JweAuthenticationFilter extends OncePerRequestFilter {
   private final JweTokenService jweTokenService;
 
   private final String COOKIE_NAME = "AUTH-TOKEN";
+  
+  public String checkDomain(String domain) {
+    return domain.replace("aigo.", "");
+  }
 
   private void checkCookie(HttpServletRequest request, HttpServletResponse response, String jweToken) {
     log.info("New Token : {}", jweToken);
     Cookie cookie = new Cookie(COOKIE_NAME, jweToken);
-    cookie.setDomain(request.getServerName());
+    cookie.setDomain( checkDomain(request.getServerName()) );
     cookie.setPath("/");
     cookie.setMaxAge(-1);
     cookie.setHttpOnly(true);
