@@ -53,7 +53,7 @@ public class OrderStatementService {
     }
 
     // 3. Ollama 프롬프트 작성 (지식 그래프 컨텍스트 주입)
-    String promptMessage = """
+    String promptMessage2 = """
       당신은 신뢰할 수 있는 자산 및 주문 관리 시스템입니다.
       아래 제공된 '지식 그래프 기반 주문 컨텍스트'만을 바탕으로 고객에게 보낼 공식 [주문 내역 보고서]를 정중하고 깔끔한 서식으로 작성해주세요.
       그 외의 상상해낸 정보는 절대 포함하지 마십시오.
@@ -62,6 +62,23 @@ public class OrderStatementService {
       
       [지식 그래프 기반 주문 컨텍스트]
       {context}
+      
+      응답 형식:
+      {format}
+    """;
+    String promptMessage = """
+      당신은 오직 JSON 데이터만 생성하는 신뢰할 수 있는 데이터 변환 시스템입니다.
+      아래 제공된 '지식 그래프 기반 주문 컨텍스트'를 바탕으로 지정된 JSON 형식에 맞춰 값을 채워주세요.
+      
+      [고객명]: {customerName}
+      
+      [지식 그래프 기반 주문 컨텍스트]
+      {context}
+      
+      [중요 제약 사항]
+      - 다른 친절한 설명, 인사말, 서론(예: "Here is your request")을 절대 포함하지 마십시오.
+      - 마크다운 서식(```json ... ```)도 사용하지 말고, 오직 완전한 JSON 객체만 반환하십시오.
+      - 첫 글자는 반드시 '{'로 시작해야 합니다.
       
       응답 형식:
       {format}
