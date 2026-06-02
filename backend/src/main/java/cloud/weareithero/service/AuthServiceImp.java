@@ -16,6 +16,7 @@ import cloud.weareithero.dto.User;
 import cloud.weareithero.dto.UserDTO;
 import cloud.weareithero.dto.UserRoleDto;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,6 @@ public class AuthServiceImp implements AuthService {
   private final BCryptPasswordEncoder passwordEncoder;
 
   private final String COOKIE_NAME = "AUTH-TOKEN";
-  private final String HOST_URL = "localhost";
   
   @Override
   public ResponseDTO getAuth() {
@@ -56,7 +56,7 @@ public class AuthServiceImp implements AuthService {
   }
 
   @Override
-  public ResponseDTO postAuth(UserDTO userDTO, HttpServletResponse response) {
+  public ResponseDTO postAuth(UserDTO userDTO, HttpServletResponse response, HttpServletRequest request) {
     Boolean status = false;
     try {
       log.info("UserDTO : {}", userDTO);
@@ -78,7 +78,7 @@ public class AuthServiceImp implements AuthService {
           log.info("Token : {}", jweToken);
 
           Cookie cookie = new Cookie(COOKIE_NAME, jweToken);
-          cookie.setDomain(HOST_URL);
+          cookie.setDomain(request.getServerName());
           cookie.setPath("/");
           cookie.setMaxAge(-1);
           // cookie.setMaxAge(60 * 30);
@@ -101,30 +101,37 @@ public class AuthServiceImp implements AuthService {
   }
 
   @Override
-  public ResponseDTO deleteAuth(HttpServletResponse response) {
+  public ResponseDTO deleteAuth(HttpServletResponse response, HttpServletRequest request) {
     Boolean status = false;
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.isAuthenticated()) {
-      log.info("Authentication: {}", authentication);
-      UserRoleDto principal = (UserRoleDto) authentication.getPrincipal();
-      log.info("Token ID: {}", principal.getId());
-      authMapper.delToken(principal.getId());
+    try{
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      if (authentication != null && authentication.isAuthenticated()) {
+        log.info("Authentication: {}", authentication);
+        UserRoleDto principal = (UserRoleDto) authentication.getPrincipal();
+        log.info("Token ID: {}", principal.getId());
+        authMapper.delToken(principal.getId());
 
-      Cookie cookie = new Cookie(COOKIE_NAME, null);
-      cookie.setDomain(HOST_URL);
-      cookie.setPath("/");
-      cookie.setMaxAge(0);
-      cookie.setHttpOnly(true);
-      cookie.setSecure(true);
-      response.addCookie(cookie);
+        Cookie cookie = new Cookie(COOKIE_NAME, null);
+        cookie.setDomain(request.getServerName());
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        response.addCookie(cookie);
 
-      status = true;
+        status = true;
+      }
+    } catch (Exception e) {
+      log.info("토큰 삭제에 실패했습니다: {}", e.getMessage());
+    } finally {
+      SecurityContextHolder.clearContext();
     }
     return ResponseDTO.builder()
       .status(status)
       .data(null)
       .message(null)
       .build();
+    
   }
   
 }

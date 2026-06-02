@@ -37,12 +37,11 @@ public class JweAuthenticationFilter extends OncePerRequestFilter {
   private final JweTokenService jweTokenService;
 
   private final String COOKIE_NAME = "AUTH-TOKEN";
-  private final String HOST_URL = "localhost";
 
-  private void checkCookie(HttpServletResponse response, String jweToken) {
+  private void checkCookie(HttpServletRequest request, HttpServletResponse response, String jweToken) {
     log.info("New Token : {}", jweToken);
     Cookie cookie = new Cookie(COOKIE_NAME, jweToken);
-    cookie.setDomain(HOST_URL);
+    cookie.setDomain(request.getServerName());
     cookie.setPath("/");
     cookie.setMaxAge(-1);
     cookie.setHttpOnly(true);
@@ -69,7 +68,7 @@ public class JweAuthenticationFilter extends OncePerRequestFilter {
 
         if (claimsSet.getExpirationTime() != null && claimsSet.getExpirationTime().before(new Date())) {
           String newJweToken = jweTokenService.createToken(userRoleDto);
-          checkCookie(response, newJweToken);
+          checkCookie(request, response, newJweToken);
         }
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(role.split(", "))
           .map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList());
