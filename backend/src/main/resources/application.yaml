@@ -20,10 +20,12 @@ spring:
       maxRequestSize: 100MB
   ai:
     ollama:
-      base-url: http://192.168.0.108:11434 # ${OLLAMA_HOST}
+      # base-url: http://192.168.0.108:11434
+      base-url: ${OLLAMA_HOST}
       chat:
         options:
-          model: llama3:latest # ${OLLAMA_MODEL}
+          # model: llama3:latest # ${OLLAMA_MODEL}
+          model: ${OLLAMA_MODEL}
           temperature: 0
   neo4j:
     uri: bolt://192.168.0.205:7687
