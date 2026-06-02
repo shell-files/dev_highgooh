@@ -37,6 +37,8 @@ services:
     restart: always
     volumes:
       - neo4j_data:/var/lib/neo4j
+      - neo4j_data:/data
+      - neo4j_data:/logs
     environment:
       # - NEO4J_AUTH=neo4j/password123
       - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
