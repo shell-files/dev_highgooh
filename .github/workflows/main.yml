@@ -35,6 +35,8 @@ jobs:
           echo NEO4J_USER=${{ secrets.NEO4J_USER }} >> backend\.env
           echo NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} >> backend\.env
           echo KAFKA_SERVER=${{ secrets.KAFKA_SERVER }} >> backend\.env
+          echo NEO4J_USER=${{ secrets.NEO4J_USER }} > .env
+          echo NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} >> .env
       
       # - name: Build Java
       #   working-directory: ./backend
