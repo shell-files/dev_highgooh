@@ -94,7 +94,7 @@ public class OrderStatementService {
 
     Generation generation = chatModel.call(prompt).getResult();
     String rawResponse = generation.getOutput().getText();
-    log.debug("Ollama 원본 응답: {}", rawResponse);
+    log.info("Ollama 원본 응답: {}", rawResponse);
 
     try {
       return outputConverter.convert(rawResponse);
