@@ -47,7 +47,7 @@ public class SwaggerConfig {
 
     return new OpenAPI()
       .info(info)
-      .servers(List.of(localServer, developerServer, prodServer))
+      // .servers(List.of(localServer, developerServer, prodServer))
       .addSecurityItem(securityRequirement)
       .components(components)
       ;
