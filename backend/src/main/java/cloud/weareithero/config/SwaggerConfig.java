@@ -33,7 +33,7 @@ public class SwaggerConfig {
 
     Server localServer = new Server().url("http://localhost:8080").description("로컬 개발 서버");
     Server developerServer = new Server().url("http://myapp.com:8080").description("개발 서버");
-    Server prodServer = new Server().url("http://weareithero.cloud:8080").description("운영 서버");
+    Server prodServer = new Server().url("http://aigo.weareithero.cloud:8080").description("운영 서버");
 
     String securityJwtName = "JWT 토큰 인증";
     SecurityRequirement securityRequirement = new SecurityRequirement().addList(securityJwtName);
