@@ -1,1 +1,0 @@
-export type RootType = Readonly<{ children: React.ReactNode; }>;

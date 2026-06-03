@@ -2,7 +2,8 @@ name: Windows PC Job
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,6 +15,37 @@ jobs:
         with:
           path: .
       
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm run build
+      
+      - name: Create .env file
+        shell: powershell
+        run: |
+          $backendEnv = @(
+            "MARIADB_DRIVER=${{ secrets.MARIADB_DRIVER }}",
+            "MARIADB_URL=${{ secrets.MARIADB_URL }}",
+            "MARIADB_USER=${{ secrets.MARIADB_USER }}",
+            "MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }}",
+            "RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }}",
+            "RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }}",
+            "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}",
+            "OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }}",
+            "NEO4J_URI=${{ secrets.NEO4J_URI }}",
+            "NEO4J_USER=${{ secrets.NEO4J_USER }}",
+            "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}",
+            "KAFKA_SERVER=${{ secrets.KAFKA_SERVER }}"
+          )
+          [System.IO.File]::WriteAllLines("$PWD\backend\.env", $backendEnv)
+
+          $rootEnv = @(
+            "NEO4J_USER=${{ secrets.NEO4J_USER }}",
+            "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}"
+          )
+          [System.IO.File]::WriteAllLines("$PWD\.env", $rootEnv)
+
       - name: Docker Down
         working-directory: .
         run: docker compose down
@@ -21,4 +53,4 @@ jobs:
 
       - name: Docker Up
         working-directory: .
-        run: docker compose up -d
+        run: docker compose up -d --build

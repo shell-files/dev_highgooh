@@ -1,0 +1,76 @@
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 30s
+
+spring:
+  application:
+    name: backend
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    driver-class-name: ${MARIADB_DRIVER}
+    url: ${MARIADB_URL}
+    username: ${MARIADB_USER}
+    password: ${MARIADB_PASSWORD}
+  servlet:
+    multipart:
+      maxFileSize: 100MB
+      maxRequestSize: 100MB
+  ai:
+    ollama:
+      base-url: ${OLLAMA_HOST}
+      chat:
+        options:
+          model: ${OLLAMA_MODEL}
+          format: json
+          temperature: 0
+  neo4j:
+    uri: ${NEO4J_URI}
+    authentication:
+      username: ${NEO4J_USER}
+      password: ${NEO4J_PASSWORD}
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVER}
+    consumer:
+      group-id: my-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+management:
+  info:
+    git:
+      mode: full
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    path: /docs
+    operationsSorter: method
+
+rsa:
+  public-key: ${RSA_PUBLIC_KEY}
+  private-key: ${RSA_PRIVATE_KEY}
+
+token:
+  expire:
+    access: 30
+    refresh: 2592000
+
+logging.level.org:
+  springframework.security: DEBUG #trace
