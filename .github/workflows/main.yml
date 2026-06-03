@@ -20,27 +20,48 @@ jobs:
           npm install
           npm run build
       
+      # - name: Create .env file
+      #   shell: cmd
+      #   run: |
+      #     echo MARIADB_DRIVER=${{ secrets.MARIADB_DRIVER }} > backend\.env
+      #     echo MARIADB_URL=${{ secrets.MARIADB_URL }} >> backend\.env
+      #     echo MARIADB_USER=${{ secrets.MARIADB_USER }} >> backend\.env
+      #     echo MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }} >> backend\.env
+      #     echo RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }} >> backend\.env
+      #     echo RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }} >> backend\.env
+      #     echo OLLAMA_HOST=${{ secrets.OLLAMA_HOST }} >> backend\.env
+      #     echo OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }} >> backend\.env
+      #     echo NEO4J_URI=${{ secrets.NEO4J_URI }} >> backend\.env
+      #     echo NEO4J_USER=${{ secrets.NEO4J_USER }} >> backend\.env
+      #     echo NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} >> backend\.env
+      #     echo KAFKA_SERVER=${{ secrets.KAFKA_SERVER }} >> backend\.env
+      #     echo NEO4J_USER=${{ secrets.NEO4J_USER }} > .env
+      #     echo NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} >> .env
+
       - name: Create .env file
-        shell: cmd
+        shell: pwsh
         run: |
-          echo MARIADB_DRIVER=${{ secrets.MARIADB_DRIVER }} > backend\.env
-          echo MARIADB_URL=${{ secrets.MARIADB_URL }} >> backend\.env
-          echo MARIADB_USER=${{ secrets.MARIADB_USER }} >> backend\.env
-          echo MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }} >> backend\.env
-          echo RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }} >> backend\.env
-          echo RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }} >> backend\.env
-          echo OLLAMA_HOST=${{ secrets.OLLAMA_HOST }} >> backend\.env
-          echo OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }} >> backend\.env
-          echo NEO4J_URI=${{ secrets.NEO4J_URI }} >> backend\.env
-          echo NEO4J_USER=${{ secrets.NEO4J_USER }} >> backend\.env
-          echo NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} >> backend\.env
-          echo KAFKA_SERVER=${{ secrets.KAFKA_SERVER }} >> backend\.env
-          echo NEO4J_USER=${{ secrets.NEO4J_USER }} > .env
-          echo NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }} >> .env
-      
-      # - name: Build Java
-      #   working-directory: ./backend
-      #   run: .\mvnw.cmd clean package -DskipTests
+          $backendEnv = @(
+            "MARIADB_DRIVER=${{ secrets.MARIADB_DRIVER }}",
+            "MARIADB_URL=${{ secrets.MARIADB_URL }}",
+            "MARIADB_USER=${{ secrets.MARIADB_USER }}",
+            "MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }}",
+            "RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }}",
+            "RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }}",
+            "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}",
+            "OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }}",
+            "NEO4J_URI=${{ secrets.NEO4J_URI }}",
+            "NEO4J_USER=${{ secrets.NEO4J_USER }}",
+            "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}",
+            "KAFKA_SERVER=${{ secrets.KAFKA_SERVER }}"
+          )
+          $backendEnv | Out-File -FilePath backend\.env -Encoding utf8NoBOM
+
+          $rootEnv = @(
+            "NEO4J_USER=${{ secrets.NEO4J_USER }}",
+            "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}"
+          )
+          $rootEnv | Out-File -FilePath .env -Encoding utf8NoBOM
 
       - name: Docker Down
         working-directory: .

@@ -20,24 +20,18 @@ spring:
       maxRequestSize: 100MB
   ai:
     ollama:
-      # base-url: http://192.168.0.108:11434
       base-url: ${OLLAMA_HOST}
       chat:
         options:
-          # model: llama3:latest # ${OLLAMA_MODEL}
           model: ${OLLAMA_MODEL}
           format: json
           temperature: 0
   neo4j:
-    # uri: bolt://192.168.0.205:7687
     uri: ${NEO4J_URI}
     authentication:
-      # username: neo4j
       username: ${NEO4J_USER}
-      # password: password123
       password: ${NEO4J_PASSWORD}
   kafka:
-    # bootstrap-servers: 192.168.0.205:9094
     bootstrap-servers: ${KAFKA_SERVER}
     consumer:
       group-id: my-group
