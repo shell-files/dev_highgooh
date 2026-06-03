@@ -3,6 +3,7 @@ name: Windows PC Job
 on:
   push:
     branches: [ "dev" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -37,13 +38,13 @@ jobs:
             "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}",
             "KAFKA_SERVER=${{ secrets.KAFKA_SERVER }}"
           )
-          $backendEnv | Out-File -FilePath backend\.env -Encoding utf8NoBOM
+          [System.IO.File]::WriteAllLines("$PWD\backend\.env", $backendEnv)
 
           $rootEnv = @(
             "NEO4J_USER=${{ secrets.NEO4J_USER }}",
             "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}"
           )
-          $rootEnv | Out-File -FilePath .env -Encoding utf8NoBOM
+          [System.IO.File]::WriteAllLines("$PWD\.env", $rootEnv)
 
       - name: Docker Down
         working-directory: .
