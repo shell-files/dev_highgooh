@@ -13,18 +13,35 @@ services:
 
   backend:
     container_name: backend
-    build:
-      context: ./backend
-      dockerfile: dockerfile
-    env_file:
-      - ./backend/.env
-    image: backend:1
-    networks:
+    image: maven:3.9.11-sapmachine-21
+    networks: 
       - main-network
     ports:
-      - 8080:8080
+      - "8080:8080"
+    working_dir: /workspace
     volumes:
-      - ../secrets:/app/resources/secrets:ro
+      - ./backend:/workspace:rw
+      - ../secrets:/workspace/src/main/resources/secrets:ro # 컨테이너 내 secrets폴더 복사
+      - maven_cache:/root/.m2  # 의존성 재설치 방지용도
+    environment:
+      - RSA_PUBLIC_KEY=classpath:secrets/public.pem
+      - RSA_PRIVATE_KEY=classpath:secrets/private.pem
+    command: ["./mvnw", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Dspring.devtools.restart.enabled=true"]
+
+  # backend:
+  #   container_name: backend
+  #   build:
+  #     context: ./backend
+  #     dockerfile: dockerfile
+  #   env_file:
+  #     - ./backend/.env
+  #   image: backend:1
+  #   networks:
+  #     - main-network
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - ../secrets:/app/resources/secrets:ro
 
   neo4j:
     container_name: neo4j
@@ -40,7 +57,6 @@ services:
       - neo4j_data:/data
       - neo4j_data:/logs
     environment:
-      # - NEO4J_AUTH=neo4j/password123
       - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
       - NEO4JLABS_PLUGINS='["apoc"]' 
       - NEO4J_dbms_security_procedures_unrestricted=apoc.*
@@ -49,6 +65,11 @@ services:
 
 volumes:
   neo4j_data:  
+  maven_cache: # 의존성 설치 볼륨
+
+networks:
+  main-network: 
+    driver: bridge
 
   # mariadb:
   #   container_name: mariadb
@@ -69,10 +90,6 @@ volumes:
   #     - MARIADB_DATABASE=edu
   #     - TZ=Asia/Seoul
   #     - LC_ALL:en_US.UTF-8
-
-networks:
-  main-network: 
-    driver: bridge
 
 # volumes:
 #   data-mariadb:
