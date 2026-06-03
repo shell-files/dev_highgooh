@@ -21,7 +21,7 @@ jobs:
           npm run build
       
       - name: Create .env file
-        shell: pwsh
+        shell: powershell
         run: |
           $backendEnv = @(
             "MARIADB_DRIVER=${{ secrets.MARIADB_DRIVER }}",
