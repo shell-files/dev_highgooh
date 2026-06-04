@@ -1,4 +1,4 @@
-import "@styles/loginBackground.css";
+import "@styles/LoginBackground.css";
 
 import gateBg1 from "@assets/images/backgrounds/GateBg1.png";
 import gateBg2 from "@assets/images/backgrounds/GateBg2.png";
