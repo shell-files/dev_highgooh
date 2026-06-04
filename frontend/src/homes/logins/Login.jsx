@@ -20,6 +20,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 import { GET, POST, PUT, PATCH, DELETE } from "@utils/Network";
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
 import LoginBackground from "@components/Layout/LoginBackground";
@@ -42,19 +43,19 @@ const requestApi = {
     return res.data;
   },
 
-  /**
-   * 2. resetPassword: 임시 비밀번호 발송 API 요청 (PUT /verification)
-   * @param {string} email - 임시 비밀번호를 받을 이메일 주소
-   */
-  resetPassword: async (email) => {
-    try {
-      const res = await PUT("/verification", { email });
-      // 성공 시 문자열 반환 (200 OK)
-      return { status: true, data: res.data };
-    } catch (e) {
-      return { status: false, message: e.response?.data?.message || "이메일 발송에 실패했습니다." };
-    }
-  }
+  // /**
+  //  * 2. resetPassword: 임시 비밀번호 발송 API 요청 (PUT /verification)
+  //  * @param {string} email - 임시 비밀번호를 받을 이메일 주소
+  //  */
+  // resetPassword: async (email) => {
+  //   try {
+  //     const res = await PUT("/verification", { email });
+  //     // 성공 시 문자열 반환 (200 OK)
+  //     return { status: true, data: res.data };
+  //   } catch (e) {
+  //     return { status: false, message: e.response?.data?.message || "이메일 발송에 실패했습니다." };
+  //   }
+  // }
 };
 
 const Login = () => {
@@ -81,6 +82,9 @@ const Login = () => {
   // [변수] isReady: 초기 레이아웃 시프트를 방지하기 위한 렌더링 준비 상태
   const [isReady, setIsReady] = useState(false);
 
+  // Redux 스토어에서 상태값 구독
+  const { isAuthReady, redirectUrl } = useSelector((state) => state.auth);
+
   /**
    * [이펙트] 초기화 로직
    * - 페이지 진입 시 body에 'login' ID 부여 (CSS 스코프용)
@@ -92,6 +96,31 @@ const Login = () => {
     // localStorage.removeItem("companies");
     return () => { cancelAnimationFrame(frame); document.body.removeAttribute("id"); };
   }, []);
+
+  useEffect(() => {
+    // ⚠️ 로딩 중일 때는 아직 서버 결과가 안 나왔으므로 아무것도 하지 않고 대기합니다.
+    if (loading) return;
+
+    // 🟢 [성공] 로딩이 끝났는데 isAuthReady가 true라면? -> 로그인 성공!
+    if (isAuthReady) {
+      showDefaultAlert("로그인 완료", "회원 인증이 완료되었습니다.", "success")
+        .then((result) => {
+          if (result.isConfirmed) {
+            navigate(redirectUrl || "/");
+          }
+        });
+      return; // 성공 시 아래 실패 로직을 타지 않도록 종료
+    }
+
+    // 🔴 [실패] 로딩이 끝났는데도 여전히 isAuthReady가 false라면? -> 로그인 실패!
+    // 단, 최초 진입 시(이메일 입력값이 아예 없을 때) 알럿이 뜨는 것을 막기 위해 조건 추가
+    if (!isAuthReady && (formData.loginEmail || formData.loginPassword)) {
+      showDefaultAlert("로그인 실패", "이메일 또는 비밀번호가 일치하지 않습니다.", "error");
+      setErrors(p => ({ ...p, loginSubmit: "이메일 또는 비밀번호가 일치하지 않습니다." }));
+    }
+
+    // 의존성 배열에 loading과 폼 데이터를 함께 관찰하도록 세팅합니다.
+  }, [isAuthReady, loading, redirectUrl, navigate]);
 
   /**
    * [함수] validate: 입력 필드 유효성 검사 (실시간 및 블러 시 동작)
@@ -123,10 +152,13 @@ const Login = () => {
       setLoading(true);
       // 2. API 요청
       const params = { email: formData.loginEmail, password: formData.loginPassword };
-      login(params);
+      await login(params);
     } catch (err) {
+      // console.error("API 네트워크 통신 에러:", err);
       setErrors(p => ({ ...p, loginSubmit: "이메일 또는 비밀번호가 일치하지 않습니다." }));
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
