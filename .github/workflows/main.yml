@@ -15,12 +15,6 @@ jobs:
         with:
           path: .
       
-      - name: Build Frontend
-        working-directory: ./frontend
-        run: |
-          npm install
-          npm run build
-      
       - name: Create .env file
         shell: powershell
         run: |
@@ -46,6 +40,18 @@ jobs:
           )
           [System.IO.File]::WriteAllLines("$PWD\.env", $rootEnv)
 
+          $frontendEnv = @(
+            "VITE_API_URL=${{ secrets.VITE_API_URL }}"
+          )
+          [System.IO.File]::WriteAllLines("$PWD\frontend\.env", $frontendEnv)
+
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm run build
+      
       - name: Docker Down
         working-directory: .
         run: docker compose down

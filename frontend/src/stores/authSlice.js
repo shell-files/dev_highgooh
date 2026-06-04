@@ -3,12 +3,12 @@ import { GET, POST, PUT, PATCH, DELETE } from "@utils/Network";
 import { encodeJson, safeJsonParse } from "@utils/Base64";
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
-export const getAuthRedirectUrl = type => type ? "/companyselect" : "/serviceselect";
+// export const getAuthRedirectUrl = type => type ? "/companyselect" : "/serviceselect";
 
 const initialState = {
   isAuthReady: false,
   redirectUrl: "/",
-  companies: safeJsonParse(localStorage.getItem("companies"), []),
+  // companies: safeJsonParse(localStorage.getItem("companies"), []),
   loading: false,
   error: null,
 };
@@ -60,12 +60,13 @@ const authSlice = createSlice({
       .addCase(checkUser.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
-          const storedCompanies = safeJsonParse(localStorage.getItem("companies"), []);
-          state.companies = storedCompanies;
+          // const storedCompanies = safeJsonParse(localStorage.getItem("companies"), []);
+          // state.companies = storedCompanies;
           state.isAuthReady = true;
-          state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
+          // state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
+          state.redirectUrl = "/";
         } else {
-          localStorage.removeItem("companies");
+          // localStorage.removeItem("companies");
           state.isAuthReady = false;
           state.redirectUrl = "/";
         }
@@ -75,17 +76,18 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
-          const storedCompanies = res.data.companies;
-          localStorage.setItem("companies", encodeJson(storedCompanies));
-          state.companies = storedCompanies;
+          // const storedCompanies = res.data.companies;
+          // localStorage.setItem("companies", encodeJson(storedCompanies));
+          // state.companies = storedCompanies;
           state.isAuthReady = true;
-          state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
-          showDefaultAlert("로그인 완료", "회원 인증이 완료되었습니다.", "success");
+          // state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
+          state.redirectUrl = "/";
+          // showDefaultAlert("로그인 완료", "회원 인증이 완료되었습니다.", "success");
         } else {
-          localStorage.removeItem("companies");
+          // localStorage.removeItem("companies");
           state.isAuthReady = false;
           state.redirectUrl = "/";
-          showDefaultAlert("로그인 실패", "이메일 또는 비밀번호가 일치하지 않습니다.", "error");
+          // showDefaultAlert("로그인 실패", "이메일 또는 비밀번호가 일치하지 않습니다.", "error");
         }
         state.loading = false;
       });
@@ -93,10 +95,10 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
-          localStorage.removeItem('companies');
+          // localStorage.removeItem('companies');
           state.isAuthReady = false;
           state.redirectUrl = "/";
-          state.companies = [];
+          // state.companies = [];
           state.loading = false;
           showDefaultAlert("로그아웃 완료", "회원 인증이 만료되었습니다.", "success");
         } else {
