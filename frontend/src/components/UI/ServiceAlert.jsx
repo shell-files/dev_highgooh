@@ -36,7 +36,7 @@ export const showServiceIntro = (title, text, iconUrl) => {
   */
 
 export const showDefaultAlert = (title, text, iconType = "success") => {
-  Swal.fire({
+  return Swal.fire({
     title : `<span class="default-swal-title">${title}</span>`,
     html : `<div class="custom-swal-text">${text}</div>`,
     icon : iconType,
