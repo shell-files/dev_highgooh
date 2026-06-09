@@ -1,0 +1,57 @@
+package cloud.weareithero.api.inbound.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import cloud.weareithero.api.inbound.dto.InboundDTO;
+import cloud.weareithero.api.inbound.dto.InboundRequestDTO;
+
+@Mapper
+public interface InboundMapper {
+    
+    @Select("<script>" +
+        """
+        SELECT
+            `i`.`eta` AS eta,
+            `i`.`id` AS asnId,
+            `pcm`.`id` AS partnerId,
+            `pcm`.`name` AS partnerName,
+            `wm`.`id` AS warehouseId,
+            `wm`.`name` AS warehouseName
+        FROM `INBOUND` `i`
+        JOIN `PARTNER_COMPANY_MASTER` `pcm`
+            ON(`i`.`partner_company_id` = `pcm`.`id`)
+        JOIN `WAREHOUSE_MASTER` `wm`
+            ON(`i`.`warehouse_id` = `wm`.`id`)
+        JOIN `COMMON_CODE` `cc`
+            ON(`i`.`state_code` = `cc`.`id`)
+        """ +
+        "<where>" +
+        " AND `cc`.`name` = '입고완료' " +
+        "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
+        " AND `i`.`order_date` BETWEEN STR_TO_DATE(#{orderStart}, '%Y-%m-%d') AND STR_TO_DATE(#{orderEnd}, '%Y-%m-%d') " +
+        "</if>" +
+        "<if test='asnId != null and asnId != 0'>" +
+        " AND `i`.`id` LIKE CONCAT('%', #{asnId}, '%') " +
+        "</if>" +
+        "</where> " +
+        "ORDER BY `i`.`id` DESC LIMIT #{offset}, #{size} " +
+        "</script>")
+  public List<InboundDTO> findAll(InboundRequestDTO inboundRequestDTO);
+
+    @Select("<script>" +
+        "SELECT COUNT(*) FROM `INBOUND` `i` " +
+        "JOIN `COMMON_CODE` `cc` ON `i`.`state_code` = `cc`.`id` " +
+        "WHERE `cc`.`name` = '입고완료' " +
+        "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
+        " AND `i`.`arrival_date` BETWEEN STR_TO_DATE(#{orderStart}, '%Y-%m-%d')" +
+        " AND STR_TO_DATE(CONCAT(#{orderEnd}, ' 23:59:59'), '%Y-%m-%d %H:%i:%s') " +
+        "</if>" +
+        "<if test='asnId != null and asnId != 0'>" +
+        " AND `i`.`id` = #{asnId} " +
+        "</if>" +
+        "</script>")
+    int countAll(InboundRequestDTO inboundRequestDTO);
+}
