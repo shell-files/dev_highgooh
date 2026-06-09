@@ -146,7 +146,7 @@ const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData =
                   </select>
                 </div>
                 <div className="input-box">
-                  <label>입고 예정일시</label>
+                  <label>입고 예정일</label>
                   <input
                     type="date"
                     className="filter-date-input"

@@ -60,7 +60,7 @@ const InboundModal = () => {
                                         <th
                                             style="width: 25%; background-color: #f1f5f9; border: 1px solid var(--border-color); padding: 0.5rem; font-size: 0.85rem; text-align: right;">
                                             입고수량 (kg)</th>
-                                        
+
                                     </tr>
                                 </thead>
                                 <tbody id="detailAsnTableBody">
@@ -81,15 +81,38 @@ const InboundModal = () => {
 };
 
 const Inbound = () => {
+    const orderStartRef = useRef(null);
+    const orderEndRef = useRef(null);
+    const asnRef = useRef(null);
 
+    const [isModal, setModal] = useState(false);
+    const [list, setList] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [size, setSize] = useState(20);
 
     const openInboundDetailModal = (id) => {
-    
     };
+
+    const getData = () => {
+        const params = { page, size };
+        POST("/inbound", params).then(res => {
+            console.log(res);
+            setList(res.data.list);
+            setPage(res.data.pagination.page);
+            setTotalCount(res.data.pagination.totalCount);
+            setTotalPages(res.data.pagination.totalPages);
+        });
+    }
+
+    useEffect(() => {
+        getData()
+    }, [page]);
 
 
     return (
-        <>      
+        <>
             <div className="page-header-flex">
                 <h2 className="page-title">자재 입고이력</h2>
             </div>
@@ -97,17 +120,17 @@ const Inbound = () => {
             <div className="filter-wrapper-card">
                 <form className="search-filter-grid">
                     <div className="filter-group group-date-range">
-                        <label>주문 기간</label>
+                        <label>입고 완료 일자</label>
                         <div className="date-range-container">
-                            <input type="date" id="search_start_date" className="filter-control"/>
+                            <input type="date" id="search_start_date" className="filter-control" />
                             <span className="date-separator">~</span>
-                            <input type="date" id="search_end_date" className="filter-control"/>
+                            <input type="date" id="search_end_date" className="filter-control" />
                         </div>
                     </div>
                     <div className="filter-group">
                         <label>ASN 번호 검색</label>
                         <div className="date-range-container">
-                            <input type="text" id="search_order_number" className="filter-control"/>
+                            <input type="text" id="search_order_number" className="filter-control" />
                         </div>
                     </div>
                     <div></div>
@@ -134,33 +157,23 @@ const Inbound = () => {
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
-                            <tr>
-                                <td className="text-center">2026-05-28</td>
-                                <td className="font-bold text-link" onClick={openInboundDetailModal('ASN-20260602-001')}>
-                                    ASN-20260602-001</td>
-                                <td>알루코 글로비스</td>
-                                <td className="text-center">제 1 자재창고</td>
-                            </tr>
-                            <tr>
-                                <td className="text-center">2026-05-26</td>
-                                <td className="font-bold text-link" onClick={openInboundDetailModal('ASN-20260602-002')}>
-                                    ASN-20260602-002</td>
-                                <td>남선알루미늄</td>
-                                <td className="text-center">제 2 자재창고</td>
-                            </tr>
-                            <tr>
-                                <td className="text-center">2026-05-22</td>
-                                <td className="text-center font-bold text-link">ASN-20260522-002</td>
-                                <td>한결금속</td>
-                                <td className="text-center">제 3 자재창고</td>
-                            </tr>
+                            {
+                                list?.map((v, i) =>
+                                    <tr key={i}>
+                                        <td className="text-center">{v.eta}</td>
+                                        <td className="font-bold text-link" onClick={openInboundDetailModal('1')}>{v.asnId}</td>
+                                        <td>{v.partnerName}</td>
+                                        <td className="text-center">{v.warehouseName}</td>
+                                    </tr>
+                                )
+                            }
                         </tbody>
                     </table>
                 </div>
 
                 <div className="pagination-container">
                     <div className="pagination-info">
-                      전체 <span>3</span>건
+                        전체 <span>3</span>건
                     </div>
 
                     <div className="pagination-buttons">
@@ -180,7 +193,7 @@ const Inbound = () => {
 
             </div>
 
-        
+
         </>
     )
 }
