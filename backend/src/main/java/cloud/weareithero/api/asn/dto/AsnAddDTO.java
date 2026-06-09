@@ -1,4 +1,4 @@
-package cloud.weareithero.api.inbound.dto;
+package cloud.weareithero.api.asn.dto;
 
 import java.util.List;
 
@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Setter @Getter @ToString
+@Setter
+@Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "ASN 등록 DTO")
@@ -24,7 +26,7 @@ public class AsnAddDTO {
 
   @NotBlank(message = "예정 날짜를 입력하세요.")
   private String eta;
-  
+
   private List<AsnOrderMaterialDTO> items;
-  
+
 }

@@ -1,4 +1,4 @@
-package cloud.weareithero.api.inbound.dto;
+package cloud.weareithero.api.asn.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AsnWarehouseDTO {
+public class AsnMaterialDTO {
 
   private int id;
   private String name;
-  private int scale;
-  private String type;
-  
+  private String alloyType;
+
 }

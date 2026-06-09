@@ -1,4 +1,4 @@
-package cloud.weareithero.api.inbound.dto;
+package cloud.weareithero.api.asn.dto;
 
 import cloud.weareithero.dto.PageRequestDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,12 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Setter @Getter @ToString
+@Setter
+@Getter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "입고 요청 데이터")
 public class AsnRequestDTO extends PageRequestDTO {
-  
+
   @Schema(description = "입고 ID", defaultValue = "0", example = "0")
   private int asnId;
   @Schema(description = "입고 시작일", defaultValue = "", example = "")
