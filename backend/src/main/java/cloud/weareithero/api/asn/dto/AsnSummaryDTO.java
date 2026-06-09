@@ -1,4 +1,4 @@
-package cloud.weareithero.api.inbound.dto;
+package cloud.weareithero.api.asn.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AsnSummaryDTO {
-  
+
   private int total;
   private int expected;
   private int completed;
