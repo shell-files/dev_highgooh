@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import cloud.weareithero.api.inbound.dto.InboundDTO;
+import cloud.weareithero.api.inbound.dto.InboundItemDTO;
 import cloud.weareithero.api.inbound.dto.InboundRequestDTO;
 
 @Mapper
@@ -39,7 +40,7 @@ public interface InboundMapper {
         "</where> " +
         "ORDER BY `i`.`id` DESC LIMIT #{offset}, #{size} " +
         "</script>")
-  public List<InboundDTO> findAll(InboundRequestDTO inboundRequestDTO);
+    public List<InboundDTO> findAll(InboundRequestDTO inboundRequestDTO);
 
     @Select("<script>" +
         "SELECT COUNT(*) FROM `INBOUND` `i` " +
@@ -54,4 +55,42 @@ public interface InboundMapper {
         "</if>" +
         "</script>")
     int countAll(InboundRequestDTO inboundRequestDTO);
+
+    @Select("""
+        SELECT
+            om.`id` AS `no`,
+            om.inbound_id as `inboundId`,
+            om.`material_id` AS `itemNo`,
+            mm.`name` AS `itemName`,
+            mm.`alloy_type` AS `alloyType`,
+            om.weight_kg AS `weight`
+        FROM `highgooh`.`ORDER_MATERIAL` AS om
+        INNER JOIN `highgooh`.`MATERIAL_MASTER` AS mm
+        ON (om.`material_id` = mm.`id`)
+        WHERE om.`inbound_id` = #{asnId}
+            """)
+    public List<InboundItemDTO> findOne(int asnId);
+
+    @Select("""
+        SELECT
+            `i`.`eta` AS eta,
+            `i`.`id` AS asnId,
+            `pcm`.`id` AS partnerId,
+            `pcm`.`name` AS partnerName,
+            `wm`.`id` AS warehouseId,
+            `wm`.`name` AS warehouseName
+        FROM `INBOUND` `i`
+        JOIN `PARTNER_COMPANY_MASTER` `pcm`
+            ON(`i`.`partner_company_id` = `pcm`.`id`)
+        JOIN `WAREHOUSE_MASTER` `wm`
+            ON(`i`.`warehouse_id` = `wm`.`id`)
+        JOIN `COMMON_CODE` `cc`
+            ON(`i`.`state_code` = `cc`.`id`)
+        WHERE `i`.`id` = #{asnId}
+        """)
+    public InboundDTO findbyAsnId(int asnId);
+
+
+
+
 }

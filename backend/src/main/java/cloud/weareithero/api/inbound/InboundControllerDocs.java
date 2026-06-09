@@ -26,4 +26,11 @@ public interface InboundControllerDocs {
         }
         )) InboundRequestDTO inboundRequestDTO
     );
+
+    @Operation(summary = "입고 상세 조회", description = "입고 이력 API")
+    @ApiCommonSuccess
+    @ApiCommonErrors
+    public ResponseDTO findOne(Integer inboundId);
+
+
 }
