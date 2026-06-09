@@ -1,0 +1,586 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   High-go 시스템 연동형 공정 파이프라인 대시보드 CSS 스타일 (좌우 정렬 가다듬기)
+   ========================================================================== */
+
+:root {
+    --pipe-green: #03a94d;
+    --pipe-orange: #f59e0b;
+    --pipe-red-bg: #fff5f5;
+    --pipe-red-border: #fee2e2;
+    --pipe-red-text: #dc2626;
+    --pipe-critical: #e11d48;
+    --pipe-text-dark: #1e293b;
+    --pipe-text-muted: #64748b;
+    --pipe-border: #e2e8f0;
+}
+
+/* 대시보드 컴포넌트 전체 컨테이너 */
+.pipeline-section-wrapper {
+    width: 100%;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+}
+
+/* 상단 헤더 정렬 */
+.pipeline-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.pipeline-header-flex h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--pipe-text-dark);
+}
+
+/* 파이프라인 가로 배치 플렉스 레이아웃 */
+.pipeline-flex-container {
+    display: flex;
+    align-items: center; /* 카드들을 세로 중앙 정렬 */
+    gap: 12px;           /* 카드와 화살표 사이의 적정 간격 */
+    width: 100%;
+    padding: 12px 4px;   /* 카드 호버 시 그림자가 잘리지 않도록 상하 여백 확보 */
+    
+    /* 화면이 좁아지면 가로 스크롤을 생성하고, 절대 아래로 떨어지거나 깨지지 않게 설정 */
+    overflow-x: auto;    
+    overflow-y: hidden;  /* 세로 스크롤은 절대 발생하지 않도록 차단 */
+    box-sizing: border-box;
+}
+
+.pipeline-flex-container::-webkit-scrollbar {
+    height: 6px;
+}
+.pipeline-flex-container::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 4px;
+}
+.pipeline-flex-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+/* 개별 스텝 카드 디자인 (패딩 살짝 추가 및 최소 너비 확보) */
+.pipeline-step-card {
+    flex: 0 0 290px;     /* 너비를 딱 290px로 고정하여 절대 변형되지 않게 설정 */
+    
+    background-color: #ffffff;
+    border: 1px solid var(--pipe-border);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+    min-height: 200px;
+    
+}
+
+.pipeline-step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* STEP 2 Critical 전용 배경 */
+.pipeline-step-card.critical {
+    background-color: var(--pipe-red-bg);
+    border-color: var(--pipe-red-border);
+}
+.pipeline-step-card.critical:hover {
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.12);
+}
+
+/* 카드 헤더 영역 */
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+    font-size: 12px;       /* 8개 정렬을 위해 폰트 크기 살짝 최적화 */
+    white-space: nowrap;
+}
+
+.step-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: #f1f5f9;
+    color: var(--pipe-text-muted);
+}
+
+.pipeline-step-card.critical .step-badge {
+    background-color: #ffe4e6;
+    color: var(--pipe-red-text);
+}
+
+.step-title {
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 혹시 화면이 엄청 작아지면 글자가 깨지지 않고 ... 처리 */
+    white-space: nowrap;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot.green { background-color: var(--pipe-green); }
+.dot.red { background-color: var(--pipe-critical); }
+
+/* 핵심 수정: 데이터 좌우 밀착 정렬 (Key-Value 스위칭) */
+.step-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.step-info-row .label { 
+    color: var(--pipe-text-muted); 
+}
+
+.step-info-row .value { 
+    font-weight: 600; 
+    color: var(--pipe-text-dark);
+    text-align: right;
+}
+
+.step-info-row .value.highlight { 
+    color: var(--pipe-red-text); 
+}
+
+.arrow-icon {
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: bold;
+    flex: 0 0 auto;       /* 화살표 너비는 줄어들지 않도록 완벽 고정 */
+    width: 12px;
+    text-align: center;
+    user-select: none;
+}
+
+.detail-link {
+    text-align: right;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 16px;
+    padding: 20px 16px 0 16px;
+}
+
+/* 크리티컬 안내 배너 */
+.critical-banner {
+    font-size: 9px;
+    padding: 4px;
+    margin-top: 6px;
+    border-radius: 4px;
+    word-break: keep-all;
+}
+
+/* 하단 상세 내역 상자 */
+.pipeline-detail-box {
+    background-color: #ffffff;
+    border: 1px solid var(--pipe-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+    width: 100%;
+}
+
+.detail-header {
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.detail-header.text-critical { background-color: var(--pipe-red-bg); color: var(--pipe-red-text); border-bottom: 1px solid var(--pipe-red-border); }
+.detail-header.text-success { background-color: #f0fdf4; color: var(--pipe-green); border-bottom: 1px solid #bbf7d0; }
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.detail-content { padding: 20px; }
+
+/* 테이블 스타일 */
+.status-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.status-table th {
+    color: var(--pipe-text-dark);
+    font-weight: 700;
+    padding: 12px;
+    border-bottom: 2px solid var(--pipe-border);
+}
+
+.status-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--pipe-border);
+}
+
+.row-critical { background-color: var(--pipe-red-bg); }
+.row-warning { background-color: #fffbeb; }
+
+.status-text.critical { color: var(--pipe-red-text); font-weight: 700; }
+.status-text.warning { color: var(--pipe-orange); font-weight: 700; }
+.status-text.normal { color: var(--pipe-green); font-weight: 700; }
+
+/* ==========================================================================
+   대시보드 콘텐츠 영역 제목 스타일
+   ========================================================================== */
+
+.period-section-title {
+    font-size: 20px;
+    margin-top: 60px;
+    margin-bottom: 20px; /* 아래쪽 연도/분기 필터 바와의 간격 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==========================================================================
+   대시보드 콘텐츠 영역 레이아웃 (Dashboard Content Area)
+   ========================================================================== */
+
+.dashboard-filter-bar {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.toggle-group-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.toggle-group-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border-bottom: 1px dashed #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+.toggle-group-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.toggle-group-item .select_label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    min-width: 90px;
+    cursor: pointer;
+}
+
+.toggle-group-item .select_label span:hover {
+    color: var(--primary-green);
+}
+
+.toggle-content {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-filter-tab {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    /* padding: 0.4rem 1rem; */
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-filter-tab:hover {
+    background-color: #edf2f7;
+    color: var(--text-dark);
+}
+
+.btn-filter-tab.active {
+    background-color: var(--primary-green);
+    color: #ffffff;
+    border-color: var(--primary-green);
+}
+
+/* ==========================================================================
+   차트 카드 레이아웃 및 높이 제어
+   ========================================================================== */
+
+.dashboard-chart-grid {
+    display: block; /* WeasyPrint 및 레이아웃 안정성을 위해 display:block 처리 */
+    margin-bottom: 1.25rem;
+}
+
+.dashboard-chart-grid.full-width-grid {
+    width: 100%;
+}
+
+.chart-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+}
+
+.chart-title {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+}
+
+/* 차트별 높이 명시적 제어 */
+.chart-container.chart-height-trend {
+    height: 300px;
+}
+
+.chart-container.chart-height-machine {
+    height: 340px;
+}
+
+/* ==========================================================================
+   데이터 테이블 영역 및 텍스트 서식
+   ========================================================================== */
+
+.dashboard-table-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+}
+
+.table-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.table-title {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+.btn-excel-download {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e0;
+    color: #4a5568;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-excel-download:hover {
+    background-color: #f7fafc;
+    border-color: #a0aec0;
+}
+
+.dashboard-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.dashboard-data-table th,
+.dashboard-data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-data-table th {
+    background-color: #f8fafc;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.dashboard-data-table tbody tr:hover {
+    background-color: #fcfdfd;
+}
+
+.table-summary-row {
+    background-color: #f8fafc;
+    font-weight: 700;
+}
+
+.table-summary-row td {
+    border-top: 2px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.total-amount {
+    color: var(--accent-red);
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.anomaly-value-hint {
+    color: #999999;
+    font-weight: normal;
+}
+
+/* 위험 등급 색상 배지 */
+.status-badge-critical {
+    color: var(--accent-red);
+    font-weight: 600;
+}
+
+.status-badge-warning {
+    color: var(--accent-orange);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   조치 상태 컨트롤 버튼 (인터랙션용)
+   ========================================================================== */
+
+.btn-status-badge {
+    border: none;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    outline: none;
+}
+
+.btn-status-badge.unprocessed {
+    background-color: var(--accent-red);
+    color: #ffffff;
+}
+
+.btn-status-badge.processed {
+    background-color: #edf2f7;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   이상치 관리 미니 모달 팝업 레이아웃
+   ========================================================================== */
+
+.anomaly-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.anomaly-modal.active {
+    display: flex;
+}
+
+.anomaly-modal-content {
+    background-color: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    width: 320px;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+}
+
+.anomaly-modal-header {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.anomaly-modal-body {
+    margin-bottom: 1.25rem;
+}
+
+.anomaly-select-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    outline: none;
+}
+
+.anomaly-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.btn-modal-action {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #cbd5e0;
+    background-color: #ffffff;
+    color: #4a5568;
+}
+
+.btn-modal-action.save {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: #ffffff;
+}
+
+.btn-modal-action:hover {
+    opacity: 0.9;
+}
+
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;         
+}
+
+.pagination-buttons {
+    display: flex;       
+    align-items: center;
+    gap: 5px;            
+}
