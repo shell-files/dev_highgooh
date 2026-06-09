@@ -1,0 +1,826 @@
+/* ==========================================================================
+   1. 전역 스타일 및 변수 정의 (Global & Reset)
+   ========================================================================== */
+
+:root {
+    --primary-green: #03a94d;
+    --primary-hover: #008f40;
+    --bg-color: #f4f7f6;
+    --card-bg: #ffffff;
+    --text-dark: #333;
+    --text-muted: #666;
+    --border-color: #e2e8f0;
+    --accent-red: #e53e3e;
+    --accent-orange: #dd6b20;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Noto Sans KR';
+    padding: 0;
+    margin: 0;
+}
+
+ul,ol.li {
+    list-style: none;
+}
+
+td,th {
+    text-align: center !important;
+}
+
+a {
+    text-decoration: none;
+}
+
+#root {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+
+/* ==========================================================================
+   2. 상단 헤더 레이아웃 (Header Area)
+   ========================================================================== */
+
+header.home_header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3rem 0 0;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+header.home_header .header_right_area{
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: calc(100% - 230px);
+    justify-content: flex-end;
+    padding-left: 2rem
+}
+
+.logo-area {
+    width: 230px;
+    border-right: 1px solid var(--border-color);
+    height: 100%;
+    align-content: center;
+}   
+
+.logo-section {
+    background: url(/img/logo.png) no-repeat center center / contain;
+    width: 147px;
+    height: 40px;
+    margin: auto;
+}
+
+
+/* ==========================================================================
+   3. 헤더 내비게이션 및 상단 셀렉트 박스 (Navigation & Header Select)
+   ========================================================================== */
+
+nav {
+    display: flex;
+    gap: 3rem;
+    height: 100%;
+    align-items: center;
+    width: fit-content;
+}
+
+nav button {
+    background: none;
+    border: none;
+    color: var(--text-dark);
+    padding: 0 1.5rem;
+    height: 100%;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 600;
+    position: relative;
+    transition: color 0.2s;
+}
+
+nav form {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+}
+
+nav select {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    height: 100%;
+    cursor: pointer;
+    color: #333;
+    font-size: 1rem;
+    transition: color 0.2s;
+    width: 200px;
+    text-align: center;
+    font-size: 14px
+}
+
+nav button:hover {
+    color: var(--primary-green);
+}
+
+nav button.active {
+    color: var(--primary-green);
+}
+
+nav button.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--primary-green);
+}
+
+
+/* ==========================================================================
+   4. 헤더 우측 사용자 프로필 섹션 (User Section)
+   ========================================================================== */
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.user-section strong {
+    color: var(--text-dark);
+}
+
+.logout-btn {
+    color: var(--primary-green);
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.bell_icon {
+    width: 24px;
+    height: 24px;
+    background: url(../img/notification-bell_black.png) no-repeat center center / contain;
+    border: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.bell_icon:hover {
+    background: url(../img/notification-bell_green.png) no-repeat center center / contain;
+}
+
+.bell_icon.active::after {
+    content: '';
+    position: absolute;
+    top: 0%;
+    left: 60%;
+    width: 10px;
+    height: 10px;
+    background-color: #ff0000;
+    border-radius: 50%;
+}
+
+.home_icon {
+    width: 20px;
+    height: 20px;
+    background: url(../img/home_button_black.png) no-repeat center center / contain;
+    border: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.home_icon:hover {
+    background: url(../img/home_button_green.png) no-repeat center center / contain;
+}
+
+.btw_bar {
+    width: 1px;
+    height: 20px;
+    background-color: #d1d1d1;
+}
+
+
+/* ==========================================================================
+   5. 메인 레이아웃 및 좌측 고정 사이드바 (Main Wrapper & Sidebar)
+   ========================================================================== */
+
+.main-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 230px;
+    background-color: #34BA70;
+    color: white;
+    /* display: flex;
+    flex-direction: column; */
+    /* justify-content: space-between; */
+    padding: 0 1.5rem 1.2rem;
+    gap: 2rem;
+    overflow-y: auto;
+    position: relative;
+}
+
+.sidebar .factory_icon:before {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url(../img/factory_icon.png) no-repeat center center / contain;
+    margin-right: 8px;
+    position: relative;
+    top: 4px;
+}
+
+.sidebar .released_icon:before {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url(../img/released_icon.png) no-repeat center center / contain;
+    margin-right: 8px;
+    position: relative;
+    top: 10px;
+}
+
+.sidebar .carbon_icon:before {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url(../img/carbon_icon.png) no-repeat center center / contain;
+    margin-right: 8px;
+    position: relative;
+    top: 9px;
+}
+
+.sidebar ul {
+    border-bottom: 1px solid rgb(100, 214, 151);
+    padding: 1rem 0.5rem;
+}
+
+.sidebar ul:last-child {
+    border-bottom: none;
+}
+
+.sidebar ul h4 {
+    padding: 0.5rem 0 1rem;
+}
+
+.sidebar ul li:hover {
+    background-color: rgb(100, 214, 151);
+    border-radius: 4px;
+}
+
+.sidebar ul li a{
+    background: none;
+    border: none;
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    text-align: left;
+    height: 50px;
+    width: 100%;
+    color: white;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: inline-block;
+    align-content: center;
+}
+
+
+/* ==========================================================================
+   6. 사이드바 내부 검색 필터 및 카드 컴포넌트 (Sidebar Filters & Cards)
+   ========================================================================== */
+
+.sidebar-title {
+    font-size: 1rem !important;
+    font-weight: bold !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff !important;
+    margin-bottom: 10px !important;
+}
+
+.sidebar-card {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.sidebar-card select,
+.sidebar-card input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background-color: white;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+
+.sidebar-card label {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.radio-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    padding-left: 0.5rem;
+}
+
+.date-range-box {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.sidebar-search-btn {
+    background-color: #ffffff;
+    color: var(--primary-green);
+    border: none;
+    padding: 0.6rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.sidebar-search-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.company-select {
+    width: 100%;
+}
+
+.select-group input[type="radio"] {
+    width: 16px;
+    margin: 0;
+}
+
+.select_label {
+    cursor: pointer;
+}
+
+.select_label:hover span {
+    border-bottom: 3px solid white;
+}
+
+.select_label::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: white;
+    margin-right: 8px;
+    position: relative;
+    top: -3px;
+}
+
+.search_comment {
+    font-size: 10px;
+    color: #f5f5f5;
+    margin-top: 0.5rem;
+    text-align: justify;
+}
+
+.select-group div {
+    width: fit-content;
+    margin: 20px auto;
+}
+
+.select-group2 div {
+    width: fit-content;
+    margin: 10px auto;
+}
+
+.select-group2 input[type="text"] {
+    width: 50px;
+    padding: 0.3rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background-color: white;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+
+.select-btn {
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+
+/* ==========================================================================
+   7. 우측 본문 기본 영역 메인 쉘 (Content Area Base)
+   ========================================================================== */
+
+.content-area {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: #FAFDFB;
+}
+
+/* ==========================================================================
+   10. ASN 상단 조회 필터 컴포넌트 (Search Filter Component)
+   ========================================================================== */
+
+.search-filter-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    margin-bottom: 1rem;
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    min-width: 60px;
+}
+
+/* 퀵 날짜 버튼 그룹 */
+.date-quick-group {
+    display: flex;
+    gap: 2px;
+    background-color: #f1f5f9;
+    padding: 3px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.btn-quick-date {
+    background: transparent;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s ease;
+}
+
+.btn-quick-date:hover {
+    color: var(--text-dark);
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 활성화되었을 때 흰색 보드 형태로 토글 */
+.btn-quick-date.active {
+    background-color: #ffffff;
+    color: var(--primary-green);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* 달력 기간 입력 창 */
+.date-picker-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 400px;
+    width: 100%;
+}
+
+.filter-date-input {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    outline: none;
+    color: var(--text-dark);
+    background-color: #ffffff;
+    width: 50%;
+}
+
+.filter-date-input:focus {
+    border-color: var(--primary-green);
+}
+
+.date-separator {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* 필터 검색 버튼 */
+.btn-filter-search {
+    background-color: #4a5568;
+    color: #ffffff;
+    border: none;
+    padding: 0.45rem 1.2rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: background-color 0.2s;
+    height: 40px;
+}
+
+.btn-filter-search:hover {
+    background-color: var(--primary-hover);
+}
+
+/* 돋보기 아이콘 대용 가상 요소 스타일 */
+.search-icon::before {
+    content: "🔍";
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .btn-filter-search {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+
+/* ==========================================================================
+   11. 데이터 목록 페이지네이션 컴포넌트 (Pagination Component UI)
+   ========================================================================== */
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    position: relative;
+    height: 50px;
+}
+
+/* 좌측 건수 표시 데이터 */
+.pagination-info {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.pagination-info span {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* 중앙 페이지네이션 버튼 제어 구조 */
+.pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%)
+}
+
+.btn-page, .btn-page-num {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.btn-page:hover:not(:disabled), .btn-page-num:hover:not(.active) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e0;
+}
+
+/* 선택된 페이지 번호 강조 스타일 */
+.btn-page-num.active {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* 비활성화된 이전/다음/처음/끝 화살표 버튼 제어 */
+.btn-page:disabled {
+    background-color: #f8fafc;
+    color: #cbd5e0;
+    border-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+/* 우측 목록 개수 선택 박스 */
+.pagination-size-selector select {
+    width: 50px;
+}
+
+.pagination-size-selector select:focus {
+    border-color: var(--primary-green);
+}
+
+.page-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        justify-content: center;
+    }
+    .pagination-size-selector {
+        width: 100%;
+        text-align: center;
+    }
+    .pagination-size-selector select {
+        width: 100%;
+    }
+}
+
+.content-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    overflow-x: auto;
+    
+}
+
+.btn-main-action {
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-main-action:hover {
+    background-color: var(--primary-hover);
+}
+
+.filter-btn-group {
+    display: flex;
+    gap: 0.5rem;
+    height: 38px;
+}
+
+.inhistory-btn-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+    width: fit-content;
+    margin-bottom: 1rem;
+}
+
+
+.btn-filter-reset {
+    background-color: #edf2f7;
+    color: #4a5568;
+    border: none;
+    padding: 0 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 40px;
+}
+
+.btn-filter-reset:hover {
+    background-color: #e2e5e9;
+    color: #2d3748;
+}
+
+.btn-filter-search {
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-filter-search.refresh {
+    margin-bottom: 1rem;
+}
+
+
+.filter-wrapper-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 1.5rem;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.filter-control {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    background-color: #ffffff;
+    height: 38px;
+    outline: none;
+}
+
+.filter-control:focus {
+    border-color: var(--primary-green);
+}
+
+.date-range-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.btn-filter-tab {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.83rem;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 80px;
+}

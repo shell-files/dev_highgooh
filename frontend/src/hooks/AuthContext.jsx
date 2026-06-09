@@ -27,6 +27,9 @@ export const AuthProvider = ({ children }) => {
   // [변수] isLoading: 로딩 상태 여부
 	const isLoading = useSelector((state) => state.auth.loading);
 
+  const name = useSelector((state) => state.auth.name);
+  const role = useSelector((state) => state.auth.role);
+
 	/**
    * [이펙트] 앱 진입 시 localStorage에서 이전 세션 복원
    */
@@ -50,6 +53,7 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     isAuthReady,
     companies,
+    name, role
   };
 
 	return (

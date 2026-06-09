@@ -8,6 +8,8 @@ import { showDefaultAlert } from "@components/UI/ServiceAlert";
 const initialState = {
   isAuthReady: false,
   redirectUrl: "/",
+  name: "",
+  role: [],
   // companies: safeJsonParse(localStorage.getItem("companies"), []),
   loading: false,
   error: null,
@@ -54,17 +56,19 @@ const authSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-
-
     builder
       .addCase(checkUser.fulfilled, (state, action) => {
         const res = action.payload;
+        console.log(res);
         if (res.status === true) {
+          state.name = res.data?.name;
+          const roles = res.data?.role.split(/\s*,\s*/);
+          state.role = roles;
           // const storedCompanies = safeJsonParse(localStorage.getItem("companies"), []);
           // state.companies = storedCompanies;
           state.isAuthReady = true;
           // state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
-          state.redirectUrl = "/";
+          state.redirectUrl = "/home";
         } else {
           // localStorage.removeItem("companies");
           state.isAuthReady = false;
@@ -81,7 +85,7 @@ const authSlice = createSlice({
           // state.companies = storedCompanies;
           state.isAuthReady = true;
           // state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
-          state.redirectUrl = "/";
+          state.redirectUrl = "/home";
           // showDefaultAlert("로그인 완료", "회원 인증이 완료되었습니다.", "success");
         } else {
           // localStorage.removeItem("companies");

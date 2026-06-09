@@ -1,5 +1,4 @@
-import '@styles/error.css'
-
+import '@styles/error.css';
 
 const NotFound = () => {
 

@@ -13,8 +13,7 @@ import com.nimbusds.jose.crypto.RSAEncrypter;
 import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 
-import cloud.weareithero.dto.UserRoleDto;
-import jakarta.servlet.http.HttpSession;
+import cloud.weareithero.api.auth.dto.UserRoleDto;
 import lombok.RequiredArgsConstructor;
 
 @Service

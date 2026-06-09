@@ -4,7 +4,7 @@ import { showServiceIntro } from '@components/UI/ServiceAlert.jsx'
 import { useAuth } from '@hooks/AuthContext.jsx';
 // import { getAuthRedirectUrl } from '@stores/authSlice';
 
-import '@styles/Gate.css'
+import '@styles/Gate.css';
 
 // ―――――――――― [ Images import ] ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
 import logo from '@assets/images/logos/Logo.png'
@@ -69,7 +69,7 @@ const Gate = () => {
 			<div className="container">
 				{/* ―――――――――― [ header ] ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */}
 				<header className="header">
-					<img src={logo} alt="We are IT Hero Logo" className="logo" />
+					<img src={logo} alt="We are IT Hero Logo" style={{cursor: 'pointer'}} className="logo" onClick={()=>navigate(redirectUrl)} />
 				</header>
 				<div className='content_whole_wrap'>
 					<main className="content-wrapper">
