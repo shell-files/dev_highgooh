@@ -1,7 +1,7 @@
 package cloud.weareithero.api.order;
 
-import cloud.weareithero.api.order.dto.OrderRequestDTO;
 import cloud.weareithero.api.order.dto.OrderAddDTO;
+import cloud.weareithero.api.order.dto.OrderRequestDTO;
 import cloud.weareithero.docs.ApiCommonErrors;
 import cloud.weareithero.docs.ApiCommonSuccess;
 import cloud.weareithero.dto.ResponseDTO;
@@ -59,6 +59,6 @@ public interface OrderControllerDocs {
   @Operation(summary = "사전출고 통지(Outbound) 정보 조회", description = "Order API")
   @ApiCommonSuccess
   @ApiCommonErrors
-  public ResponseDTO findAllOutbound();
+  public ResponseDTO findAllOrders();
 
 }
