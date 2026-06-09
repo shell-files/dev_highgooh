@@ -14,6 +14,7 @@
     "axios": "^1.16.1",
     "chart.js": "^4.5.1",
     "react": "^19.2.6",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.6",
     "react-redux": "^9.3.0",
     "react-router": "^7.15.1",

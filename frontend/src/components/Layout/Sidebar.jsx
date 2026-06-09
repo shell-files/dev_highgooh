@@ -18,7 +18,7 @@ const Sidebar = () => {
       </ul>
       <ul>
           <h4 className="carbon_icon">탄소배출량</h4>
-          <li><a href="./pcf.html">대시보드</a></li>
+          <li><a onClick={() => navigate("/home/carbonemission")}>대시보드</a></li>
           <li><a onClick={() => navigate("/home/anomaly")}>이상치탐지</a></li>
       </ul>
     </div>
