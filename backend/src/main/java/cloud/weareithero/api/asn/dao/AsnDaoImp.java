@@ -1,16 +1,16 @@
-package cloud.weareithero.api.inbound.dao;
+package cloud.weareithero.api.asn.dao;
 
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import cloud.weareithero.api.inbound.dto.AsnDTO;
-import cloud.weareithero.api.inbound.dto.AsnMaterialDTO;
-import cloud.weareithero.api.inbound.dto.AsnOrderMaterialDTO;
-import cloud.weareithero.api.inbound.dto.AsnRequestDTO;
-import cloud.weareithero.api.inbound.dto.AsnSummaryDTO;
-import cloud.weareithero.api.inbound.dto.AsnSupplierDTO;
-import cloud.weareithero.api.inbound.dto.AsnWarehouseDTO;
+import cloud.weareithero.api.asn.dto.AsnDTO;
+import cloud.weareithero.api.asn.dto.AsnMaterialDTO;
+import cloud.weareithero.api.asn.dto.AsnOrderMaterialDTO;
+import cloud.weareithero.api.asn.dto.AsnRequestDTO;
+import cloud.weareithero.api.asn.dto.AsnSummaryDTO;
+import cloud.weareithero.api.asn.dto.AsnSupplierDTO;
+import cloud.weareithero.api.asn.dto.AsnWarehouseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,5 +66,5 @@ public class AsnDaoImp implements AsnDao {
   public List<AsnMaterialDTO> findByMaterial() {
     return asnMapper.findByMaterial();
   }
-  
+
 }
