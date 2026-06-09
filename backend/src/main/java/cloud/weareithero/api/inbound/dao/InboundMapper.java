@@ -15,7 +15,7 @@ public interface InboundMapper {
     @Select("<script>" +
         """
         SELECT
-            `i`.`eta` AS eta,
+            `i`.`ata` AS ata,
             `i`.`id` AS asnId,
             `pcm`.`id` AS partnerId,
             `pcm`.`name` AS partnerName,
@@ -73,7 +73,7 @@ public interface InboundMapper {
 
     @Select("""
         SELECT
-            `i`.`eta` AS eta,
+            `i`.`ata` AS ata,
             `i`.`id` AS asnId,
             `pcm`.`id` AS partnerId,
             `pcm`.`name` AS partnerName,
