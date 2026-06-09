@@ -1,4 +1,4 @@
-package cloud.weareithero.api.inbound.dto;
+package cloud.weareithero.api.asn.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Schema(description = "ASN 상세 정보 DTO")
 public class AsnOrderMaterialDTO {
-  
+
   private int no;
   private int inboundId;
   private int itemNo;

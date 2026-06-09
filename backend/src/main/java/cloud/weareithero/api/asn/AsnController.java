@@ -1,4 +1,4 @@
-package cloud.weareithero.api.inbound;
+package cloud.weareithero.api.asn;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloud.weareithero.api.inbound.dto.AsnAddDTO;
-import cloud.weareithero.api.inbound.dto.AsnRequestDTO;
-import cloud.weareithero.api.inbound.service.AsnService;
+import cloud.weareithero.api.asn.dto.AsnAddDTO;
+import cloud.weareithero.api.asn.dto.AsnRequestDTO;
+import cloud.weareithero.api.asn.service.AsnService;
 import cloud.weareithero.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class AsnController implements AsnControllerDocs {
 
   private final AsnService asnService;
-  
+
   @PostMapping
   @Override
   public ResponseDTO findAll(@RequestBody AsnRequestDTO asnRequestDTO) {
