@@ -1,0 +1,271 @@
+import { useState, useEffect } from 'react';
+import { GET, POST, PUT } from "@utils/Network";
+import '@styles/asn.css';
+ 
+/**
+ * AsnModal
+ * @param {boolean}  isModal   - 모달 표시 여부
+ * @param {Function} setModal  - 모달 상태 setter
+ * @param {Function} getData   - 목록 갱신 콜백 (등록 후 호출)
+ * @param {'register'|'detail'} mode - 'register': 신규 등록, 'detail': 상세 조회
+ * @param {object|null} initialData  - mode='detail'일 때 서버에서 받아온 ASN 데이터
+ */
+const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData = null }) => {
+  const isDetail = mode === 'detail';
+ 
+  const [partnerCompany, setPartnerCompany] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
+  const [materials, setMaterials] = useState([]);
+ 
+  const [asn, setAsn] = useState({
+    partnerCompany: 0,
+    eta: '',
+    warehouse: 0,
+    vehicleNumber: ''
+  });
+  const [asnMaterials, setAsnMaterials] = useState([]);
+ 
+  /* ── 공통 드롭다운 데이터 로드 ── */
+  useEffect(() => {
+    GET("/asn").then(res => {
+      if (res.status === true) {
+        setPartnerCompany(res.data.suppliers);
+        setWarehouses(res.data.warehouses);
+        setMaterials(res.data.materials);
+      }
+    });
+  }, []);
+ 
+  /* ── 상세 모드: initialData 로 폼 채우기 ── */
+  useEffect(() => {
+    if (isDetail && initialData) {
+      const { asn, items } = initialData; // { asn: {...}, items: [...] }
+      setAsn({
+        partnerCompany: asn.partnerId     ?? 0,
+        eta:            asn.eta           ?? '',
+        warehouse:      asn.warehouseId   ?? 0,
+        vehicleNumber:  asn.vehicleNumber ?? ''
+      });
+      setAsnMaterials(
+        (items ?? []).map(item => ({
+          itemNo:   item.itemNo   ?? 0,
+          weight:   item.weight   ?? 0,
+          diameter: item.diameter ?? 0
+        }))
+      );
+    }
+  }, [isDetail, initialData]);
+ 
+  /* ── 이벤트 핸들러 ── */
+  const onChangeEvent = (e) => {
+    if (isDetail) return; // 상세 모드는 읽기 전용
+    const { name, value } = e.target;
+    setAsn(prev => ({ ...prev, [name]: value }));
+  };
+ 
+  const onChangeTableEvent = (e, index) => {
+    if (isDetail) return;
+    const { name, value } = e.target;
+    setAsnMaterials(prev =>
+      prev.map((item, i) => i === index ? { ...item, [name]: Number(value) } : item)
+    );
+  };
+ 
+  const onDeleteRow = (index) => {
+    if (isDetail) return;
+    setAsnMaterials(prev => prev.filter((_, i) => i !== index));
+  };
+ 
+  const addAsnMaterial = () => {
+    setAsnMaterials(prev => [...prev, { itemNo: 0, weight: 0, diameter: 0 }]);
+  };
+ 
+  /* ── 등록 제출 ── */
+  const addAsn = () => {
+    if (asn.partnerCompany === 0)  { alert("공급사명 선택하세요.");       return; }
+    if (asn.eta === '')            { alert("입고 예정 날짜를 선택하세요."); return; }
+    if (asn.warehouse === 0)       { alert("입고 창고를 선택하세요.");      return; }
+ 
+    for (const material of asnMaterials) {
+      if (material.itemNo   === 0) { alert("품목 등록이 되어 있지 않습니다.");    return; }
+      if (material.weight   === 0) { alert("품목 무게가 등록되어 있지 않습니다."); return; }
+      if (material.diameter === 0) { alert("지름이 등록되어 있지 않습니다.");      return; }
+    }
+ 
+    const params = {
+      partnerCompanyId: asn.partnerCompany,
+      warehouseId:      asn.warehouse,
+      eta:              asn.eta,
+      items:            asnMaterials
+    };
+ 
+    PUT("/asn", params).then(res => {
+      if (res.status === true) {
+        alert("사전입고 통지(ASN)가 등록되었습니다.");
+        setModal(false);
+        getData?.();
+      } else {
+        alert(res.message);
+      }
+    });
+  };
+ 
+  /* ── 렌더링 ── */
+  return (
+    <>
+      <div
+        className={isModal ? 'modal-overlay active' : 'modal-overlay'}
+        onClick={() => setModal(false)}
+      />
+      <div className={isModal ? 'modal-overlay2 active' : 'modal-overlay'}>
+        <div className="modal-window">
+ 
+          {/* 헤더 */}
+          <div className="modal-header">
+            <h3>{isDetail ? '사전입고 통지(ASN) 상세' : '사전입고 통지(ASN) 등록'}</h3>
+            <button className="modal-close-btn" onClick={() => setModal(false)}>&times;</button>
+          </div>
+ 
+          {/* 바디 */}
+          <div className="modal-body">
+            <div className="popup-section">
+              <h4 className="sub-title">기본 정보</h4>
+              <div className="form-grid-4">
+                <div className="input-box">
+                  <label>공급사명</label>
+                  <select
+                    name="partnerCompany"
+                    value={asn.partnerCompany}
+                    onChange={onChangeEvent}
+                    disabled={isDetail}
+                  >
+                    <option value={0}>선택</option>
+                    {partnerCompany?.map((v, i) =>
+                      <option key={i} value={v.id}>{v.name}</option>
+                    )}
+                  </select>
+                </div>
+                <div className="input-box">
+                  <label>입고 예정일시</label>
+                  <input
+                    type="date"
+                    className="filter-date-input"
+                    name="eta"
+                    value={asn.eta}
+                    onChange={onChangeEvent}
+                    readOnly={isDetail}
+                  />
+                </div>
+              </div>
+              <div className="input-box">
+                <label>입고 창고</label>
+                <select
+                  name="warehouse"
+                  value={asn.warehouse}
+                  onChange={onChangeEvent}
+                  disabled={isDetail}
+                >
+                  <option value={0}>선택하세요</option>
+                  {warehouses?.map((v, i) =>
+                    <option key={i} value={v.id}>{v.name}</option>
+                  )}
+                </select>
+              </div>
+            </div>
+ 
+            <div className="popup-section" style={{ marginTop: '1.5rem' }}>
+              <div className="section-header-flex">
+                <h4 className="sub-title">품목 정보</h4>
+                {!isDetail && (
+                  <button type="button" className="btn-secondary-sm" onClick={addAsnMaterial}>
+                    + 품목 추가
+                  </button>
+                )}
+              </div>
+              <div className="table-responsive" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                <table className="popup-grid-table">
+                  <thead>
+                    <tr>
+                      <th>순번</th>
+                      <th>품목</th>
+                      <th>무게(kg)</th>
+                      <th>지름(inch)</th>
+                      {!isDetail && <th>삭제</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {asnMaterials?.map((v, i) => (
+                      <tr key={i}>
+                        <td className="text-center">{i + 1}</td>
+                        <td>
+                          <select
+                            className="table-inner-input highlight-field"
+                            name="itemNo"
+                            value={v.itemNo}
+                            onChange={e => onChangeTableEvent(e, i)}
+                            disabled={isDetail}
+                          >
+                            <option value={0}>선택하세요</option>
+                            {materials?.map((vv, ii) =>
+                              <option key={ii} value={vv.id}>{vv.alloyType}</option>
+                            )}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="table-inner-input text-right highlight-field"
+                            name="weight"
+                            value={v.weight}
+                            onChange={e => onChangeTableEvent(e, i)}
+                            readOnly={isDetail}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="table-inner-input highlight-field"
+                            name="diameter"
+                            value={v.diameter}
+                            onChange={e => onChangeTableEvent(e, i)}
+                            readOnly={isDetail}
+                          />
+                        </td>
+                        {!isDetail && (
+                          <td className="text-center">
+                            <button
+                              type="button"
+                              className="btn-delete-row"
+                              onClick={() => onDeleteRow(i)}
+                            >
+                              &times;
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+ 
+          {/* 푸터 */}
+          <div className="modal-footer">
+            <button className="btn-pop-cancel" onClick={() => setModal(false)}>
+              {isDetail ? '닫기' : '취소'}
+            </button>
+            {!isDetail && (
+              <button className="btn-pop-submit" onClick={addAsn}>
+                ASN 등록
+              </button>
+            )}
+          </div>
+ 
+        </div>
+      </div>
+    </>
+  );
+};
+ 
+export default AsnModal;
