@@ -7,7 +7,7 @@ const Sidebar = () => {
       <ul>
           <h4 className="factory_icon">입고</h4>
           <li><a onClick={()=>navigate("/home/asn")}>ASN</a></li>
-          <li><a href="./inhistory.html">입고이력</a></li>
+          <li><a onClick={()=>navigate("/home/inbound")}>입고이력</a></li>
       </ul>
       <ul>
           <h4 className="released_icon">출고</h4>
