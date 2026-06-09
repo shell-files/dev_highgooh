@@ -24,7 +24,7 @@ jobs:
             "MARIADB_USER=${{ secrets.MARIADB_USER }}",
             "MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }}",
             "RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }}",
-            "RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }}",
+            "RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }}"
             # "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}",
             # "OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }}",
             # "NEO4J_URI=${{ secrets.NEO4J_URI }}",
