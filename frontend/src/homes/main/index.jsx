@@ -4,6 +4,7 @@ import Sidebar from '@components/Layout/Sidebar.jsx';
 import Main from '@homes/Main/Main.jsx';
 import Asn from '@homes/inbound/Asn.jsx';
 import '@styles/common.css';
+import Anomaly from '@homes/anomaly/Anomaly.jsx';
 
 const Home = () => {
   return (
@@ -15,6 +16,7 @@ const Home = () => {
             <Routes>
               <Route path='/' element={<Main />}/>
               <Route path='/asn' element={<Asn />}/>
+              <Route path='/anomaly' element={<Anomaly />}/>
             </Routes>
           </div>
       </div>
