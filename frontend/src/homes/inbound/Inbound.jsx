@@ -160,7 +160,7 @@ const Inbound = () => {
                             {
                                 list?.map((v, i) =>
                                     <tr key={i}>
-                                        <td className="text-center">{v.eta}</td>
+                                        <td className="text-center">{v.ata}</td>
                                         <td className="font-bold text-link" onClick={openInboundDetailModal('1')}>{v.asnId}</td>
                                         <td>{v.partnerName}</td>
                                         <td className="text-center">{v.warehouseName}</td>

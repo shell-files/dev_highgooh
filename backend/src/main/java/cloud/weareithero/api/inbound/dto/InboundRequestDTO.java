@@ -18,9 +18,9 @@ public class InboundRequestDTO extends PageRequestDTO {
 
     @Schema(description = "asnId", defaultValue = "0", example = "0")
     private int asnId;
-    @Schema(description = "주문 기간 시작일", defaultValue = "", example = "")
+    @Schema(description = "입고 일자 시작일", defaultValue = "", example = "")
     private String orderStart;
-    @Schema(description = "주문 기간 종료일", defaultValue = "", example = "")
+    @Schema(description = "입고 일자 종료일", defaultValue = "", example = "")
     private String orderEnd;
 
 }
