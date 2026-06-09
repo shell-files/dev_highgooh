@@ -13,8 +13,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import cloud.weareithero.config.auth.JweAuthenticationFilter;
-import cloud.weareithero.config.auth.JweCookieDecoder;
-import cloud.weareithero.config.auth.JweKeyManager;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -31,7 +29,7 @@ public class SecurityConfig {
     http.csrf(csrf -> csrf.disable());
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
     http.authorizeHttpRequests(authorize -> {
-      authorize.requestMatchers("/test", "/docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
+      authorize.requestMatchers("/docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
       authorize.requestMatchers(HttpMethod.POST, "/auth").permitAll();
       authorize.anyRequest().authenticated();
       // authorize.anyRequest().permitAll();

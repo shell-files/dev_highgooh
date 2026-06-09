@@ -1,12 +1,9 @@
 package cloud.weareithero.config.auth;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +16,7 @@ import org.springframework.web.util.WebUtils;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 
-import cloud.weareithero.dto.UserRoleDto;
+import cloud.weareithero.api.auth.dto.UserRoleDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -43,7 +40,7 @@ public class JweAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private void checkCookie(HttpServletRequest request, HttpServletResponse response, String jweToken) {
-    log.info("New Token : {}", jweToken);
+    // log.info("New Token : {}", jweToken);
     Cookie cookie = new Cookie(COOKIE_NAME, jweToken);
     cookie.setDomain( checkDomain(request.getServerName()) );
     cookie.setPath("/");
@@ -61,14 +58,14 @@ public class JweAuthenticationFilter extends OncePerRequestFilter {
     if (jweToken != null) {
       try {
         JWTClaimsSet claimsSet = verificationService.decryptAndValidateToken(jweToken);
-        log.info("claimsSet : {}", claimsSet);
-        log.info("id : {}", claimsSet.getLongClaim("id"));
+        // log.info("claimsSet : {}", claimsSet);
+        // log.info("id : {}", claimsSet.getLongClaim("id"));
         long id = claimsSet.getLongClaim("id");
         String name = claimsSet.getStringClaim("name");
         String email = claimsSet.getStringClaim("email");
         String role = claimsSet.getStringClaim("role");
         UserRoleDto userRoleDto = UserRoleDto.builder().id(id).name(name).email(email).role(role).build();
-        log.info("User : {}", userRoleDto);
+        // log.info("User : {}", userRoleDto);
 
         if (claimsSet.getExpirationTime() != null && claimsSet.getExpirationTime().before(new Date())) {
           String newJweToken = jweTokenService.createToken(userRoleDto);

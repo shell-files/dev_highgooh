@@ -25,20 +25,20 @@ jobs:
             "MARIADB_PASSWORD=${{ secrets.MARIADB_PASSWORD }}",
             "RSA_PUBLIC_KEY=${{ secrets.RSA_PUBLIC_KEY }}",
             "RSA_PRIVATE_KEY=${{ secrets.RSA_PRIVATE_KEY }}",
-            "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}",
-            "OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }}",
-            "NEO4J_URI=${{ secrets.NEO4J_URI }}",
-            "NEO4J_USER=${{ secrets.NEO4J_USER }}",
-            "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}",
-            "KAFKA_SERVER=${{ secrets.KAFKA_SERVER }}"
+            # "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}",
+            # "OLLAMA_MODEL=${{ secrets.OLLAMA_MODEL }}",
+            # "NEO4J_URI=${{ secrets.NEO4J_URI }}",
+            # "NEO4J_USER=${{ secrets.NEO4J_USER }}",
+            # "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}",
+            # "KAFKA_SERVER=${{ secrets.KAFKA_SERVER }}"
           )
           [System.IO.File]::WriteAllLines("$PWD\backend\.env", $backendEnv)
 
-          $rootEnv = @(
-            "NEO4J_USER=${{ secrets.NEO4J_USER }}",
-            "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}"
-          )
-          [System.IO.File]::WriteAllLines("$PWD\.env", $rootEnv)
+          # $rootEnv = @(
+          #   "NEO4J_USER=${{ secrets.NEO4J_USER }}",
+          #   "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}"
+          # )
+          # [System.IO.File]::WriteAllLines("$PWD\.env", $rootEnv)
 
           $frontendEnv = @(
             "VITE_API_URL=${{ secrets.VITE_API_URL }}"
