@@ -154,14 +154,16 @@
    표 하단 페이지네이션 전용 레이아웃 확장 서식 
    ========================================================================== */
 
-.pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.content-card .pagination-container {
+    display: flex !important;              /* Flex 무조건 강제 */
+    flex-direction: row !important;         /* 🚨 column으로 바뀐 것을 다시 가로 방향(row)으로 리셋 */
+    justify-content: space-between !important; /* 🚨 center로 깨진 정렬을 다시 양쪽 끝 정렬로 리셋 */
+    align-items: center !important;
     margin-top: 1.5rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
     background-color: #ffffff;
+    width: 100%;                            /* 가로 너비 확보 */
 }
 
 /* 좌측 정보 텍스트 서식 */
