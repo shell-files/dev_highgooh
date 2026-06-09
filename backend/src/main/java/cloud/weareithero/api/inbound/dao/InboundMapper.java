@@ -32,7 +32,7 @@ public interface InboundMapper {
         "<where>" +
         " AND `cc`.`name` = '입고완료' " +
         "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
-        " AND `i`.`order_date` BETWEEN STR_TO_DATE(#{orderStart}, '%Y-%m-%d') AND STR_TO_DATE(#{orderEnd}, '%Y-%m-%d') " +
+        " AND `i`.`ata` BETWEEN STR_TO_DATE(#{orderStart}, '%Y-%m-%d') AND STR_TO_DATE(#{orderEnd}, '%Y-%m-%d') " +
         "</if>" +
         "<if test='asnId != null and asnId != 0'>" +
         " AND `i`.`id` LIKE CONCAT('%', #{asnId}, '%') " +
@@ -47,7 +47,7 @@ public interface InboundMapper {
         "JOIN `COMMON_CODE` `cc` ON `i`.`state_code` = `cc`.`id` " +
         "WHERE `cc`.`name` = '입고완료' " +
         "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
-        " AND `i`.`arrival_date` BETWEEN STR_TO_DATE(#{orderStart}, '%Y-%m-%d')" +
+        " AND `i`.`ata` BETWEEN STR_TO_DATE(#{orderStart}, '%Y-%m-%d')" +
         " AND STR_TO_DATE(CONCAT(#{orderEnd}, ' 23:59:59'), '%Y-%m-%d %H:%i:%s') " +
         "</if>" +
         "<if test='asnId != null and asnId != 0'>" +
