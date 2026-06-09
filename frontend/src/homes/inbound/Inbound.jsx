@@ -98,7 +98,6 @@ const Inbound = () => {
     const openInboundDetailModal = (id) => {
         POST(`/inbound/${id}`).then(res => {
             if (res.status === true) {
-                console.log(res.data);
                 setDetailData(res.data);
                 setModal(true);
             }
@@ -131,7 +130,6 @@ const Inbound = () => {
         }
 
         POST("/inbound", params).then(res => {
-            console.log(res);
             setList(res.data.list);
             setPage(res.data.pagination.page);
             setTotalCount(res.data.pagination.totalCount);
