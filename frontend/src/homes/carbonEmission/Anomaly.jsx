@@ -1,19 +1,14 @@
 import React from 'react';
 import '@styles/anomaly.css';
 import { useState, useRef, useEffect } from 'react';
-import { Chart, registerables } from 'chart.js';
+import AnomalyBarChart from '@homes/carbonEmission/AnomalyBarChart.jsx';
 
-Chart.register(...registerables);
 
 
 const Anomaly = () => {
+
+    // 공정 선택 상태 관리
     const [activeStep, setActiveStep] = useState(null);
-
-    const chartRef = useRef(null);
-    const chartInstanceRef = useRef(null);
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
     
     // 모달 제어 상태 관리
     const [selectedLog, setSelectedLog] = useState(null); 
@@ -76,52 +71,6 @@ const Anomaly = () => {
         quarter: selectedQuarter,
         month: selectedMonth
         }};
-
-    // 차트 초기화 및 업데이트
-    useEffect(() => {
-            if (chartRef.current) {
-            if (chartInstanceRef.current) {
-                chartInstanceRef.current.destroy();
-            }
-
-            chartInstanceRef.current = new Chart(chartRef.current, {
-                type: 'bar',
-                data: {
-                labels: [
-                    '설비 01', '설비 02', '설비 03', '설비 04', '설비 05', '설비 06',
-                    '설비 07', '설비 08'],
-                datasets: [{
-                    label: '이상치 발생 횟수 (건)',
-                    data: [4, 12, 2, 5, 8, 1, 0, 3],
-                    backgroundColor: '#dd6b20',
-                    borderRadius: 4,
-                    borderWidth: 0
-                }]
-                },
-                options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                    callbacks: {
-                        label: function (context) { return `발생 횟수: ${context.raw} 건`; }
-                    }
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true, title: { display: true, text: '발생 건수' } },
-                    x: { grid: { display: false } }
-                }
-                }
-            });
-            }
-            return () => {
-            if (chartInstanceRef.current) {
-                chartInstanceRef.current.destroy();
-            }
-            };
-        }, []);
 
     // STEP 카드 데이터 예시 (실제 데이터는 API 연동 후 동적으로 관리)
     const stepData = [
@@ -575,11 +524,11 @@ const Anomaly = () => {
             </div> 
 
         {/* 차트 영역 */}
-        <div className="dashboard-chart-grid full-width-grid">
+        <div style={{ marginBottom: '40px' }}>
           <div className="chart-card">
             <h3 className="chart-title">설비별 이상치 발생 횟수 현황</h3>
             <div className="chart-container chart-height-machine">
-                <canvas ref={chartRef} id="anomalyMachineChart"></canvas>
+                <AnomalyBarChart dataValues={[4, 12, 2, 5, 8, 1, 0, 3]} />
             </div>
           </div>
         </div>
