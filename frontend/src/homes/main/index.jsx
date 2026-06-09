@@ -5,7 +5,8 @@ import Main from '@homes/Main/Main.jsx';
 import Asn from '@homes/inbound/Asn.jsx';
 import Inbound from '@homes/inbound/Inbound.jsx';
 import '@styles/common.css';
-import Anomaly from '@homes/anomaly/Anomaly.jsx';
+import Anomaly from '@homes/carbonEmission/Anomaly.jsx';
+import CarbonDashboard from '@homes/carbonEmission/CarbonDashboard.jsx';
 
 const Home = () => {
   return (
@@ -19,6 +20,7 @@ const Home = () => {
               <Route path='/asn' element={<Asn />}/>
               <Route path='/inbound' element={<Inbound />}/>
               <Route path='/anomaly' element={<Anomaly />}/>
+              <Route path='/carbonemission' element={<CarbonDashboard />}/>
             </Routes>
           </div>
       </div>
