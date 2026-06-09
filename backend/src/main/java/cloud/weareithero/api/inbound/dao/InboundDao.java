@@ -3,6 +3,7 @@ package cloud.weareithero.api.inbound.dao;
 import java.util.List;
 
 import cloud.weareithero.api.inbound.dto.InboundDTO;
+import cloud.weareithero.api.inbound.dto.InboundItemDTO;
 import cloud.weareithero.api.inbound.dto.InboundRequestDTO;
 
 public interface InboundDao {
@@ -11,4 +12,8 @@ public interface InboundDao {
     
     public int countAll(InboundRequestDTO inboundRequestDTO);
     
+    public List<InboundItemDTO> findOne(int asnId);
+
+    public InboundDTO findbyAsnId(int asnId);
+
 }

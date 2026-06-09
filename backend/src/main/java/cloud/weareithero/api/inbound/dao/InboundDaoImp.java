@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import cloud.weareithero.api.inbound.dto.InboundDTO;
+import cloud.weareithero.api.inbound.dto.InboundItemDTO;
 import cloud.weareithero.api.inbound.dto.InboundRequestDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -24,4 +25,13 @@ public class InboundDaoImp implements InboundDao {
         return inboundMapper.countAll(inboundRequestDTO);
     }
     
+    @Override
+    public List<InboundItemDTO> findOne(int asnId) {
+        return inboundMapper.findOne(asnId);
+    }
+    
+    @Override
+    public InboundDTO findbyAsnId(int asnId) {
+        return inboundMapper.findbyAsnId(asnId);
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import cloud.weareithero.api.inbound.dao.InboundDao;
 import cloud.weareithero.api.inbound.dto.InboundDTO;
+import cloud.weareithero.api.inbound.dto.InboundItemDTO;
 import cloud.weareithero.api.inbound.dto.InboundRequestDTO;
 import cloud.weareithero.dto.PaginationDTO;
 import cloud.weareithero.dto.ResponseDTO;
@@ -52,7 +53,27 @@ public class InboundServiceImp implements InboundService {
 
     @Override
     public ResponseDTO findOne(int asnId) {
-        return null;
+        boolean isSuccess = false;
+        String message = null;
+        Map<String, Object> request = new HashMap<>();
+
+        try {
+            List<InboundItemDTO> items = inboundDao.findOne(asnId);
+            InboundDTO inbound = inboundDao.findbyAsnId(asnId);
+            request.put("inbound", inbound);
+            request.put("items", items);            
+            isSuccess = true;
+            message = "Inbound 상세 정보 조회가 완료되었습니다.";
+        } catch (Exception e) {
+            log.info("InboundServiceImp findOne error : {}", e.getMessage());
+            message = "Inbound 상세 정보 조회가 실패했습니다.";
+        }
+        return ResponseDTO.builder()
+            .status(isSuccess)
+            .data(request)
+            .message(message)
+            .build()
+        ;
     }
     
 }
