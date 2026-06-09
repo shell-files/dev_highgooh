@@ -22,21 +22,25 @@ public class AsnController implements AsnControllerDocs {
   private final AsnService asnService;
   
   @PostMapping
+  @Override
   public ResponseDTO findAll(@RequestBody AsnRequestDTO asnRequestDTO) {
     return asnService.findAll(asnRequestDTO);
   }
 
   @PostMapping("/{asnId:[0-9]+}")
+  @Override
   public ResponseDTO findOne(@PathVariable Integer asnId) {
     return asnService.findOne(asnId);
   }
 
   @PutMapping
+  @Override
   public ResponseDTO add(@RequestBody AsnAddDTO asnAddDTO) {
     return asnService.add(asnAddDTO);
   }
 
   @GetMapping
+  @Override
   public ResponseDTO findAllAsn() {
     return asnService.findAllAsn();
   }
