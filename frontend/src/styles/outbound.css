@@ -2,12 +2,12 @@
    주문 계약 및 접수 현황 컴포넌트 스타일시트 (수정본)
    ========================================================================== */
 
-.header-action-group {
+#outbound-page .header-action-group {
     display: flex;
     gap: 0.5rem;
 }
 
-.btn-secondary-action {
+#outbound-page .btn-secondary-action {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid var(--border-color);
@@ -18,19 +18,19 @@
     cursor: pointer;
 }
 
-.btn-secondary-action:hover {
+#outbound-page .btn-secondary-action:hover {
     background-color: #f8fafc;
 }
 
 /* 1. [변경] 입고이력 구조(history-summary-grid)와 결합된 상단 주문 그리드 */
-.order-summary-grid {
+#outbound-page .order-summary-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
-.summary-card-item {
+#outbound-page .summary-card-item {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -42,26 +42,26 @@
 }
 
 /* 내부 데이터 텍스트 배벨 정렬 트랙 */
-.card-info-left {
+#outbound-page .card-info-left {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
 }
 
-.summary-label {
+#outbound-page .summary-label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-muted);
 }
 
-.summary-value {
+#outbound-page .summary-value {
     font-size: 1.8rem;
     font-weight: 700;
     color: var(--text-dark);
     line-height: 1.1;
 }
 
-.summary-value small {
+#outbound-page .summary-value small {
     font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 500;
@@ -69,12 +69,12 @@
 }
 
 /* 우측 상태 고정 배지 가로 폭 맞춤 */
-.card-trend-right {
+#outbound-page .card-trend-right {
     display: flex;
     align-items: center;
 }
 
-.status-badge {
+#outbound-page .status-badge {
     font-size: 0.78rem;
     font-weight: 700;
     padding: 0.3rem 0.6rem;
@@ -83,26 +83,26 @@
 }
 
 /* 입고이력 톤앤매너에 맞춘 배경 및 폰트 유틸리티 매핑 */
-.bg-all-light {
+#outbound-page .bg-all-light {
     background-color: #f1f5f9;
 }
 
-.bg-orange-light {
+#outbound-page .bg-orange-light {
     background-color: #fffaf0;
     border: 1px solid #feebc8;
 }
 
-.bg-green-light {
+#outbound-page .bg-green-light {
     background-color: #f0fff4;
     border: 1px solid #c6f6d5;
 }
 
-.bg-red-light {
+#outbound-page .bg-red-light {
     background-color: #fff5f5;
     border: 1px solid #fed7d7;
 }
 
-.bg-blue-light {
+#outbound-page .bg-blue-light {
     background-color: #f0f9ff;
     border: 1px solid #bcdef1;
 }
@@ -113,13 +113,13 @@
 
 
 /* 3. 테이블 및 범용 클래스 */
-.order-data-table {
+#outbound-page .order-data-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.88rem;
 }
 
-.order-data-table th {
+#outbound-page .order-data-table th {
     background-color: #f8fafc;
     color: var(--text-dark);
     font-weight: 600;
@@ -127,82 +127,82 @@
     border-bottom: 2px solid var(--border-color);
 }
 
-.order-data-table td {
+#outbound-page .order-data-table td {
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--border-color);
 }
 
-.text-link {
+#outbound-page .text-link {
     color: var(--primary-green);
     cursor: pointer;
     text-decoration: underline;
 }
 
-.text-center {
+#outbound-page .text-center {
     text-align: center !important;
 }
 
-.text-right {
+#outbound-page .text-right {
     text-align: right !important;
 }
 
-.font-bold {
+#outbound-page .font-bold {
     font-weight: 600;
 }
 
-.text-orange {
+#outbound-page .text-orange {
     color: #dd6b20 !important;
 }
 
-.text-green {
+#outbound-page .text-green {
     color: var(--primary-green) !important;
 }
 
-.text-blue {
+#outbound-page .text-blue {
     color: #3182ce !important;
 }
 
-.text-muted {
+#outbound-page .text-muted {
     color: var(--text-muted) !important;
 }
 
-.text-red {
+#outbound-page .text-red {
     color: var(--accent-red) !important;
 }
 
-.table-badge {
+#outbound-page .table-badge {
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
 }
 
-.table-badge.badge-dark {
+#outbound-page .table-badge.badge-dark {
     background-color: #f1f1f1;
     color: var(--text-muted);
     border: 1px solid #d1d1d1;
 }
 
-.table-badge.badge-success {
+#outbound-page .table-badge.badge-success {
     background-color: #e6fffa;
     color: #234e52;
     border: 1px solid #b2f5ea;
 }
 
-.table-badge.badge-pending {
+#outbound-page .table-badge.badge-pending {
     background-color: #fffaf0;
     color: #7b341e;
     border: 1px solid #feebc8;
 }
 
-.table-badge.badge-danger {
+#outbound-page .table-badge.badge-danger {
     background-color: #fff5f5;
     color: #742a2a;
     border: 1px solid #fed7d7;
 }
 
 /* 미디어 쿼리 최적화 처리 */
-@media (max-width: 1300px) {
+/* @media (max-width: 1300px) {
     .order-summary-grid {
         grid-template-columns: repeat(5, 1fr);
     }
@@ -215,9 +215,9 @@
         grid-column: span 2;
         justify-content: flex-end;
     }
-}
+} */
 
-@media (max-width: 640px) {
+/* @media (max-width: 640px) {
     .order-summary-grid {
         grid-template-columns: 1fr;
     }
@@ -229,13 +229,13 @@
     .filter-btn-group {
         grid-column: span 1;
     }
-}
+} */
 
 
 /* ==========================================================================
    2. [수정 및 확장] 대시보드 내 검색 조건 필터 카드 레이아웃 정렬 서식
    ========================================================================== */
-.filter-wrapper-card {
+#outbound-page .filter-wrapper-card {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -244,39 +244,39 @@
 }
 
 /* 4열 분할에서 기간 단위 확장형 3열 배분 구조로 최적화 */
-.search-filter-grid {
+#outbound-page .search-filter-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr auto;
     gap: 1.5rem;
     align-items: flex-end;
 }
 
-.filter-group {
+#outbound-page .filter-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
 /* 기간 범위 데이터 컨테이너 스타일 */
-.group-date-range {
+#outbound-page .group-date-range {
     width: 100%;
 }
 
 
 
-.date-separator {
+#outbound-page .date-separator {
     color: var(--text-muted);
     font-weight: 600;
     padding: 0 0.2rem;
 }
 
-.filter-group label {
+#outbound-page .filter-group label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-dark);
 }
 
-.filter-control {
+#outbound-page .filter-control {
     width: 100%;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border-color);
@@ -288,17 +288,18 @@
     outline: none;
 }
 
-.filter-control:focus {
+#outbound-page .filter-control:focus {
     border-color: var(--primary-green);
 }
 
-.filter-btn-group {
+#outbound-page .filter-btn-group {
     display: flex;
     gap: 0.5rem;
     height: 38px;
+    justify-content: flex-end;
 }
 
-.btn-filter-reset {
+#outbound-page .btn-filter-reset {
     background-color: #edf2f7;
     color: #4a5568;
     border: none;
@@ -312,7 +313,7 @@
 
 
 /* 태블릿/모바일 등 작은 화면에서의 반응형 브레이크포인트 자동 재배치 */
-@media (max-width: 1024px) {
+/* @media (max-width: 1024px) {
     .search-filter-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -326,12 +327,12 @@
         justify-content: flex-end;
         margin-top: 0.5rem;
     }
-}
+} */
 
 /* ==========================================================================
    3. [신규 추가] 신규 주문 입력 모달 팝업 UI 서식
    ========================================================================== */
-.modal-overlay {
+#outbound-page .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -348,12 +349,12 @@
     transition: opacity 0.25s ease;
 }
 
-.modal-overlay.active {
+#outbound-page .modal-overlay.active {
     opacity: 1;
     pointer-events: auto;
 }
 
-.modal-container {
+#outbound-page .modal-container {
     background-color: #ffffff;
     width: 680px;
     max-width: 90%;
@@ -377,7 +378,7 @@
     }
 }
 
-.modal-header {
+#outbound-page .modal-header {
     padding: 1.2rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -385,13 +386,13 @@
     align-items: center;
 }
 
-.modal-header h3 {
+#outbound-page .modal-header h3 {
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--text-dark);
 }
 
-.modal-close-btn {
+#outbound-page .modal-close-btn {
     background: none;
     border: none;
     font-size: 1.75rem;
@@ -400,43 +401,43 @@
     line-height: 1;
 }
 
-.modal-close-btn:hover {
+#outbound-page .modal-close-btn:hover {
     color: var(--accent-red);
 }
 
-.modal-body {
+#outbound-page .modal-body {
     padding: 1.5rem;
     overflow-y: auto;
 }
 
 /* 폼 마스터 그리드 */
-.modal-form-grid {
+#outbound-page .modal-form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
-.form-group {
+#outbound-page .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
 }
 
-.form-group label {
+#outbound-page .form-group label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-dark);
 }
 
-.required {
+#outbound-page .required {
     color: var(--accent-red);
     margin-left: 0.1rem;
 }
 
 /* 공통 입력 엘리먼트 서식 */
-.modal-input,
-.modal-select {
+#outbound-page .modal-input,
+#outbound-page .modal-select {
     width: 100%;
     padding: 0.5rem 0.75rem;
     border: 1px solid #cbd5e0;
@@ -448,14 +449,14 @@
     background-color: #ffffff;
 }
 
-.modal-input:focus,
-.modal-select:focus {
+#outbound-page .modal-input:focus,
+#outbound-page .modal-select:focus {
     border-color: var(--primary-green);
     box-shadow: 0 0 0 2px rgba(3, 169, 77, 0.15);
 }
 
 /* 섹션 타이틀 및 가변 제어 버튼 트랙 */
-.modal-section-title {
+#outbound-page .modal-section-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -465,13 +466,13 @@
     padding-bottom: 0.5rem;
 }
 
-.modal-section-title h4 {
+#outbound-page .modal-section-title h4 {
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-dark);
 }
 
-.btn-secondary-sm {
+#outbound-page .btn-secondary-sm {
     background-color: #ffffff;
     color: var(--primary-green);
     border: 1px solid var(--primary-green);
@@ -483,23 +484,23 @@
     transition: all 0.2s;
 }
 
-.btn-secondary-sm:hover {
+#outbound-page .btn-secondary-sm:hover {
     background-color: rgba(3, 169, 77, 0.05);
 }
 
 /* 팝업 테이블 서식 */
-.modal-table-responsive {
+#outbound-page .modal-table-responsive {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     overflow: hidden;
 }
 
-.modal-product-table {
+#outbound-page .modal-product-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.modal-product-table th {
+#outbound-page .modal-product-table th {
     background-color: #f8fafc;
     color: #4a5568;
     font-weight: 600;
@@ -508,27 +509,27 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-.modal-product-table td {
+#outbound-page .modal-product-table td {
     padding: 0.5rem;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
 }
 
-.modal-product-table tr:last-child td {
+#outbound-page .modal-product-table tr:last-child td {
     border-bottom: none;
 }
 
 /* 정렬 헬퍼 클래스 */
-.text-right {
+#outbound-page .text-right {
     text-align: right;
 }
 
-.text-center {
+#outbound-page .text-center {
     text-align: center;
 }
 
 /* 행 삭제 x 버튼 */
-.btn-delete-row {
+#outbound-page .btn-delete-row {
     background: none;
     border: none;
     color: #a0aec0;
@@ -538,12 +539,12 @@
     padding: 0 0.5rem;
 }
 
-.btn-delete-row:hover {
+#outbound-page .btn-delete-row:hover {
     color: var(--accent-red);
 }
 
 /* 모달 하단 버튼 액션 바 */
-.modal-footer {
+#outbound-page .modal-footer {
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-color);
     display: flex;
@@ -554,7 +555,7 @@
     border-bottom-right-radius: 8px;
 }
 
-.btn-pop-cancel {
+#outbound-page .btn-pop-cancel {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid #cbd5e0;
@@ -565,11 +566,11 @@
     cursor: pointer;
 }
 
-.btn-pop-cancel:hover {
+#outbound-page .btn-pop-cancel:hover {
     background-color: #edf2f7;
 }
 
-.btn-pop-submit {
+#outbound-page .btn-pop-submit {
     background-color: var(--primary-green);
     color: white;
     border: none;
@@ -580,7 +581,7 @@
     cursor: pointer;
 }
 
-.btn-pop-submit:hover {
+#outbound-page .btn-pop-submit:hover {
     background-color: var(--primary-hover);
 }
 
@@ -592,7 +593,7 @@
    ========================================================================== */
 
 /* 좌우 분할 그리드 스케일 */
-.modal-split-layout {
+#outbound-page .modal-split-layout {
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
     gap: 1.25rem;
@@ -600,24 +601,24 @@
     padding-top: 1rem;
 }
 
-.modal-split-left,
-.modal-split-right {
+#outbound-page .modal-split-left,
+#outbound-page .modal-split-right {
     display: flex;
     flex-direction: column;
 }
 
 /* 테이블 클릭 이펙트 스타일 */
-.clickable-table tbody tr:hover {
+#outbound-page .clickable-table tbody tr:hover {
     background-color: #f7fafc;
 }
 
-.clickable-table tbody tr.selected-row {
+#outbound-page .clickable-table tbody tr.selected-row {
     background-color: #e6fffa !important;
     border-left: 3px solid var(--primary-green);
 }
 
 /* 우측 송장 카드 디자인 박스 */
-.invoice-preview-card {
+#outbound-page .invoice-preview-card {
     background-color: #f8fafc;
     border: 1px dashed #cbd5e0;
     border-radius: 6px;
@@ -629,14 +630,14 @@
     min-height: 280px;
 }
 
-.empty-invoice-msg {
+#outbound-page .empty-invoice-msg {
     text-align: center;
     color: #a0aec0;
     font-size: 0.9rem;
     line-height: 1.5;
 }
 
-.invoice-box-inner {
+#outbound-page .invoice-box-inner {
     width: 100%;
     background: #ffffff;
     border: 1px solid #cbd5e0;
@@ -645,7 +646,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
-.invoice-header-title {
+#outbound-page .invoice-header-title {
     font-size: 0.9rem;
     font-weight: 700;
     color: #2d3748;
@@ -655,13 +656,13 @@
     margin-bottom: 0.75rem;
 }
 
-.invoice-mini-table {
+#outbound-page .invoice-mini-table {
     width: 100%;
     margin-bottom: 1rem;
     border-collapse: collapse;
 }
 
-.invoice-mini-table th {
+#outbound-page .invoice-mini-table th {
     background-color: #f1f5f9 !important;
     color: #4a5568;
     font-size: 0.8rem;
@@ -672,7 +673,7 @@
     border: 1px solid #e2e8f0;
 }
 
-.invoice-mini-table td {
+#outbound-page .invoice-mini-table td {
     padding: 0.4rem 0.6rem;
     font-size: 0.85rem;
     color: #2d3748;
@@ -681,7 +682,7 @@
 }
 
 /* CSS 바코드 모듈 그래픽 생성 컴포넌트 */
-.barcode-wrapper {
+#outbound-page .barcode-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -691,7 +692,7 @@
     margin-top: 0.5rem;
 }
 
-.barcode-lines {
+#outbound-page .barcode-lines {
     display: flex;
     align-items: stretch;
     height: 45px;
@@ -699,33 +700,33 @@
 }
 
 /* 바코드 선 두께 유틸리티 배열 */
-.barcode-lines span {
+#outbound-page .barcode-lines span {
     display: inline-block;
     background: #fff;
     height: 100%;
 }
 
-.barcode-lines .b-w-1 {
+#outbound-page .barcode-lines .b-w-1 {
     width: 1px;
     background: #000;
 }
 
-.barcode-lines .b-w-2 {
+#outbound-page .barcode-lines .b-w-2 {
     width: 3px;
     background: #000;
 }
 
-.barcode-lines .b-w-3 {
+#outbound-page .barcode-lines .b-w-3 {
     width: 2px;
     background: #fff;
 }
 
-.barcode-lines .b-w-4 {
+#outbound-page .barcode-lines .b-w-4 {
     width: 4px;
     background: #fff;
 }
 
-.barcode-text {
+#outbound-page .barcode-text {
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.75rem;
     font-weight: bold;
@@ -734,7 +735,7 @@
     color: #1a202c;
 }
 
-.invoice-footer-action {
+#outbound-page .invoice-footer-action {
     display: flex;
     justify-content: flex-end;
     margin-top: 0.75rem;
@@ -748,33 +749,33 @@
    ========================================================================== */
 
 /* 배송 설정 컨테이너 컴포넌트 */
-.delivery-config-zone {
+#outbound-page .delivery-config-zone {
     background-color: #f8fafc;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 1rem;
 }
 
-.config-form-row {
+#outbound-page .config-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
     margin-bottom: 0.75rem;
 }
 
-.config-form-row .form-group {
+#outbound-page .config-form-row .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
 
-.config-form-row label {
+#outbound-page .config-form-row label {
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-muted);
 }
 
-.select-styled {
+#outbound-page .select-styled {
     height: 36px;
     padding: 0 0.5rem;
     font-size: 0.85rem;
@@ -784,17 +785,17 @@
     color: var(--text-dark);
 }
 
-.select-styled:focus {
+#outbound-page .select-styled:focus {
     border-color: var(--primary-green);
     outline: none;
 }
 
 /* 송장 생성 전용 대형 버튼 */
-.action-btn-wrap {
+#outbound-page .action-btn-wrap {
     margin-top: 0.5rem;
 }
 
-.btn-generate-invoice {
+#outbound-page .btn-generate-invoice {
     width: 100%;
     background-color: var(--primary-green);
     color: #ffffff;
@@ -812,21 +813,21 @@
     box-shadow: 0 2px 4px rgba(3, 169, 77, 0.15);
 }
 
-.btn-generate-invoice:hover {
+#outbound-page .btn-generate-invoice:hover {
     background-color: var(--primary-hover);
 }
 
-.btn-generate-invoice:active {
+#outbound-page .btn-generate-invoice:active {
     transform: scale(0.99);
 }
 
 /* 우측 송장 카드 박스 내부 정렬 보정 */
-.invoice-preview-card {
+#outbound-page .invoice-preview-card {
     min-height: 380px;
     /* 늘어난 정보량에 대응하도록 최소 높이 확장 */
 }
 
-.view-toggle-container {
+#outbound-page .view-toggle-container {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1rem;
@@ -834,7 +835,7 @@
     padding-bottom: 0.5rem;
 }
 
-.btn-toggle-view {
+#outbound-page .btn-toggle-view {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid var(--border-color);
@@ -846,40 +847,40 @@
     transition: all 0.2s ease;
 }
 
-.btn-toggle-view:hover {
+#outbound-page .btn-toggle-view:hover {
     background-color: #f8fafc;
 }
 
-.btn-toggle-view.active {
+#outbound-page .btn-toggle-view.active {
     background-color: var(--primary-green);
     color: #ffffff;
     border-color: var(--primary-green);
 }
 
 /* 테이블 뷰 숨김 제어 */
-.table-view-content {
+#outbound-page .table-view-content {
     display: none;
 }
 
-.table-view-content.active {
+#outbound-page .table-view-content.active {
     display: block;
 }
 
-.toggle-left,
-.toggle-right {
+#outbound-page .toggle-left,
+#outbound-page .toggle-right {
     display: flex;
     gap: 0.5rem;
 }
 
-.view-toggle-container {
+#outbound-page .view-toggle-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.btn-action-gray,
-.btn-action-blue,
-.btn-action-green {
+#outbound-page .btn-action-gray,
+#outbound-page .btn-action-blue,
+#outbound-page .btn-action-green {
     border: none;
     padding: 0.55rem 1rem;
     border-radius: 4px;
@@ -889,19 +890,19 @@
     font-weight: 600;
 }
 
-.btn-action-gray {
+#outbound-page .btn-action-gray {
     background: #64748b;
 }
 
-.btn-action-blue {
+#outbound-page .btn-action-blue {
     background: #2563eb;
 }
 
-.btn-action-green {
+#outbound-page .btn-action-green {
     background: #16a34a;
 }
 
-.invoice-split-container {
+#outbound-page .invoice-split-container {
     display: table;
     width: 100%;
     table-layout: fixed;
@@ -909,7 +910,7 @@
     margin-top: 0.5rem;
 }
 
-.invoice-left-pane {
+#outbound-page .invoice-left-pane {
     display: table-cell;
     width: 240px;
     vertical-align: top;
@@ -918,7 +919,7 @@
     padding: 1rem 0.75rem;
 }
 
-.invoice-right-pane {
+#outbound-page .invoice-right-pane {
     display: table-cell;
     vertical-align: top;
     padding: 1rem 1.5rem;
@@ -926,7 +927,7 @@
 }
 
 /* 2. 좌측 박스 리스트 컴포넌트 */
-.box-list-title {
+#outbound-page .box-list-title {
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--text-dark);
@@ -934,13 +935,13 @@
     padding-left: 0.25rem;
 }
 
-.box-item-ul {
+#outbound-page .box-item-ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.box-item-li {
+#outbound-page .box-item-li {
     padding: 0.75rem 1rem;
     background-color: #ffffff;
     border: 1px solid var(--border-color);
@@ -953,12 +954,12 @@
     transition: all 0.15s ease-in-out;
 }
 
-.box-item-li:hover {
+#outbound-page .box-item-li:hover {
     background-color: #edf2f7;
     color: var(--text-dark);
 }
 
-.box-item-li.active {
+#outbound-page .box-item-li.active {
     background-color: var(--primary-green);
     color: #ffffff;
     border-color: var(--primary-green);
@@ -966,25 +967,25 @@
 }
 
 /* 3. 모달 크기 확장 조정 (2분할 대응 구조) */
-#invoice-modal .modal-content {
+#outbound-page #invoice-modal .modal-content {
     width: 820px !important;
     max-width: 90%;
     padding: 0 !important;
     /* 샌드위치 패널 구조 레이아웃화 */
 }
 
-#invoice-modal .modal-header {
+#outbound-page #invoice-modal .modal-header {
     padding: 1.25rem 1.5rem 0.75rem 1.5rem;
 }
 
-#invoice-modal .modal-footer {
+#outbound-page #invoice-modal .modal-footer {
     padding: 1rem 1.5rem 1.25rem 1.5rem;
     border-top: 1px solid var(--border-color);
     background-color: #f8fafc;
 }
 
 /* 4. 버튼 3종 세트 정형화 */
-.btn-invoice-print {
+#outbound-page .btn-invoice-print {
     background-color: #3182ce;
     color: #ffffff;
     border: 1px solid #3182ce;
@@ -995,11 +996,11 @@
     cursor: pointer;
 }
 
-.btn-invoice-print:hover {
+#outbound-page .btn-invoice-print:hover {
     background-color: #2b6cb0;
 }
 
-.btn-invoice-print-all {
+#outbound-page .btn-invoice-print-all {
     background-color: var(--primary-green);
     color: #ffffff;
     border: 1px solid var(--primary-green);
@@ -1010,11 +1011,11 @@
     cursor: pointer;
 }
 
-.btn-invoice-print-all:hover {
+#outbound-page .btn-invoice-print-all:hover {
     background-color: var(--primary-hover);
 }
 
-.btn-invoice-cancel {
+#outbound-page .btn-invoice-cancel {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid #cbd5e0;
@@ -1025,17 +1026,17 @@
     cursor: pointer;
 }
 
-.btn-invoice-cancel:hover {
+#outbound-page .btn-invoice-cancel:hover {
     background-color: #f7fafc;
 }
 
-.invoice-manager-layout{
+#outbound-page .invoice-manager-layout{
     display:flex;
     gap:20px;
     height:600px;
 }
 
-.invoice-box-list{
+#outbound-page .invoice-box-list{
     width:260px;
     border:1px solid var(--border-color);
     border-radius:6px;
@@ -1043,14 +1044,14 @@
     background:#fff;
 }
 
-.invoice-list-title{
+#outbound-page .invoice-list-title{
     padding:15px;
     font-weight:700;
     border-bottom:1px solid var(--border-color);
     background:#f8fafc;
 }
 
-#invoiceBoxList{
+#outbound-page #invoiceBoxList{
     list-style:none;
     margin:0;
     padding:0;
@@ -1058,23 +1059,23 @@
     overflow-y:auto;
 }
 
-.invoice-list-item{
+#outbound-page .invoice-list-item{
     padding:12px 16px;
     cursor:pointer;
     border-bottom:1px solid #f1f5f9;
     transition:.2s;
 }
 
-.invoice-list-item:hover{
+#outbound-page .invoice-list-item:hover{
     background:#f8fafc;
 }
 
-.invoice-list-item.active{
+#outbound-page .invoice-list-item.active{
     background:#e6f7ee;
     color:var(--primary-green);
     font-weight:700;
 }
 
-.invoice-preview-panel{
+#outbound-page .invoice-preview-panel{
     flex:1;
 }
