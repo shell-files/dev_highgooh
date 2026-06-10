@@ -9,7 +9,7 @@ const OutHistory = () => {
     }
 
     return (
-        <>
+        <div id="outHistory-page">
             <div className="page-header-flex">
                 <h2 className="page-title">출고이력</h2>
             </div>
@@ -148,7 +148,7 @@ const OutHistory = () => {
 
             </div>
 
-        </>
+        </div>
     )
 }
 

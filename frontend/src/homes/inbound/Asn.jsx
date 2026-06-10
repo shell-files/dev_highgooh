@@ -68,7 +68,7 @@ const Asn = () => {
  
   /* ── 렌더링 ── */
   return (
-    <>
+    <div id="asn-page">
       <div id="asn-management-page" className="page-content active">
         <div className="page-header-flex">
           <h2 className="page-title">사전입고 통지(ASN) 관리</h2>
@@ -202,7 +202,7 @@ const Asn = () => {
           initialData={detailData}
         />
       )}
-    </>
+    </div>
   );
 };
  
