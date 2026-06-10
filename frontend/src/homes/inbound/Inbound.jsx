@@ -95,7 +95,7 @@ const Inbound = () => {
     const [size, setSize] = useState(20);
     const [detailData, setDetailData] = useState(null);
 
-    const openInboundDetailModal = (id) => {
+    const openDetailModal = (id) => {
         POST(`/inbound/${id}`).then(res => {
             if (res.status === true) {
                 setDetailData(res.data);
@@ -192,7 +192,7 @@ const Inbound = () => {
                                 list?.map((v, i) =>
                                     <tr key={i}>
                                         <td className="text-center">{v.ata}</td>
-                                        <td className="font-bold text-link" onClick={() => openInboundDetailModal(v.asnId)}>{v.asnId}</td>
+                                        <td className="font-bold text-link" onClick={() => openDetailModal(v.asnId)}>{v.asnId}</td>
                                         <td>{v.partnerName}</td>
                                         <td className="text-center">{v.warehouseName}</td>
                                     </tr>
