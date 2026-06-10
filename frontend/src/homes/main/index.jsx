@@ -7,6 +7,8 @@ import Inbound from '@homes/inbound/Inbound.jsx';
 import '@styles/common.css';
 import Anomaly from '@homes/carbonEmission/Anomaly.jsx';
 import CarbonDashboard from '@homes/carbonEmission/CarbonDashboard.jsx';
+import OutboundOrder from '@homes/outboundOP/OutboundOrder.jsx';
+
 
 const Home = () => {
   return (
@@ -21,6 +23,7 @@ const Home = () => {
               <Route path='/inbound' element={<Inbound />}/>
               <Route path='/anomaly' element={<Anomaly />}/>
               <Route path='/carbonemission' element={<CarbonDashboard />}/>
+              <Route path='/order' element={<OutboundOrder />}/>
             </Routes>
           </div>
       </div>
