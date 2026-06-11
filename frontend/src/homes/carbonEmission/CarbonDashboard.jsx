@@ -86,7 +86,7 @@ const CarbonDashboard = () => {
 
           {/* 연도 선택 */}
           <div className="toggle-group-item id_quarter">
-            <div className="select_label"><span>연도 선택</span></div>
+            <div className="select_label"><label>연도 선택</label></div>
             <div className="toggle-content">
               <select
                 className="year-select btn-filter-tab"
@@ -110,7 +110,7 @@ const CarbonDashboard = () => {
             <>
               {/* 분기 선택 영역 */}
               <div className="toggle-group-item id_quarter">
-                <div className="select_label"><span>분기 선택</span></div>
+                <div className="select_label"><label>분기 선택</label></div>
                 <div className="toggle-content">
                   {[
                     { code: "all", name: "전체" },
@@ -133,7 +133,7 @@ const CarbonDashboard = () => {
 
               {/* 월 선택 영역 */}
               <div className="toggle-group-item id_quarter">
-                <div className="select_label"><span>월 선택</span></div>
+                <div className="select_label"><label>월 선택</label></div>
                 <div className="toggle-content">
                   <select
                     className="year-select btn-filter-tab"
