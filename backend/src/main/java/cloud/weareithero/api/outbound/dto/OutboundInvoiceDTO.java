@@ -38,12 +38,10 @@ public class OutboundInvoiceDTO {
     private int packingId;
 
     @Schema(description = "운송장번호 (OUTBOUND_PACKING.invoice_number, 채번 후 저장)")
-    private String invoiceNumber;
+    private String invoiceNumber; 
 
     // TODO: 송장번호 채번 방식 팀 결정 필요
     //   옵션 A) 날짜 + OUTBOUND_PACKING.id 조합 (INV-YYYYMMDD-{packingId})
-    //   옵션 B) 별도 시퀀스 테이블
-    //   옵션 C) UUID
 
     private int stateCode;
 }
