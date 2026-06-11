@@ -19,10 +19,7 @@ const PrivateRoute = () => {
 };
 
 function App() {
-const location = useLocation();
   
-  // 주소가 바뀔 때마다 콘솔에 찍어봅니다.
-  console.log(" 현재 브라우저 주소 위치:", location.pathname);
   return (
     <>
       <Routes>
