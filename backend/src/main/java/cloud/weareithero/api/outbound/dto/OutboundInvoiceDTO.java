@@ -45,4 +45,5 @@ public class OutboundInvoiceDTO {
     //   옵션 B) 별도 시퀀스 테이블
     //   옵션 C) UUID
 
+    private int stateCode;
 }
