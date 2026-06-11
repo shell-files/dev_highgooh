@@ -6,6 +6,7 @@ import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
 import cloud.weareithero.api.outbound.dto.OutboundInvoiceDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
+import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
 import cloud.weareithero.api.outbound.dto.OutboundProductDTO;
 import cloud.weareithero.api.outbound.dto.OutboundRequestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundSummaryDTO;
@@ -14,29 +15,40 @@ import cloud.weareithero.api.outbound.dto.OutboundVehicleAssignDTO;
 
 public interface OutboundDao {
 
+    /** OUTBOUND 기준 집계 5종 */
     public OutboundSummaryDTO findSummary(OutboundRequestDTO outboundRequestDTO);
 
-    public List<OutboundDTO> findAll(OutboundRequestDTO outboundRequestDTO);
+    /** OUTBOUND_PACKING 박스 목록 (필터 + 페이지네이션) */
+    public List<OutboundPackingDTO> findAll(OutboundRequestDTO outboundRequestDTO);
 
+    /** OUTBOUND 단건 조회 */
     public OutboundDTO findByOutboundId(int outboundId);
 
+    /** OUTBOUND_PACKING 단건 조회 (상태 가드용) */
+    public OutboundPackingDTO findByPackingId(int packingId);
+
+    /** ORDER_PRODUCT 목록 조회 */
     public List<OutboundProductDTO> findProducts(int outboundId);
 
+    /** OUTBOUND_TRANSPORTATION 기준 매니페스트 목록 */
     public List<OutboundManifestDTO> findAllManifest(OutboundRequestDTO outboundRequestDTO);
 
+    /** 운송사 목록 (carrier_yn_code = 1) */
     public List<OutboundCarrierDTO> findByCarrier();
 
+    /** 차량 목록 */
     public List<OutboundTransportationVehicleDTO> findByVehicle();
 
-    // 차량 배정: OUTBOUND_TRANSPORTATION INSERT → 생성된 PK 반환
+    /** OUTBOUND_TRANSPORTATION INSERT - useGeneratedKeys로 transportationId 반환 */
     public int addTransportation(OutboundVehicleAssignDTO outboundVehicleAssignDTO);
 
-    // 차량 배정: 개별 OUTBOUND에 transportationId 연결 UPDATE
-    public int updateTransportationId(int outboundId, int transportationId);
+    /** OUTBOUND_PACKING에 transportationId 연결 UPDATE */
+    public int updatePackingTransportation(int packingId, int transportationId);
 
-    public int updateInvoice(OutboundInvoiceDTO outboundInvoiceDTO);
+    /** OUTBOUND_PACKING invoice_number + state_code UPDATE */
+    public int updateInvoiceNumber(OutboundInvoiceDTO outboundInvoiceDTO);
 
-    // 출고 확정: state_code UPDATE
-    public int updateStateCode(int outboundId, int stateCode);
+    /** OUTBOUND_TRANSPORTATION 출고확정 UPDATE (state_code + atd) */
+    public int updateTransportationConfirm(int transportationId, int stateCode);
 
 }

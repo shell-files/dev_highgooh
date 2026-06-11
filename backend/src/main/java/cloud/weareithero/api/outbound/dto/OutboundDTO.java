@@ -1,30 +1,35 @@
 package cloud.weareithero.api.outbound.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * OUTBOUND 단건 조회 DTO (상세 모달 헤더용)
+ *
+ * 기준 테이블: OUTBOUND
+ *   id, partner_company_id, order_date, deadline, etd, state_code, updated_at
+ *
+ * JOIN:
+ *   PARTNER_COMPANY_MASTER (고객사명)
+ *   COMMON_CODE (상태명)
+ */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class OutboundDTO {
 
-    private int outboundId;           // OUTBOUND.id
-    private String orderNo;           // OUTBOUND.id가 주문번호의 역할을 해서 outboundId 둘 중 하나만 있어도 되지 않나?
-    private String customerName;      // PARTNER_COMPANY_MASTER.name (고객사명)
-    private String carrierName;       // 운송사명 (PARTNER_COMPANY_MASTER.carrier_yn_code)
-
-    private String invoiceNo;         // 송장번호 (invoice_no 컬럼 존재)
-    private LocalDateTime etd;        // 기한 / 예상 출고 일시 (OUTBOUND.etd)
-
-    private int stateCode;            // OUTBOUND.state_code (COMMON_CODE 테이블에서 id 가져옴)
-    private String stateName;         // COMMON_CODE.name (출고대기 / 출고처리중 / 출고완료 / 부분출고 총 4개 존재함)
-
-    // 매니페스트 뷰 연결용 (차량 배정 후 설정)
-    private Integer transportationId;     // OUTBOUND_TRANSPORTATION.id (FK: transportation_vehicle_id 컬럼 존재)
+    private int outboundId;         // OUTBOUND.id
+    private int partnerId;          // OUTBOUND.partner_company_id
+    private String partnerName;     // PARTNER_COMPANY_MASTER.name (고객사)
+    private LocalDate orderDate;    // OUTBOUND.order_date
+    private LocalDate deadline;     // OUTBOUND.deadline (주문 마감일)
+    private LocalDate etd;          // OUTBOUND.etd (출발 예정일)
+    private int stateCode;          // OUTBOUND.state_code
+    private String stateName;       // COMMON_CODE.name
 
 }

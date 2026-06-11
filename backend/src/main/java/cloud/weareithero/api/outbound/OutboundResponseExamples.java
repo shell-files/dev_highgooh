@@ -20,18 +20,18 @@ public interface OutboundResponseExamples {
           "outboundId": 0,
           "orderNo": "",
           "customerName": "",
-          "stateCode": 6,
-          "orderStart": "2026-05-20",
-          "orderEnd": "2026-06-25",
+          "stateCode": 1,
+          "orderStart": "2026-06-01",
+          "orderEnd": "2026-06-30",
           "page": 1,
           "size": 20
         }
         """;
 
-    final String FIND_ALL_BY_ORDER = """
+    final String FIND_ALL_BY_OUTBOUND = """
         {
-          "outboundId": 0,
-          "orderNo": "PO-20260602",
+          "outboundId": 1,
+          "orderNo": "",
           "customerName": "",
           "stateCode": 0,
           "orderStart": "",
