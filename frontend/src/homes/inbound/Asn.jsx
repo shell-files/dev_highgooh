@@ -71,7 +71,7 @@ const Asn = () => {
     <div id="asn-page">
       <div id="asn-management-page" className="page-content active">
         <div className="page-header-flex">
-          <h2 className="page-title">사전입고 통지(ASN) 관리</h2>
+          <h2 className="page-title">ASN 관리</h2>
           <button className="btn-main-action" onClick={openAsnModal}>+ ASN 등록 추가</button>
         </div>
  
