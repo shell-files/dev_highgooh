@@ -1,13 +1,13 @@
 package cloud.weareithero.api.packing;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.api.packing.service.PackingService;
 import cloud.weareithero.dto.ResponseDTO;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
