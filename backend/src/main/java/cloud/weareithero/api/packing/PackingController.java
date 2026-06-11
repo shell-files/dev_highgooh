@@ -2,10 +2,12 @@ package cloud.weareithero.api.packing;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.api.packing.service.PackingService;
 import cloud.weareithero.dto.ResponseDTO;
@@ -25,9 +27,15 @@ public class PackingController implements PackingControllerDocs {
     }
 
     @PostMapping("/{orderId:[0-9]+}")
-    // @Override
+    @Override
     public ResponseDTO findOne(@PathVariable Integer orderId) {
         return packingService.findOne(orderId);
     }
     
+    @PutMapping
+    @Override
+    public ResponseDTO InsertPacking(@RequestBody PackingInvoiceDTO packingInvoiceDTO) {
+        return packingService.InsertPacking(packingInvoiceDTO);
+    }
+
 }

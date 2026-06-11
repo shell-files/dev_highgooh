@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import cloud.weareithero.api.packing.dao.PackingDaoImp;
 import cloud.weareithero.api.packing.dto.PackingDTO;
+import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
 import cloud.weareithero.api.packing.dto.PackingOrderProductDTO;
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.api.packing.dto.PackingSummaryDTO;
@@ -72,6 +73,27 @@ public class PackingServiceImp implements PackingService {
         return ResponseDTO.builder()
             .status(isSuccess)
             .data(data)
+            .message(message)
+            .build();
+    }
+
+    
+    @Override
+    public ResponseDTO InsertPacking(PackingInvoiceDTO packingInvoiceDTO) {
+        boolean isSuccess = false;
+        String message = null;
+        
+        try {
+            // todo
+            isSuccess = true;
+            message = "Packing 탭 // 패킹 송장 생성 및 인쇄가 완료되었습니다.";
+        } catch (Exception e) {
+            log.info("PackingServiceImp InsertPacking error : {}", e.getMessage());
+            message = "Packing 탭 // 패킹 송장 생성 및 인쇄에 실패했습니다.";
+        }
+        return ResponseDTO.builder()
+            .status(isSuccess)
+            // .data(data)
             .message(message)
             .build();
     }
