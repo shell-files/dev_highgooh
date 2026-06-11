@@ -40,10 +40,10 @@ public class PackingServiceImp implements PackingService {
             data.put("list", list);
             data.put("pagination", pagination);
             isSuccess = true;
-            message = "Packing 조회가 완료되었습니다.";
+            message = "Packing 탭 // 주문 목록 조회가 완료되었습니다.";
         } catch (Exception e) {
             log.info("PackingServiceImp findAll error : {}", e.getMessage());
-            message = "Packing 조회에 실패했습니다.";
+            message = "Packing 탭 // 주문 목록 조회에 실패했습니다.";
         }
         return ResponseDTO.builder()
             .status(isSuccess)
@@ -51,4 +51,33 @@ public class PackingServiceImp implements PackingService {
             .message(message)
             .build();
     }
+
+    @Override
+    public ResponseDTO findOne() {
+        return null;
+    }
+
+
+    // @Override
+    // public ResponseDTO findOne(int orderId) {
+    //     boolean isSuccess = false;
+    //     String message = null;
+    //     Map<String, Object> data = new HashMap<>();
+
+    //     try {
+    //         List<PackingDTO> list = packingDao.findOne(orderId);
+    //         data.put("list", list);
+    //         isSuccess = true;
+    //         message = "Packing 탭 // 주문 상세 정보 조회가 완료되었습니다.";
+    //     } catch (Exception e) {
+    //         log.info("PackingServiceImp findOne error : {}", e.getMessage());
+    //         message = "Packing 탭 // 주문 상세 정보 조회가 실패했습니다.";
+    //     }
+    //     return ResponseDTO.builder()
+    //         .status(isSuccess)
+    //         .data(data)
+    //         .message(message)
+    //         .build();
+    // }
+
 }

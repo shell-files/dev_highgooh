@@ -6,4 +6,8 @@ import cloud.weareithero.dto.ResponseDTO;
 public interface PackingService {
     
     public ResponseDTO findAll(PackingRequestDTO packingRequestDTO);
+
+    public ResponseDTO findOne();
+
+
 }

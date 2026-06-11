@@ -299,7 +299,7 @@ export default function PackingPage() {
               {/* 마스터 필수 인풋 그룹 */}
               <div className="modal-form-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '1rem', padding: '0 0.5rem' }}>
                 <div className="form-group">
-                  <label>주문번호(ASN)</label>
+                  <label>주문번호</label>
                   <input type="text" className="modal-input" value={selectedOrderNo} readOnly style={{ backgroundColor: '#f8fafc' }} />
                 </div>
                 <div className="form-group">
