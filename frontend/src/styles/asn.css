@@ -2,7 +2,7 @@
    8. ASN 메인 리스트 레이아웃 (ASN Management Main UI)
    ========================================================================== */
 
-.page-header-flex {
+#asn-page.page-header-flex {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -11,7 +11,7 @@
     margin-bottom: 1.5rem;
 }
 
-.page-title {
+#asn-page .page-title {
     font-size: 1.35rem;
     color: var(--text-dark);
     font-weight: 700;
@@ -19,62 +19,62 @@
 
 
 
-.btn-filter-search{
+#asn-page .btn-filter-search{
     margin-left: auto;
 }
 
 /* 테이블 공통 서식 */
-.table-responsive {
+#asn-page .table-responsive {
     width: 100%;
     overflow-x: auto;
 }
 
-.main-list-table {
+#asn-page .main-list-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
 }
 
-.main-list-table th, 
-.main-list-table td {
+#asn-page .main-list-table th, 
+#asn-page .main-list-table td {
     padding: 0.8rem 1rem;
     border-bottom: 1px solid var(--border-color);
     text-align: left;
     text-align: center;
 }
 
-.main-list-table th {
+#asn-page .main-list-table th {
     background-color: #f8fafc;
     color: var(--text-dark);
     font-weight: 600;
 }
 
-.main-list-table tr:hover td {
+#asn-page .main-list-table tr:hover td {
     background-color: #f1f5f9;
 }
 
-.text-link {
+#asn-page .text-link {
     color: var(--primary-green);
     font-weight: 600;
     text-decoration: underline;
 }
 
 /* 상태 표시 배지 */
-.status-badge {
+#asn-page .status-badge {
     padding: 0.25rem 0.6rem;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: bold;
 }
-.status-badge.ready { background-color: #e6fffa; color: #234e52; }
-.status-badge.complete { background-color: #edf2f7; color: #4a5568; }
+#asn-page .status-badge.ready { background-color: #e6fffa; color: #234e52; }
+#asn-page .status-badge.complete { background-color: #edf2f7; color: #4a5568; }
 
 
 /* ==========================================================================
    9. ASN 등록 모달 팝업창 구조 (Modal Popup UI)
    ========================================================================== */
 
-.modal-overlay {
+#asn-page .modal-overlay {
     display: none; /* 기본 숨김 상태*/
     position: fixed;
     left: 0;
@@ -90,7 +90,7 @@
     align-items: center;
 }
 
-.modal-overlay2 {
+#asn-page .modal-overlay2 {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -99,11 +99,11 @@
 }
 
 /* 모달이 활성화되었을 때 중앙 정렬 노출 */
-.modal-overlay.active, .modal-overlay2.active {
+#asn-page .modal-overlay.active, #asn-page .modal-overlay2.active {
     display: flex;
 }
 
-.modal-window {
+#asn-page .modal-window {
     background-color: #ffffff;
     border-radius: 8px;
     width: 850px;
@@ -120,7 +120,7 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.modal-header {
+#asn-page .modal-header {
     background-color: #ffffff;
     padding: 1.2rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
@@ -129,13 +129,13 @@
     align-items: center;
 }
 
-.modal-header h3 {
+#asn-page .modal-header h3 {
     font-size: 1.15rem;
     color: var(--text-dark);
     font-weight: 700;
 }
 
-.modal-close-btn {
+#asn-page .modal-close-btn {
     background: none;
     border: none;
     font-size: 1.5rem;
@@ -143,14 +143,14 @@
     color: var(--text-muted);
 }
 
-.modal-body {
+#asn-page .modal-body {
     padding: 1.5rem;
     overflow-y: auto;
     max-height: 70vh;
 }
 
 /* 팝업 서브 섹션 타이틀 서식 */
-.sub-title {
+#asn-page .sub-title {
     font-size: 0.95rem;
     color: var(--text-dark);
     font-weight: 600;
@@ -160,7 +160,7 @@
     margin-bottom: 1.2rem;
 }
 
-.sub-title::before {
+#asn-page .sub-title::before {
     content: '';
     display: inline-block;
     width: 3px;
@@ -169,20 +169,20 @@
     border-radius: 2px;
 }
 
-.input-box {
+#asn-page .input-box {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     margin-bottom: 1rem;
 }
 
-.input-box label {
+#asn-page .input-box label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-dark);
 }
 
-.input-box input, .input-box select {
+#asn-page .input-box input, #asn-page .input-box select {
     padding: 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -191,36 +191,36 @@
     width: 100%;
 }
 
-.input-box input:focus, .input-box select:focus {
+#asn-page .input-box input:focus, #asn-page .input-box select:focus {
     border-color: var(--primary-green);
 }
 
-.disabled-bg {
+#asn-page .disabled-bg {
     background-color: #f5f5f5;
     color: #888;
     cursor: not-allowed;
 }
 
 /* 모달 그리드 테이블 서식 (원본 스타일 유지용) */
-.popup-grid-table {
+#asn-page .popup-grid-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.85rem;
 }
 
-.popup-grid-table th, .popup-grid-table td {
+#asn-page .popup-grid-table th, #asn-page .popup-grid-table td {
     border: 1px solid var(--border-color);
     padding: 0.5rem;
     vertical-align: middle;
 }
 
-.popup-grid-table th {
+#asn-page .popup-grid-table th {
     background-color: #f8fafc;
     font-weight: 600;
     text-align: center;
 }
 
-.table-inner-input {
+#asn-page .table-inner-input {
     width: 100%;
     padding: 0.35rem;
     border: 1px solid transparent;
@@ -230,25 +230,25 @@
     outline: none;
 }
 
-.table-inner-input:focus {
+#asn-page .table-inner-input:focus {
     border-color: var(--primary-green);
     background-color: #ffffff;
 }
 
-.table-inner-input:disabled {
+#asn-page .table-inner-input:disabled {
     color: var(--text-dark);
     border: none;
 }
 
-.highlight-field {
+#asn-page .highlight-field {
     border: 1px solid #cbd5e0;
     background-color: #fcfdfa;
 }
 
-.text-center { text-align: center; }
-.text-right { text-align: right; }
+#asn-page .text-center { text-align: center; }
+#asn-page .text-right { text-align: right; }
 
-.btn-secondary-sm {
+#asn-page .btn-secondary-sm {
     background: #fff;
     color: var(--primary-green);
     border: 1px solid var(--primary-green);
@@ -260,7 +260,7 @@
 }
 
 /* 팝업 하단 푸터 제어 영역 */
-.modal-footer {
+#asn-page .modal-footer {
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-color);
     display: flex;
@@ -268,7 +268,7 @@
     gap: 0.5rem;
 }
 
-.btn-pop-submit {
+#asn-page .btn-pop-submit {
     background-color: var(--primary-green);
     color: white;
     border: none;
@@ -278,7 +278,7 @@
     cursor: pointer;
 }
 
-.btn-pop-cancel {
+#asn-page .btn-pop-cancel {
     background-color: #e2e8f0;
     color: #4a5568;
     border: none;
@@ -288,7 +288,7 @@
     cursor: pointer;
 }
 
-.section-header-flex {
+#asn-page .section-header-flex {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -300,14 +300,15 @@
 
 
 
-.order-summary-grid {
+
+#asn-page .order-summary-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
-.summary-card-item {
+#asn-page .summary-card-item {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -319,26 +320,26 @@
 }
 
 /* 내부 데이터 텍스트 배벨 정렬 트랙 */
-.card-info-left {
+#asn-page .card-info-left {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
 }
 
-.summary-label {
+#asn-page .summary-label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-muted);
 }
 
-.summary-value {
+#asn-page .summary-value {
     font-size: 1.8rem;
     font-weight: 700;
     color: var(--text-dark);
     line-height: 1.1;
 }
 
-.summary-value small {
+#asn-page .summary-value small {
     font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 500;
@@ -346,12 +347,12 @@
 }
 
 /* 우측 상태 고정 배지 가로 폭 맞춤 */
-.card-trend-right {
+#asn-page .card-trend-right {
     display: flex;
     align-items: center;
 }
 
-.status-badge {
+#asn-page .status-badge {
     font-size: 0.78rem;
     font-weight: 700;
     padding: 0.3rem 0.6rem;
@@ -360,68 +361,68 @@
 }
 
 /* 입고이력 톤앤매너에 맞춘 배경 및 폰트 유틸리티 매핑 */
-.bg-all-light {
+#asn-page .bg-all-light {
     background-color: #f1f5f9;
 }
 
-.bg-orange-light {
+#asn-page .bg-orange-light {
     background-color: #fffaf0;
     border: 1px solid #feebc8;
 }
 
-.bg-green-light {
+#asn-page .bg-green-light {
     background-color: #f0fff4;
     border: 1px solid #c6f6d5;
 }
 
-.bg-red-light {
+#asn-page .bg-red-light {
     background-color: #fff5f5;
     border: 1px solid #fed7d7;
 }
 
-.bg-blue-light {
+#asn-page .bg-blue-light {
     background-color: #f0f9ff;
     border: 1px solid #d7f0fe;
 }
 
 
-.text-orange {
+#asn-page .text-orange {
     color: #dd6b20 !important;
 }
 
-.text-green {
+#asn-page .text-green {
     color: var(--primary-green) !important;
 }
 
-.text-blue {
+#asn-page .text-blue {
     color: #3182ce !important;
 }
 
-.text-red {
+#asn-page .text-red {
     color: var(--accent-red) !important;
 }
 
 
 
 /* 정렬 보조 */
-.text-right {
+#asn-page .text-right {
     text-align: right;
 }
 
 /* 상세 팝업 가변 테이블 인풋 리디자인 스타일 */
-#detailAsnTableBody .modal-input {
+#asn-page #detailAsnTableBody .modal-input {
     border: 1px solid #cbd5e1;
     border-radius: 4px;
     font-size: 0.875rem;
     transition: border-color 0.2s ease;
 }
-#detailAsnTableBody .modal-input:focus {
+#asn-page #detailAsnTableBody .modal-input:focus {
     border-color: var(--primary-color);
     outline: none;
     background-color: #ffffff;
 }
 
-.btn-delete-row {
+#asn-page .btn-delete-row {
     background: none;
     border: none;
     color: #a0aec0;
@@ -431,6 +432,6 @@
     padding: 0 0.5rem;
 }
 
-.btn-delete-row:hover {
+#asn-page .btn-delete-row:hover {
     color: var(--accent-red);
 }
