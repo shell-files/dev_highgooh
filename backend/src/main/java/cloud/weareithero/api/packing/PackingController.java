@@ -27,7 +27,7 @@ public class PackingController implements PackingControllerDocs {
     @PostMapping("/{orderId:[0-9]+}")
     // @Override
     public ResponseDTO findOne(@PathVariable Integer orderId) {
-        return null;
+        return packingService.findOne(orderId);
     }
     
 }
