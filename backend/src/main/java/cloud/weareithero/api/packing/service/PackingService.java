@@ -7,7 +7,7 @@ public interface PackingService {
     
     public ResponseDTO findAll(PackingRequestDTO packingRequestDTO);
 
-    public ResponseDTO findOne();
+    public ResponseDTO findOne(int orderId);
 
 
 }
