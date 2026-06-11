@@ -14,10 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "출고/송장 관리", description = "출고 목록 조회 · 매니페스트 조회 · 차량 배정 · 송장 발급 · 출고 확정 API")
+@Tag(name = "Outbound 출고 관리", description = "박스 목록 조회 · 매니페스트 조회 · 차량 배정 · 송장 발급 · 출고 확정 API")
 public interface OutboundControllerDocs {
 
-    @Operation(summary = "출고 박스 목록 조회", description = "Outbound API")
+    @Operation(summary = "출고 박스 목록 조회", description = "OUTBOUND_PACKING 기준 박스 뷰 목록 + 상단 집계 카드 + 페이지네이션")
     @ApiCommonSuccess
     @ApiCommonErrors
     public ResponseDTO findAll(@RequestBody(
@@ -25,30 +25,30 @@ public interface OutboundControllerDocs {
             schema = @Schema(implementation = OutboundRequestDTO.class),
             examples = {
                 @ExampleObject(
-                    name = "1. 전체 검색 예시",
+                    name = "1. 전체 조회",
                     value = OutboundResponseExamples.FIND_ALL_DEFAULT,
-                    description = "전체 기간 동안의 출고 박스 목록을 조회할 때 사용합니다."
+                    description = "조건 없이 전체 박스 목록 조회"
                 ),
                 @ExampleObject(
-                    name = "2. 날짜 범위 + 상태 검색 예시",
+                    name = "2. 날짜 + 상태 필터",
                     value = OutboundResponseExamples.FIND_ALL_FILTER,
-                    description = "특정 기간 및 진행 상태로 필터링할 때 사용합니다."
+                    description = "기간 및 상태 필터 조회"
                 ),
                 @ExampleObject(
-                    name = "3. 주문번호 검색 예시",
-                    value = OutboundResponseExamples.FIND_ALL_BY_ORDER,
-                    description = "주문번호로 검색할 때 사용합니다."
+                    name = "3. 주문번호 검색",
+                    value = OutboundResponseExamples.FIND_ALL_BY_OUTBOUND,
+                    description = "주문번호(OUTBOUND.id) 기준 검색"
                 )
             }
         ))
         OutboundRequestDTO outboundRequestDTO);
 
-    @Operation(summary = "출고 주문 상세 조회", description = "Outbound API")
+    @Operation(summary = "출고 주문 상세 조회", description = "OUTBOUND 단건 헤더 + ORDER_PRODUCT 목록")
     @ApiCommonSuccess
     @ApiCommonErrors
     public ResponseDTO findOne(Integer outboundId);
 
-    @Operation(summary = "매니페스트 목록 조회", description = "Outbound API")
+    @Operation(summary = "매니페스트 목록 조회", description = "OUTBOUND_TRANSPORTATION 기준 매니페스트 뷰 + 페이지네이션")
     @ApiCommonSuccess
     @ApiCommonErrors
     public ResponseDTO findAllManifest(@RequestBody(
@@ -56,30 +56,30 @@ public interface OutboundControllerDocs {
             schema = @Schema(implementation = OutboundRequestDTO.class),
             examples = {
                 @ExampleObject(
-                    name = "1. 전체 검색 예시",
+                    name = "1. 전체 조회",
                     value = OutboundResponseExamples.FIND_ALL_DEFAULT,
-                    description = "전체 매니페스트 목록을 조회합니다."
+                    description = "전체 매니페스트 목록 조회"
                 )
             }
         ))
         OutboundRequestDTO outboundRequestDTO);
 
-    @Operation(summary = "출고 폼 데이터 조회 (운송사·차량 목록)", description = "Outbound API")
+    @Operation(summary = "출고 폼 데이터 조회", description = "차량 배정 모달용 운송사·차량 드롭다운 데이터")
     @ApiCommonSuccess
     @ApiCommonErrors
     public ResponseDTO findAllOutbound();
 
-    @Operation(summary = "차량 배정", description = "Outbound API")
+    @Operation(summary = "차량 배정", description = "OUTBOUND_TRANSPORTATION INSERT 후 OUTBOUND_PACKING 일괄 UPDATE")
     @ApiCommonSuccess
     @ApiCommonErrors
     public ResponseDTO assignVehicle(OutboundVehicleAssignDTO outboundVehicleAssignDTO);
 
-    @Operation(summary = "송장 발급", description = "Outbound API")
+    @Operation(summary = "송장 발급", description = "OUTBOUND_PACKING.invoice_number 저장 + 상태 변경")
     @ApiCommonSuccess
     @ApiCommonErrors
     public ResponseDTO issueInvoice(OutboundInvoiceDTO outboundInvoiceDTO);
 
-    @Operation(summary = "출고 확정", description = "Outbound API")
+    @Operation(summary = "출고 확정", description = "OUTBOUND_TRANSPORTATION 출고완료 처리 + atd 기록")
     @ApiCommonSuccess
     @ApiCommonErrors
     public ResponseDTO confirmShipment(OutboundConfirmDTO outboundConfirmDTO);

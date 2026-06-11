@@ -8,6 +8,7 @@ import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
 import cloud.weareithero.api.outbound.dto.OutboundInvoiceDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
+import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
 import cloud.weareithero.api.outbound.dto.OutboundProductDTO;
 import cloud.weareithero.api.outbound.dto.OutboundRequestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundSummaryDTO;
@@ -29,13 +30,18 @@ public class OutboundDaoImp implements OutboundDao {
     }
 
     @Override
-    public List<OutboundDTO> findAll(OutboundRequestDTO outboundRequestDTO) {
+    public List<OutboundPackingDTO> findAll(OutboundRequestDTO outboundRequestDTO) {
         return outboundMapper.findAll(outboundRequestDTO);
     }
 
     @Override
     public OutboundDTO findByOutboundId(int outboundId) {
         return outboundMapper.findByOutboundId(outboundId);
+    }
+
+    @Override
+    public OutboundPackingDTO findByPackingId(int packingId) {
+        return outboundMapper.findByPackingId(packingId);
     }
 
     @Override
@@ -61,23 +67,23 @@ public class OutboundDaoImp implements OutboundDao {
     @Override
     public int addTransportation(OutboundVehicleAssignDTO outboundVehicleAssignDTO) {
         outboundMapper.addTransportation(outboundVehicleAssignDTO);
-        // @Options(useGeneratedKeys = true, keyProperty = "transportationId") 로 PK 주입
+        // @Options(useGeneratedKeys = true, keyProperty = "transportationId") 로 PK 자동 주입
         return outboundVehicleAssignDTO.getTransportationId();
     }
 
     @Override
-    public int updateTransportationId(int outboundId, int transportationId) {
-        return outboundMapper.updateTransportationId(outboundId, transportationId);
+    public int updatePackingTransportation(int packingId, int transportationId) {
+        return outboundMapper.updatePackingTransportation(packingId, transportationId);
     }
 
     @Override
-    public int updateInvoice(OutboundInvoiceDTO outboundInvoiceDTO) {
-        return outboundMapper.updateInvoice(outboundInvoiceDTO);
+    public int updateInvoiceNumber(OutboundInvoiceDTO outboundInvoiceDTO) {
+        return outboundMapper.updateInvoiceNumber(outboundInvoiceDTO);
     }
 
     @Override
-    public int updateStateCode(int outboundId, int stateCode) {
-        return outboundMapper.updateStateCode(outboundId, stateCode);
+    public int updateTransportationConfirm(int transportationId, int stateCode) {
+        return outboundMapper.updateTransportationConfirm(transportationId, stateCode);
     }
 
 }
