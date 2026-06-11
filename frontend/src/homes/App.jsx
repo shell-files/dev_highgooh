@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Outlet } from "react-router";
+import { Routes, Route, Navigate, Outlet,useLocation } from "react-router";
 // import '@styles/App.css';
 import Gate from '@gates/Gate.jsx';
 import NotFound from '@errors/NotFound.jsx';
@@ -19,7 +19,10 @@ const PrivateRoute = () => {
 };
 
 function App() {
-
+const location = useLocation();
+  
+  // 주소가 바뀔 때마다 콘솔에 찍어봅니다.
+  console.log(" 현재 브라우저 주소 위치:", location.pathname);
   return (
     <>
       <Routes>

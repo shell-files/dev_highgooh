@@ -3,12 +3,12 @@
    ========================================================================== */
 
 /* 상단 액션 그룹 레이아웃 */
-.history-actions {
+#inbound-page .history-actions {
     display: flex;
     gap: 0.5rem;
 }
 
-.btn-action-green {
+#inbound-page .btn-action-green {
     background-color: var(--primary-green);
     color: white;
     border: none;
@@ -20,11 +20,11 @@
     transition: background-color 0.2s;
 }
 
-.btn-action-green:hover {
+#inbound-page .btn-action-green:hover {
     background-color: var(--primary-hover);
 }
 
-.btn-action-gray {
+#inbound-page .btn-action-gray {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid #cbd5e0;
@@ -36,20 +36,20 @@
     transition: all 0.2s;
 }
 
-.btn-action-gray:hover {
+#inbound-page .btn-action-gray:hover {
     background-color: #f7fafc;
     border-color: #a0aec0;
 }
 
 /* 4분할 통계 데이터 현황판 그리드 */
-.history-summary-grid {
+#inbound-page .history-summary-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.25rem;
 }
 
-.summary-card {
+#inbound-page .summary-card {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-left: 4px solid #718096;
@@ -62,13 +62,13 @@
 }
 
 /* 신규 공급망 인디케이터 컬러 매핑 */
-.summary-card.border-blue { border-left-color: #3182ce; }
-.summary-card.border-purple { border-left-color: #805ad5; }
-.summary-card.border-indigo { border-left-color: #4c51bf; }
-.summary-card.border-green { border-left-color: var(--primary-green); }
+#inbound-page .summary-card.border-blue { border-left-color: #3182ce; }
+#inbound-page .summary-card.border-purple { border-left-color: #805ad5; }
+#inbound-page .summary-card.border-indigo { border-left-color: #4c51bf; }
+#inbound-page .summary-card.border-green { border-left-color: var(--primary-green); }
 
 
-.content-card {
+#inbound-page .content-card {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -79,66 +79,66 @@
 }
 
 
-.card-info {
+#inbound-page .card-info {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
 }
 
-.card-label {
+#inbound-page .card-label {
     font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 600;
 }
 
-.card-value {
+#inbound-page .card-value {
     font-size: 1.6rem;
     font-weight: 700;
     color: var(--text-dark);
 }
 
-.card-value small {
+#inbound-page .card-value small {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-muted);
 }
 
 /* 신규 텍스트 컬러 유틸리티 */
-.text-purple { color: #805ad5 !important; }
-.text-indigo { color: #4c51bf !important; }
-.text-green { color: var(--primary-green) !important; }
+#inbound-page .text-purple { color: #805ad5 !important; }
+#inbound-page .text-indigo { color: #4c51bf !important; }
+#inbound-page .text-green { color: var(--primary-green) !important; }
 
 /* 입고이력 메인 데이터 테이블 */
-.history-data-table {
+#inbound-page .history-data-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.88rem;
 }
 
-.history-data-table th,
-.history-data-table td {
+#inbound-page .history-data-table th,
+#inbound-page .history-data-table td {
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
 }
 
-.history-data-table th {
+#inbound-page .history-data-table th {
     background-color: #f8fafc;
     color: var(--text-dark);
     font-weight: 600;
 }
 
-.history-data-table tbody tr:hover td {
+#inbound-page .history-data-table tbody tr:hover td {
     background-color: #f1f5f9;
 }
 
-.text-center { text-align: center !important; }
-.text-right { text-align: right !important; }
-.font-bold { font-weight: 600; }
-.text-link { color: var(--primary-green); cursor: pointer; text-decoration: underline;}
+#inbound-page .text-center { text-align: center !important; }
+#inbound-page .text-right { text-align: right !important; }
+#inbound-page .font-bold { font-weight: 600; }
+#inbound-page .text-link { color: var(--primary-green); cursor: pointer; text-decoration: underline;}
 
 /* 미디어 쿼리 반응형 처리 */
-@media (max-width: 1200px) {
+/* @media (max-width: 1200px) {
     .history-summary-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -147,14 +147,14 @@
     .history-summary-grid {
         grid-template-columns: 1fr;
     }
-}
+} */
 
 
 /* ==========================================================================
    표 하단 페이지네이션 전용 레이아웃 확장 서식 
    ========================================================================== */
 
-.content-card .pagination-container {
+#inbound-page .content-card .pagination-container {
     display: flex !important;              /* Flex 무조건 강제 */
     flex-direction: row !important;         /* 🚨 column으로 바뀐 것을 다시 가로 방향(row)으로 리셋 */
     justify-content: space-between !important; /* 🚨 center로 깨진 정렬을 다시 양쪽 끝 정렬로 리셋 */
@@ -167,25 +167,25 @@
 }
 
 /* 좌측 정보 텍스트 서식 */
-.pagination-info {
+#inbound-page .pagination-info {
     font-size: 0.85rem;
     color: var(--text-muted);
 }
 
-.pagination-info span {
+#inbound-page .pagination-info span {
     font-weight: 600;
     color: var(--text-dark);
 }
 
 /* 중앙 페이지네이션 버튼 트랙 */
-.pagination-buttons {
+#inbound-page .pagination-buttons {
     display: flex;
     gap: 0.35rem;
     align-items: center;
 }
 
 /* 우측 페이지 로우 셀렉터 박스 */
-.pagination-size-selector select {
+#inbound-page .pagination-size-selector select {
     padding: 0.4rem 1.8rem 0.4rem 0.75rem;
     font-size: 0.85rem;
     color: var(--text-dark);
@@ -197,7 +197,7 @@
     transition: border-color 0.15s ease;
 }
 
-.pagination-size-selector select:focus {
+#inbound-page .pagination-size-selector select:focus {
     border-color: var(--primary-green);
 }
 
@@ -205,19 +205,19 @@
 /* ==========================================================================
    [추가] ASN 상세 조회 모달 전용 테두리 및 링크 스타일 서식
    ========================================================================== */
-.text-link {
+#inbound-page .text-link {
     color: var(--primary-green) !important;
     text-decoration: underline !important;
     cursor: pointer;
     font-weight: 700;
 }
 
-.text-link:hover {
+#inbound-page .text-link:hover {
     color: var(--primary-hover) !important;
 }
 
 /* 1. 모달 전체 오버레이 기본 숨김 처리 (★핵심 수정사항) */
-.modal-overlay {
+#inbound-page .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -231,12 +231,12 @@
 }
 
 /* active 클래스가 붙으면 유연하게 화면 중앙 배치 노출 */
-.modal-overlay.active {
+#inbound-page .modal-overlay.active {
     display: flex !important;
 }
 
 /* 2. 모달 컨테이너 윈도우 상자 디자인 */
-.modal-window {
+#inbound-page .modal-window {
     background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -252,7 +252,7 @@
 }
 
 /* 3. 모달 헤더 구역 */
-.modal-header {
+#inbound-page .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -261,14 +261,14 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-.modal-header h3 {
+#inbound-page .modal-header h3 {
     font-size: 1.1rem;
     color: var(--text-dark);
     font-weight: 700;
     margin: 0;
 }
 
-.modal-close-btn {
+#inbound-page .modal-close-btn {
     background: none;
     border: none;
     font-size: 1.5rem;
@@ -276,18 +276,18 @@
     cursor: pointer;
 }
 
-.modal-close-btn:hover {
+#inbound-page .modal-close-btn:hover {
     color: var(--text-dark);
 }
 
 /* 4. 엑셀 시트 탭 스타일시트 매칭 */
-.sheet-tabs {
+#inbound-page .sheet-tabs {
     display: flex;
     border-bottom: 1px solid var(--border-color);
     background-color: #f8fafc;
 }
 
-.sheet-tab-btn {
+#inbound-page .sheet-tab-btn {
     padding: 0.6rem 1.2rem;
     font-size: 0.85rem;
     font-weight: 600;
@@ -300,7 +300,7 @@
     gap: 0.3rem;
 }
 
-.sheet-tab-btn.active {
+#inbound-page .sheet-tab-btn.active {
     background-color: #ffffff;
     color: var(--primary-green);
     font-weight: 700;
@@ -309,12 +309,12 @@
 }
 
 /* 5. 엑셀 양식 테이블 팝업 전용 상세 테두리 라인업 */
-.excel-styled-table {
+#inbound-page .excel-styled-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.excel-styled-table th {
+#inbound-page .excel-styled-table th {
     font-weight: 600;
     color: #4a5568;
     background-color: #f1f5f9 !important;
@@ -324,7 +324,7 @@
     font-size: 0.85rem;
 }
 
-.excel-styled-table td {
+#inbound-page .excel-styled-table td {
     border: 1px solid var(--border-color) !important;
     padding: 0.6rem;
     font-size: 0.85rem;
