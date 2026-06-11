@@ -76,7 +76,7 @@ const CarbonDashboard = () => {
 
 
   return (
-    <>
+    <div id="carbon-page">
       <div className="page-header-flex">
         <h2 className="page-title">탄소배출량 대시보드</h2>
       </div>
@@ -228,7 +228,7 @@ const CarbonDashboard = () => {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
