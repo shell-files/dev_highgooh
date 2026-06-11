@@ -209,20 +209,16 @@ export default function PackingPage() {
           <div className="card-trend-right"><span className="status-badge bg-all-light text-muted">당월</span></div>
         </div>
         <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">패킹 완료</span><span className="summary-value text-green">{summaryData.completed}<small>건</small></span></div>
+          <div className="card-info-left"><span className="summary-label">신규</span><span className="summary-value text-green">{summaryData.completed}<small>건</small></span></div>
           <div className="card-trend-right"><span className="status-badge bg-green-light text-green">당월</span></div>
         </div>
         <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">신규</span><span className="summary-value text-blue">{summaryData.new}<small>건</small></span></div>
-          <div className="card-trend-right"><span className="status-badge bg-blue-light text-blue">당월</span></div>
-        </div>
-        <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">기한 임박</span><span className="summary-value text-orange">{summaryData.imminent}<small>건</small></span></div>
+          <div className="card-info-left"><span className="summary-label">패킹중</span><span className="summary-value text-orange">{summaryData.imminent}<small>건</small></span></div>
           <div className="card-trend-right"><span className="status-badge bg-orange-light text-orange">당월</span></div>
         </div>
         <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">기한 초과</span><span className="summary-value text-red">{summaryData.overdue}<small>건</small></span></div>
-          <div className="card-trend-right"><span className="status-badge bg-red-light text-red">당월</span></div>
+          <div className="card-info-left"><span className="summary-label">패킹완료</span><span className="summary-value text-blue">{summaryData.new}<small>건</small></span></div>
+          <div className="card-trend-right"><span className="status-badge bg-blue-light text-blue">당월</span></div>
         </div>
       </div>
 
