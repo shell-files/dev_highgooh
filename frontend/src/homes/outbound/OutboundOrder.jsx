@@ -90,7 +90,7 @@ const OutboundOrder = () => {
 
 
   return (
-    <>
+    <div id="order-page">
       
         
           <div className="page-header-flex">
@@ -211,7 +211,7 @@ const OutboundOrder = () => {
           />
         )}
       
-    </>
+    </div>
   );
 };
 

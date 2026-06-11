@@ -1,3 +1,4 @@
+// @homes/Main/Home.jsx (또는 Home 컴포넌트 파일)
 import { Routes, Route } from 'react-router';
 import '@styles/common.css';
 import Header from '@components/Layout/Header.jsx';
@@ -20,15 +21,16 @@ const Home = () => {
           <Sidebar />
           <div className="content-area">
             <Routes>
-              <Route path='/' element={<Main />}/>
-              <Route path='/asn' element={<Asn />}/>
-              <Route path='/inbound' element={<Inbound />}/>
-              <Route path='/order' element={<OutboundOrder />}/>
-              <Route path='/outbound' element={<Outbound />}/>
-              <Route path='/outhistory' element={<OutHistory />}/>
-              <Route path='/anomaly' element={<Anomaly />}/>
-              <Route path='/carbonemission' element={<CarbonDashboard />}/>
-              <Route path='/packing' element={<Packing />}/>
+              {/* ⚠️ 맨 앞의 슬래시(/)를 모두 제거했습니다. */}
+              <Route path='' element={<Main />}/>
+              <Route path='asn' element={<Asn />}/>
+              <Route path='inbound' element={<Inbound />}/>
+              <Route path='order' element={<OutboundOrder />}/>
+              <Route path='outbound' element={<Outbound />}/>
+              <Route path='outhistory' element={<OutHistory />}/>
+              <Route path='anomaly' element={<Anomaly />}/>
+              <Route path='carbonemission' element={<CarbonDashboard />}/>
+              <Route path='packing' element={<Packing />}/>
             </Routes>
           </div>
       </div>

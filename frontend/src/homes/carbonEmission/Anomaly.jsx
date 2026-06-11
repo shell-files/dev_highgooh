@@ -333,7 +333,7 @@ const Anomaly = () => {
 
 
   return (
-    <>
+    <div id="anomaly-page">
 
 
       {/* 본문 영역 */}
@@ -634,7 +634,7 @@ const Anomaly = () => {
           <button type="button" className="btn-page last" title="마지막 페이지">&raquo;</button>
         </div>
       </div>
-    </>
+    </div>
   )
 };
 
