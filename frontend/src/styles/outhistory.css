@@ -3,12 +3,12 @@
    ========================================================================== */
 
 /* 상단 액션 그룹 레이아웃 */
-.history-actions {
+#outHistory-page .history-actions {
     display: flex;
     gap: 0.5rem;
 }
 
-.btn-action-green {
+#outHistory-page .btn-action-green {
     background-color: var(--primary-green);
     color: white;
     border: none;
@@ -20,11 +20,11 @@
     transition: background-color 0.2s;
 }
 
-.btn-action-green:hover {
+#outHistory-page .btn-action-green:hover {
     background-color: var(--primary-hover);
 }
 
-.btn-action-gray {
+#outHistory-page .btn-action-gray {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid #cbd5e0;
@@ -36,20 +36,20 @@
     transition: all 0.2s;
 }
 
-.btn-action-gray:hover {
+#outHistory-page .btn-action-gray:hover {
     background-color: #f7fafc;
     border-color: #a0aec0;
 }
 
 /* 4분할 통계 데이터 현황판 그리드 */
-.history-summary-grid {
+#outHistory-page .history-summary-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.25rem;
 }
 
-.summary-card {
+#outHistory-page .summary-card {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-left: 4px solid #718096;
@@ -62,13 +62,13 @@
 }
 
 /* 신규 공급망 인디케이터 컬러 매핑 */
-.summary-card.border-blue { border-left-color: #3182ce; }
-.summary-card.border-purple { border-left-color: #805ad5; }
-.summary-card.border-indigo { border-left-color: #4c51bf; }
-.summary-card.border-green { border-left-color: var(--primary-green); }
+#outHistory-page .summary-card.border-blue { border-left-color: #3182ce; }
+#outHistory-page .summary-card.border-purple { border-left-color: #805ad5; }
+#outHistory-page .summary-card.border-indigo { border-left-color: #4c51bf; }
+#outHistory-page .summary-card.border-green { border-left-color: var(--primary-green); }
 
 
-.content-card {
+#outHistory-page .content-card {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -79,63 +79,63 @@
 }
 
 
-.card-info {
+#outHistory-page .card-info {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
 }
 
-.card-label {
+#outHistory-page .card-label {
     font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 600;
 }
 
-.card-value {
+#outHistory-page .card-value {
     font-size: 1.6rem;
     font-weight: 700;
     color: var(--text-dark);
 }
 
-.card-value small {
+#outHistory-page .card-value small {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text-muted);
 }
 
 /* 신규 텍스트 컬러 유틸리티 */
-.text-purple { color: #805ad5 !important; }
-.text-indigo { color: #4c51bf !important; }
-.text-green { color: var(--primary-green) !important; }
+#outHistory-page .text-purple { color: #805ad5 !important; }
+#outHistory-page .text-indigo { color: #4c51bf !important; }
+#outHistory-page .text-green { color: var(--primary-green) !important; }
 
 /* 입고이력 메인 데이터 테이블 */
-.history-data-table {
+#outHistory-page .history-data-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.88rem;
 }
 
-.history-data-table th,
-.history-data-table td {
+#outHistory-page .history-data-table th,
+#outHistory-page .history-data-table td {
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
 }
 
-.history-data-table th {
+#outHistory-page .history-data-table th {
     background-color: #f8fafc;
     color: var(--text-dark);
     font-weight: 600;
 }
 
-.history-data-table tbody tr:hover td {
+#outHistory-page .history-data-table tbody tr:hover td {
     background-color: #f1f5f9;
 }
 
-.text-center { text-align: center !important; }
-.text-right { text-align: right !important; }
-.font-bold { font-weight: 600; }
-.text-link { color: var(--primary-green); cursor: pointer; text-decoration: underline;}
+#outHistory-page .text-center { text-align: center !important; }
+#outHistory-page .text-right { text-align: right !important; }
+#outHistory-page .font-bold { font-weight: 600; }
+#outHistory-page .text-link { color: var(--primary-green); cursor: pointer; text-decoration: underline;}
 
 /* 미디어 쿼리 반응형 처리 */
 @media (max-width: 1200px) {
@@ -154,7 +154,7 @@
    표 하단 페이지네이션 전용 레이아웃 확장 서식 
    ========================================================================== */
 
-.pagination-container {
+#outHistory-page .pagination-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -165,25 +165,25 @@
 }
 
 /* 좌측 정보 텍스트 서식 */
-.pagination-info {
+#outHistory-page .pagination-info {
     font-size: 0.85rem;
     color: var(--text-muted);
 }
 
-.pagination-info span {
+#outHistory-page .pagination-info span {
     font-weight: 600;
     color: var(--text-dark);
 }
 
 /* 중앙 페이지네이션 버튼 트랙 */
-.pagination-buttons {
+#outHistory-page .pagination-buttons {
     display: flex;
     gap: 0.35rem;
     align-items: center;
 }
 
 /* 우측 페이지 로우 셀렉터 박스 */
-.pagination-size-selector select {
+#outHistory-page .pagination-size-selector select {
     padding: 0.4rem 1.8rem 0.4rem 0.75rem;
     font-size: 0.85rem;
     color: var(--text-dark);
@@ -195,7 +195,7 @@
     transition: border-color 0.15s ease;
 }
 
-.pagination-size-selector select:focus {
+#outHistory-page .pagination-size-selector select:focus {
     border-color: var(--primary-green);
 }
 
@@ -203,19 +203,19 @@
 /* ==========================================================================
    [추가] ASN 상세 조회 모달 전용 테두리 및 링크 스타일 서식
    ========================================================================== */
-.text-link {
+#outHistory-page .text-link {
     color: var(--primary-green) !important;
     text-decoration: underline !important;
     cursor: pointer;
     font-weight: 700;
 }
 
-.text-link:hover {
+#outHistory-page .text-link:hover {
     color: var(--primary-hover) !important;
 }
 
 /* 1. 모달 전체 오버레이 기본 숨김 처리 (★핵심 수정사항) */
-.modal-overlay {
+#outHistory-page .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -229,12 +229,12 @@
 }
 
 /* active 클래스가 붙으면 유연하게 화면 중앙 배치 노출 */
-.modal-overlay.active {
+#outHistory-page .modal-overlay.active {
     display: flex !important;
 }
 
 /* 2. 모달 컨테이너 윈도우 상자 디자인 */
-.modal-window {
+#outHistory-page .modal-window {
     background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -250,7 +250,7 @@
 }
 
 /* 3. 모달 헤더 구역 */
-.modal-header {
+#outHistory-page .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -259,14 +259,14 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-.modal-header h3 {
+#outHistory-page .modal-header h3 {
     font-size: 1.1rem;
     color: var(--text-dark);
     font-weight: 700;
     margin: 0;
 }
 
-.modal-close-btn {
+#outHistory-page .modal-close-btn {
     background: none;
     border: none;
     font-size: 1.5rem;
@@ -274,18 +274,18 @@
     cursor: pointer;
 }
 
-.modal-close-btn:hover {
+#outHistory-page .modal-close-btn:hover {
     color: var(--text-dark);
 }
 
 /* 4. 엑셀 시트 탭 스타일시트 매칭 */
-.sheet-tabs {
+#outHistory-page .sheet-tabs {
     display: flex;
     border-bottom: 1px solid var(--border-color);
     background-color: #f8fafc;
 }
 
-.sheet-tab-btn {
+#outHistory-page .sheet-tab-btn {
     padding: 0.6rem 1.2rem;
     font-size: 0.85rem;
     font-weight: 600;
@@ -298,7 +298,7 @@
     gap: 0.3rem;
 }
 
-.sheet-tab-btn.active {
+#outHistory-page .sheet-tab-btn.active {
     background-color: #ffffff;
     color: var(--primary-green);
     font-weight: 700;
@@ -307,12 +307,12 @@
 }
 
 /* 5. 엑셀 양식 테이블 팝업 전용 상세 테두리 라인업 */
-.excel-styled-table {
+#outHistory-page .excel-styled-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.excel-styled-table th {
+#outHistory-page .excel-styled-table th {
     font-weight: 600;
     color: #4a5568;
     background-color: #f1f5f9 !important;
@@ -322,7 +322,7 @@
     font-size: 0.85rem;
 }
 
-.excel-styled-table td {
+#outHistory-page .excel-styled-table td {
     border: 1px solid var(--border-color) !important;
     padding: 0.6rem;
     font-size: 0.85rem;
@@ -334,12 +334,12 @@
    주문 계약 및 접수 현황 컴포넌트 스타일시트 (수정본)
    ========================================================================== */
 
-.header-action-group {
+#outHistory-page .header-action-group {
     display: flex;
     gap: 0.5rem;
 }
 
-.btn-secondary-action {
+#outHistory-page .btn-secondary-action {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid var(--border-color);
@@ -350,19 +350,19 @@
     cursor: pointer;
 }
 
-.btn-secondary-action:hover {
+#outHistory-page .btn-secondary-action:hover {
     background-color: #f8fafc;
 }
 
 /* 1. [변경] 입고이력 구조(history-summary-grid)와 결합된 상단 주문 그리드 */
-.order-summary-grid {
+#outHistory-page .order-summary-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
-.summary-card-item {
+#outHistory-page .summary-card-item {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -374,26 +374,26 @@
 }
 
 /* 내부 데이터 텍스트 배벨 정렬 트랙 */
-.card-info-left {
+#outHistory-page .card-info-left {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
 }
 
-.summary-label {
+#outHistory-page .summary-label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-muted);
 }
 
-.summary-value {
+#outHistory-page .summary-value {
     font-size: 1.8rem;
     font-weight: 700;
     color: var(--text-dark);
     line-height: 1.1;
 }
 
-.summary-value small {
+#outHistory-page .summary-value small {
     font-size: 0.85rem;
     color: var(--text-muted);
     font-weight: 500;
@@ -401,12 +401,12 @@
 }
 
 /* 우측 상태 고정 배지 가로 폭 맞춤 */
-.card-trend-right {
+#outHistory-page .card-trend-right {
     display: flex;
     align-items: center;
 }
 
-.status-badge {
+#outHistory-page .status-badge {
     font-size: 0.78rem;
     font-weight: 700;
     padding: 0.3rem 0.6rem;
@@ -415,26 +415,26 @@
 }
 
 /* 입고이력 톤앤매너에 맞춘 배경 및 폰트 유틸리티 매핑 */
-.bg-all-light {
+#outHistory-page .bg-all-light {
     background-color: #f1f5f9;
 }
 
-.bg-orange-light {
+#outHistory-page .bg-orange-light {
     background-color: #fffaf0;
     border: 1px solid #feebc8;
 }
 
-.bg-green-light {
+#outHistory-page .bg-green-light {
     background-color: #f0fff4;
     border: 1px solid #c6f6d5;
 }
 
-.bg-red-light {
+#outHistory-page .bg-red-light {
     background-color: #fff5f5;
     border: 1px solid #fed7d7;
 }
 
-.bg-blue-light {
+#outHistory-page .bg-blue-light {
     background-color: #f0f9ff;
     border: 1px solid #bcdef1;
 }
@@ -445,13 +445,13 @@
 
 
 /* 3. 테이블 및 범용 클래스 */
-.order-data-table {
+#outHistory-page .order-data-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.88rem;
 }
 
-.order-data-table th {
+#outHistory-page .order-data-table th {
     background-color: #f8fafc;
     color: var(--text-dark);
     font-weight: 600;
@@ -459,75 +459,75 @@
     border-bottom: 2px solid var(--border-color);
 }
 
-.order-data-table td {
+#outHistory-page .order-data-table td {
     padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--border-color);
 }
 
-.text-link {
+#outHistory-page .text-link {
     color: var(--primary-green);
     cursor: pointer;
     text-decoration: underline;
 }
 
-.text-center {
+#outHistory-page .text-center {
     text-align: center !important;
 }
 
-.text-right {
+#outHistory-page .text-right {
     text-align: right !important;
 }
 
-.font-bold {
+#outHistory-page .font-bold {
     font-weight: 600;
 }
 
-.text-orange {
+#outHistory-page .text-orange {
     color: #dd6b20 !important;
 }
 
-.text-green {
+#outHistory-page .text-green {
     color: var(--primary-green) !important;
 }
 
-.text-blue {
+#outHistory-page .text-blue {
     color: #3182ce !important;
 }
 
-.text-muted {
+#outHistory-page .text-muted {
     color: var(--text-muted) !important;
 }
 
-.text-red {
+#outHistory-page .text-red {
     color: var(--accent-red) !important;
 }
 
-.table-badge {
+#outHistory-page .table-badge {
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
 }
 
-.table-badge.badge-dark {
+#outHistory-page .table-badge.badge-dark {
     background-color: #f1f1f1;
     color: var(--text-muted);
     border: 1px solid #d1d1d1;
 }
 
-.table-badge.badge-success {
+#outHistory-page .table-badge.badge-success {
     background-color: #e6fffa;
     color: #234e52;
     border: 1px solid #b2f5ea;
 }
 
-.table-badge.badge-pending {
+#outHistory-page .table-badge.badge-pending {
     background-color: #fffaf0;
     color: #7b341e;
     border: 1px solid #feebc8;
 }
 
-.table-badge.badge-danger {
+#outHistory-page .table-badge.badge-danger {
     background-color: #fff5f5;
     color: #742a2a;
     border: 1px solid #fed7d7;
@@ -567,7 +567,7 @@
 /* ==========================================================================
    2. [수정 및 확장] 대시보드 내 검색 조건 필터 카드 레이아웃 정렬 서식
    ========================================================================== */
-.filter-wrapper-card {
+#outHistory-page .filter-wrapper-card {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -576,39 +576,39 @@
 }
 
 /* 4열 분할에서 기간 단위 확장형 3열 배분 구조로 최적화 */
-.search-filter-grid {
+#outHistory-page .search-filter-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr auto;
     gap: 1.5rem;
     align-items: flex-end;
 }
 
-.filter-group {
+#outHistory-page .filter-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
 /* 기간 범위 데이터 컨테이너 스타일 */
-.group-date-range {
+#outHistory-page .group-date-range {
     width: 100%;
 }
 
 
 
-.date-separator {
+#outHistory-page .date-separator {
     color: var(--text-muted);
     font-weight: 600;
     padding: 0 0.2rem;
 }
 
-.filter-group label {
+#outHistory-page .filter-group label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-dark);
 }
 
-.filter-control {
+#outHistory-page .filter-control {
     width: 100%;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border-color);
@@ -620,11 +620,11 @@
     outline: none;
 }
 
-.filter-control:focus {
+#outHistory-page .filter-control:focus {
     border-color: var(--primary-green);
 }
 
-.filter-btn-group {
+#outHistory-page .filter-btn-group {
     display: flex;
     gap: 0.5rem;
     height: 38px;
@@ -644,7 +644,7 @@
 
 
 /* 태블릿/모바일 등 작은 화면에서의 반응형 브레이크포인트 자동 재배치 */
-@media (max-width: 1024px) {
+/* @media (max-width: 1024px) {
     .search-filter-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -658,12 +658,12 @@
         justify-content: flex-end;
         margin-top: 0.5rem;
     }
-}
+} */
 
 /* ==========================================================================
    3. [신규 추가] 신규 주문 입력 모달 팝업 UI 서식
    ========================================================================== */
-.modal-overlay {
+#outHistory-page .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -680,12 +680,12 @@
     transition: opacity 0.25s ease;
 }
 
-.modal-overlay.active {
+#outHistory-page .modal-overlay.active {
     opacity: 1;
     pointer-events: auto;
 }
 
-.modal-container {
+#outHistory-page .modal-container {
     background-color: #ffffff;
     width: 680px;
     max-width: 90%;
@@ -709,7 +709,7 @@
     }
 }
 
-.modal-header {
+#outHistory-page .modal-header {
     padding: 1.2rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -717,13 +717,13 @@
     align-items: center;
 }
 
-.modal-header h3 {
+#outHistory-page .modal-header h3 {
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--text-dark);
 }
 
-.modal-close-btn {
+#outHistory-page .modal-close-btn {
     background: none;
     border: none;
     font-size: 1.75rem;
@@ -732,43 +732,43 @@
     line-height: 1;
 }
 
-.modal-close-btn:hover {
+#outHistory-page .modal-close-btn:hover {
     color: var(--accent-red);
 }
 
-.modal-body {
+#outHistory-page .modal-body {
     padding: 1.5rem;
     overflow-y: auto;
 }
 
 /* 폼 마스터 그리드 */
-.modal-form-grid {
+#outHistory-page .modal-form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
-.form-group {
+#outHistory-page .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
 }
 
-.form-group label {
+#outHistory-page .form-group label {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--text-dark);
 }
 
-.required {
+#outHistory-page .required {
     color: var(--accent-red);
     margin-left: 0.1rem;
 }
 
 /* 공통 입력 엘리먼트 서식 */
-.modal-input,
-.modal-select {
+#outHistory-page .modal-input,
+#outHistory-page .modal-select {
     width: 100%;
     padding: 0.5rem 0.75rem;
     border: 1px solid #cbd5e0;
@@ -780,14 +780,14 @@
     background-color: #ffffff;
 }
 
-.modal-input:focus,
-.modal-select:focus {
+#outHistory-page .modal-input:focus,
+#outHistory-page .modal-select:focus {
     border-color: var(--primary-green);
     box-shadow: 0 0 0 2px rgba(3, 169, 77, 0.15);
 }
 
 /* 섹션 타이틀 및 가변 제어 버튼 트랙 */
-.modal-section-title {
+#outHistory-page .modal-section-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -797,13 +797,13 @@
     padding-bottom: 0.5rem;
 }
 
-.modal-section-title h4 {
+#outHistory-page .modal-section-title h4 {
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-dark);
 }
 
-.btn-secondary-sm {
+#outHistory-page .btn-secondary-sm {
     background-color: #ffffff;
     color: var(--primary-green);
     border: 1px solid var(--primary-green);
@@ -815,23 +815,23 @@
     transition: all 0.2s;
 }
 
-.btn-secondary-sm:hover {
+#outHistory-page .btn-secondary-sm:hover {
     background-color: rgba(3, 169, 77, 0.05);
 }
 
 /* 팝업 테이블 서식 */
-.modal-table-responsive {
+#outHistory-page .modal-table-responsive {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     overflow: hidden;
 }
 
-.modal-product-table {
+#outHistory-page .modal-product-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.modal-product-table th {
+#outHistory-page .modal-product-table th {
     background-color: #f8fafc;
     color: #4a5568;
     font-weight: 600;
@@ -840,27 +840,27 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-.modal-product-table td {
+#outHistory-page .modal-product-table td {
     padding: 0.5rem;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
 }
 
-.modal-product-table tr:last-child td {
+#outHistory-page .modal-product-table tr:last-child td {
     border-bottom: none;
 }
 
 /* 정렬 헬퍼 클래스 */
-.text-right {
+#outHistory-page .text-right {
     text-align: right;
 }
 
-.text-center {
+#outHistory-page .text-center {
     text-align: center;
 }
 
 /* 행 삭제 x 버튼 */
-.btn-delete-row {
+#outHistory-page .btn-delete-row {
     background: none;
     border: none;
     color: #a0aec0;
@@ -870,12 +870,12 @@
     padding: 0 0.5rem;
 }
 
-.btn-delete-row:hover {
+#outHistory-page .btn-delete-row:hover {
     color: var(--accent-red);
 }
 
 /* 모달 하단 버튼 액션 바 */
-.modal-footer {
+#outHistory-page .modal-footer {
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-color);
     display: flex;
@@ -886,7 +886,7 @@
     border-bottom-right-radius: 8px;
 }
 
-.btn-pop-cancel {
+#outHistory-page .btn-pop-cancel {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid #cbd5e0;
@@ -897,11 +897,11 @@
     cursor: pointer;
 }
 
-.btn-pop-cancel:hover {
+#outHistory-page .btn-pop-cancel:hover {
     background-color: #edf2f7;
 }
 
-.btn-pop-submit {
+#outHistory-page .btn-pop-submit {
     background-color: var(--primary-green);
     color: white;
     border: none;
@@ -912,7 +912,7 @@
     cursor: pointer;
 }
 
-.btn-pop-submit:hover {
+#outHistory-page .btn-pop-submit:hover {
     background-color: var(--primary-hover);
 }
 
@@ -924,7 +924,7 @@
    ========================================================================== */
 
 /* 좌우 분할 그리드 스케일 */
-.modal-split-layout {
+#outHistory-page .modal-split-layout {
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
     gap: 1.25rem;
@@ -932,24 +932,24 @@
     padding-top: 1rem;
 }
 
-.modal-split-left,
-.modal-split-right {
+#outHistory-page .modal-split-left,
+#outHistory-page .modal-split-right {
     display: flex;
     flex-direction: column;
 }
 
 /* 테이블 클릭 이펙트 스타일 */
-.clickable-table tbody tr:hover {
+#outHistory-page .clickable-table tbody tr:hover {
     background-color: #f7fafc;
 }
 
-.clickable-table tbody tr.selected-row {
+#outHistory-page .clickable-table tbody tr.selected-row {
     background-color: #e6fffa !important;
     border-left: 3px solid var(--primary-green);
 }
 
 /* 우측 송장 카드 디자인 박스 */
-.invoice-preview-card {
+#outHistory-page .invoice-preview-card {
     background-color: #f8fafc;
     border: 1px dashed #cbd5e0;
     border-radius: 6px;
@@ -961,14 +961,14 @@
     min-height: 280px;
 }
 
-.empty-invoice-msg {
+#outHistory-page .empty-invoice-msg {
     text-align: center;
     color: #a0aec0;
     font-size: 0.9rem;
     line-height: 1.5;
 }
 
-.invoice-box-inner {
+#outHistory-page .invoice-box-inner {
     width: 100%;
     background: #ffffff;
     border: 1px solid #cbd5e0;
@@ -977,7 +977,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
-.invoice-header-title {
+#outHistory-page .invoice-header-title {
     font-size: 0.9rem;
     font-weight: 700;
     color: #2d3748;
@@ -987,13 +987,13 @@
     margin-bottom: 0.75rem;
 }
 
-.invoice-mini-table {
+#outHistory-page .invoice-mini-table {
     width: 100%;
     margin-bottom: 1rem;
     border-collapse: collapse;
 }
 
-.invoice-mini-table th {
+#outHistory-page .invoice-mini-table th {
     background-color: #f1f5f9 !important;
     color: #4a5568;
     font-size: 0.8rem;
@@ -1004,7 +1004,7 @@
     border: 1px solid #e2e8f0;
 }
 
-.invoice-mini-table td {
+#outHistory-page .invoice-mini-table td {
     padding: 0.4rem 0.6rem;
     font-size: 0.85rem;
     color: #2d3748;
@@ -1013,7 +1013,7 @@
 }
 
 /* CSS 바코드 모듈 그래픽 생성 컴포넌트 */
-.barcode-wrapper {
+#outHistory-page .barcode-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1023,7 +1023,7 @@
     margin-top: 0.5rem;
 }
 
-.barcode-lines {
+#outHistory-page .barcode-lines {
     display: flex;
     align-items: stretch;
     height: 45px;
@@ -1031,33 +1031,33 @@
 }
 
 /* 바코드 선 두께 유틸리티 배열 */
-.barcode-lines span {
+#outHistory-page .barcode-lines span {
     display: inline-block;
     background: #fff;
     height: 100%;
 }
 
-.barcode-lines .b-w-1 {
+#outHistory-page .barcode-lines .b-w-1 {
     width: 1px;
     background: #000;
 }
 
-.barcode-lines .b-w-2 {
+#outHistory-page .barcode-lines .b-w-2 {
     width: 3px;
     background: #000;
 }
 
-.barcode-lines .b-w-3 {
+#outHistory-page .barcode-lines .b-w-3 {
     width: 2px;
     background: #fff;
 }
 
-.barcode-lines .b-w-4 {
+#outHistory-page .barcode-lines .b-w-4 {
     width: 4px;
     background: #fff;
 }
 
-.barcode-text {
+#outHistory-page .barcode-text {
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.75rem;
     font-weight: bold;
@@ -1066,7 +1066,7 @@
     color: #1a202c;
 }
 
-.invoice-footer-action {
+#outHistory-page .invoice-footer-action {
     display: flex;
     justify-content: flex-end;
     margin-top: 0.75rem;
@@ -1080,33 +1080,33 @@
    ========================================================================== */
 
 /* 배송 설정 컨테이너 컴포넌트 */
-.delivery-config-zone {
+#outHistory-page .delivery-config-zone {
     background-color: #f8fafc;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 1rem;
 }
 
-.config-form-row {
+#outHistory-page .config-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
     margin-bottom: 0.75rem;
 }
 
-.config-form-row .form-group {
+#outHistory-page .config-form-row .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
 
-.config-form-row label {
+#outHistory-page .config-form-row label {
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-muted);
 }
 
-.select-styled {
+#outHistory-page .select-styled {
     height: 36px;
     padding: 0 0.5rem;
     font-size: 0.85rem;
@@ -1116,17 +1116,17 @@
     color: var(--text-dark);
 }
 
-.select-styled:focus {
+#outHistory-page .select-styled:focus {
     border-color: var(--primary-green);
     outline: none;
 }
 
 /* 송장 생성 전용 대형 버튼 */
-.action-btn-wrap {
+#outHistory-page .action-btn-wrap {
     margin-top: 0.5rem;
 }
 
-.btn-generate-invoice {
+#outHistory-page .btn-generate-invoice {
     width: 100%;
     background-color: var(--primary-green);
     color: #ffffff;
@@ -1144,21 +1144,21 @@
     box-shadow: 0 2px 4px rgba(3, 169, 77, 0.15);
 }
 
-.btn-generate-invoice:hover {
+#outHistory-page .btn-generate-invoice:hover {
     background-color: var(--primary-hover);
 }
 
-.btn-generate-invoice:active {
+#outHistory-page .btn-generate-invoice:active {
     transform: scale(0.99);
 }
 
 /* 우측 송장 카드 박스 내부 정렬 보정 */
-.invoice-preview-card {
+#outHistory-page .invoice-preview-card {
     min-height: 380px;
     /* 늘어난 정보량에 대응하도록 최소 높이 확장 */
 }
 
-.view-toggle-container {
+#outHistory-page .view-toggle-container {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1rem;
@@ -1166,7 +1166,7 @@
     padding-bottom: 0.5rem;
 }
 
-.btn-toggle-view {
+#outHistory-page .btn-toggle-view {
     background-color: #ffffff;
     color: #4a5568;
     border: 1px solid var(--border-color);
@@ -1178,40 +1178,40 @@
     transition: all 0.2s ease;
 }
 
-.btn-toggle-view:hover {
+#outHistory-page .btn-toggle-view:hover {
     background-color: #f8fafc;
 }
 
-.btn-toggle-view.active {
+#outHistory-page .btn-toggle-view.active {
     background-color: var(--primary-green);
     color: #ffffff;
     border-color: var(--primary-green);
 }
 
 /* 테이블 뷰 숨김 제어 */
-.table-view-content {
+#outHistory-page .table-view-content {
     display: none;
 }
 
-.table-view-content.active {
+#outHistory-page .table-view-content.active {
     display: block;
 }
 
-.toggle-left,
-.toggle-right {
+#outHistory-page .toggle-left,
+#outHistory-page .toggle-right {
     display: flex;
     gap: 0.5rem;
 }
 
-.view-toggle-container {
+#outHistory-page .view-toggle-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.btn-action-gray,
-.btn-action-blue,
-.btn-action-green {
+#outHistory-page .btn-action-gray,
+#outHistory-page .btn-action-blue,
+#outHistory-page .btn-action-green {
     border: none;
     padding: 0.55rem 1rem;
     border-radius: 4px;
@@ -1221,18 +1221,18 @@
     font-weight: 600;
 }
 
-.btn-action-gray {
+#outHistory-page .btn-action-gray {
     background: #64748b;
 }
 
-.btn-action-blue {
+#outHistory-page .btn-action-blue {
     background: #2563eb;
 }
 
-.btn-action-green {
+#outHistory-page .btn-action-green {
     background: #16a34a;
 }
 
-.btn-filter-search {
+#outHistory-page .btn-filter-search {
     margin-left: auto;
 }
