@@ -10,7 +10,7 @@ import Outbound from '@homes/outbound/Outbound.jsx';
 import OutHistory from '@homes/outbound/OutHistory.jsx';
 import Anomaly from '@homes/carbonEmission/Anomaly.jsx';
 import CarbonDashboard from '@homes/carbonEmission/CarbonDashboard.jsx';
-
+import Packing from '@homes/outbound/Packing.jsx';
 
 const Home = () => {
   return (
@@ -28,6 +28,7 @@ const Home = () => {
               <Route path='/outhistory' element={<OutHistory />}/>
               <Route path='/anomaly' element={<Anomaly />}/>
               <Route path='/carbonemission' element={<CarbonDashboard />}/>
+              <Route path='/packing' element={<Packing />}/>
             </Routes>
           </div>
       </div>
