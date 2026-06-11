@@ -26,5 +26,9 @@ public interface PackingControllerDocs {
         })) 
     PackingRequestDTO packingRequestDTO);
     
+    @Operation(summary = "Packing 상세 조회", description = "Packing API")
+    @ApiCommonSuccess
+    @ApiCommonErrors
+    public ResponseDTO findOne(Integer packingId);
     
 }
