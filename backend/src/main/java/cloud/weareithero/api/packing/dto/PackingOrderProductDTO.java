@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PackingOrderProductDTO {
     
-    private int orderProductNo;
-    private String productName;
-    private int quantity;
+    private int orderProductNo;         //	주문 상세 table pk
+    private int productId;              //	제품 pk
+    private String productName;         //  제품명
+    private int quantity;                   
     private int price;
     private int totalPrice;
     
