@@ -122,10 +122,10 @@ public interface OutboundMapper {
    * 동적 조건: Inbound findAll 패턴 동일 적용
    * ORDER BY op.id DESC, LIMIT #{offset}, #{size}
    */
-  @Select("<script>" +
+@Select("<script>" +
       """
           SELECT
-            `op`.`id`                              AS `packingId`,
+            `op`.`id`                             AS `packingId`,
             `op`.`packing_invoice_number`          AS `packingInvoiceNumber`,
             `op`.`outbound_id`                     AS `outboundId`,
             `pcm`.`name`                           AS `customerName`,
@@ -158,9 +158,17 @@ public interface OutboundMapper {
       "<if test='customerName != null and customerName != \"\"'>" +
       " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
       "</if>" +
-      "<if test='stateCode != null and stateCode != 0'>" +
-      " AND `op`.`state_code` = #{stateCode} " +
-      "</if>" +
+      
+      // 💡 선택지가 동적으로 바뀌는 핵심 로직
+      "<choose>" +
+      "  <when test='stateCode != null and stateCode != 0'>" +
+      "    AND `op`.`state_code` = #{stateCode} " +  // 개별 코드(20, 21, 22, 23) 선택 시
+      "  </when>" +
+      "  <otherwise>" +
+      "    AND `op`.`state_code` BETWEEN 20 AND 23 " + // 프론트에서 '전체' 선택 시 (기본값)
+      "  </otherwise>" +
+      "</choose>" +
+      
       "</where>" +
       "ORDER BY `op`.`id` DESC LIMIT #{offset}, #{size}" +
       "</script>")

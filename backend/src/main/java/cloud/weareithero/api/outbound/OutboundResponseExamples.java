@@ -5,7 +5,6 @@ public interface OutboundResponseExamples {
     final String FIND_ALL_DEFAULT = """
         {
           "outboundId": 0,
-          "orderNo": "",
           "customerName": "",
           "stateCode": 0,
           "orderStart": "",
@@ -18,7 +17,6 @@ public interface OutboundResponseExamples {
     final String FIND_ALL_FILTER = """
         {
           "outboundId": 0,
-          "orderNo": "",
           "customerName": "",
           "stateCode": 1,
           "orderStart": "2026-06-01",
@@ -31,7 +29,6 @@ public interface OutboundResponseExamples {
     final String FIND_ALL_BY_OUTBOUND = """
         {
           "outboundId": 1,
-          "orderNo": "",
           "customerName": "",
           "stateCode": 0,
           "orderStart": "",
