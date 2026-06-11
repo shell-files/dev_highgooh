@@ -32,6 +32,9 @@ public class OutboundVehicleAssignDTO {
     @Schema(description = "배정 대상 OUTBOUND_PACKING.id 목록 (체크박스 선택)")
     private List<Integer> packingIds;
 
+    @Schema(description = "변경할 패킹 상태 코드 (COMMON_CODE.id 참조)")
+    private int stateCode;
+   
     @Schema(description = "운송사 ID (PARTNER_COMPANY_MASTER.id, carrier_yn_code=1)")
     private int carrierId;
 
