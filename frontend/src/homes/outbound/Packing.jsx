@@ -8,21 +8,20 @@ const INITIAL_DUMMY_DATA = {
   // 1. 대시보드 요약 수치
   summary: {
     total: 42,
-    completed: 34,
-    new: 42,
-    imminent: 5,
-    overdue: 3
+    new: 34,
+    onpacking: 10,
+    completed: 44
   },
   // 2. 메인 테이블 리스트 (주문 마스터 정보)
   orderList: [
-    { orderNo: 'PO-20260601-M04', customer: '대한알루미늄공업', totalQty: 17, orderDate: '2026-06-01', deliveryDate: '2026-06-20', timeLeft: '17분 남음', status: '신규' },
-    { orderNo: 'PO-20260602-X01', customer: '(주)한성자재마트', totalQty: 21, orderDate: '2026-06-02', deliveryDate: '2026-06-25', timeLeft: '15분 초과', status: '처리중' },
-    { orderNo: 'PO-20260602-X02', customer: '(주)한성자재마트', totalQty: 21, orderDate: '2026-06-02', deliveryDate: '2026-06-25', timeLeft: '15분 초과', status: '완료' }
+    { orderNo: 'PO-20260601-M04', partnerName: '대한알루미늄공업', totalSet: 17, orderDate: '2026-06-01', deadline: '2026-06-20', etd: '2026-06-18', status: '신규' },
+    { orderNo: 'PO-20260602-X01', partnerName: '(주)한성자재마트', totalSet: 21, orderDate: '2026-06-02', deadline: '2026-06-25', etd: '2026-06-23', status: '패킹중' },
+    { orderNo: 'PO-20260602-X02', partnerName: '(주)한성자재마트', totalSet: 21, orderDate: '2026-06-02', deadline: '2026-06-25', etd: '2026-06-23', status: '패킹완료' }
   ],
   // 3. 개별 DB 테이블에서 조회해 온 형식의 주문별 제품 상세 데이터 목록
   orderDetails: {
     'PO-20260601-M04': {
-      customer: '대한알루미늄공업',
+      partnerName: '대한알루미늄공업',
       status: '신규',
       // DB에 낱개 행으로 분리되어 저장되어 있는 품목 리스트
       products: [
@@ -31,7 +30,7 @@ const INITIAL_DUMMY_DATA = {
       ]
     },
     'PO-20260602-X01': {
-      customer: '(주)한성자재마트',
+      partnerName: '(주)한성자재마트',
       status: '처리중',
       products: [
         { id: 201, name: 'Al 시트레일 압출재 (6063-T5)', qty: 1200, price: 15000000, invoiceNo: 'IVC-20260602-001A', boxQty: 12 },
@@ -39,7 +38,7 @@ const INITIAL_DUMMY_DATA = {
       ]
     },
     'PO-20260602-X02': {
-      customer: '(주)한성자재마트',
+      partnerName: '(주)한성자재마트',
       status: '완료',
       products: [
         { id: 301, name: '알루미늄 플레이트 (5052)', qty: 450, price: 6000000, invoiceNo: 'IVC-20260602-002A', boxQty: 5 }
@@ -68,7 +67,7 @@ export default function PackingPage() {
   const [filterStart, setFilterStart] = useState('');
   const [filterEnd, setFilterEnd] = useState('');
   const [filterOrderNo, setFilterOrderNo] = useState('');
-  const [filterCustomer, setFilterCustomer] = useState('');
+  const [filterPartnerName, setFilterPartnerName] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
   // 컴포넌트 마운트 시 데이터 조회 (DB 연동 지점)
@@ -93,7 +92,7 @@ export default function PackingPage() {
     /* // 실제 DB 연동 시: 낱개로 쪼개져 저장된 제품 정보 목록을 다시 불러오는 API 예시
     try {
       const response = await fetch(`/api/packing/orders/${orderNo}/products`);
-      const data = await response.json(); // { customer, status, products: [...] }
+      const data = await response.json(); // { partnerName, status, products: [...] }
     } catch (err) { ... }
     */
 
@@ -140,7 +139,7 @@ export default function PackingPage() {
     // DB에 개별 낱개 저장되어 불러와진 각 제품 데이터들을 기반으로 개별 송장 데이터 맵핑
     const generatedSlips = orderData.products.map((product) => ({
       invoiceNo: product.invoiceNo, // DB 개별 식별 번호 기반 송장 코드
-      customer: orderData.customer,
+      partnerName: orderData.partnerName,
       productName: product.name,
       qty: product.qty,
       boxQty: product.boxQty,
@@ -163,18 +162,18 @@ export default function PackingPage() {
   // 메인 조건 검색 핸들러
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    const statusMap = { 'approved': '신규', 'pending': '처리중', 'rejected': '완료' };
+    const statusMap = { 'approved': '신규', 'pending': '패킹중', 'rejected': '패킹완료' };
 
     const result = orders.filter(order => {
       const matchOrderNo = filterOrderNo ? order.orderNo.toLowerCase().includes(filterOrderNo.toLowerCase()) : true;
-      const matchCustomer = filterCustomer ? order.customer.toLowerCase().includes(filterCustomer.toLowerCase()) : true;
+      const matchPartnerName = filterPartnerName ? order.partnerName.toLowerCase().includes(filterPartnerName.toLowerCase()) : true;
       const matchStatus = filterStatus ? order.status === statusMap[filterStatus] : true;
       
       const orderDate = new Date(order.orderDate);
       const matchStart = filterStart ? orderDate >= new Date(filterStart) : true;
       const matchEnd = filterEnd ? orderDate <= new Date(filterEnd) : true;
 
-      return matchOrderNo && matchCustomer && matchStatus && matchStart && matchEnd;
+      return matchOrderNo && matchPartnerName && matchStatus && matchStart && matchEnd;
     });
 
     setFilteredOrders(result);
@@ -182,7 +181,7 @@ export default function PackingPage() {
 
   // 필터 검색 조건 초기화
   const handleResetFilter = () => {
-    setFilterStart(''); setFilterEnd(''); setFilterOrderNo(''); setFilterCustomer(''); setFilterStatus('');
+    setFilterStart(''); setFilterEnd(''); setFilterOrderNo(''); setFilterPartnerName(''); setFilterStatus('');
     setFilteredOrders(orders);
   };
 
@@ -190,8 +189,8 @@ export default function PackingPage() {
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case '신규': return 'text-blue bg-blue-light';
-      case '처리중': return 'text-red bg-red-light';
-      case '완료': return 'text-green bg-green-light';
+      case '패킹중': return 'text-red bg-red-light';
+      case '패킹완료': return 'text-green bg-green-light';
       default: return 'text-muted bg-all-light';
     }
   };
@@ -205,19 +204,19 @@ export default function PackingPage() {
       {/* 5칸 대시보드 요약 */}
       <div className="order-summary-grid">
         <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">당월 전체</span><span className="summary-value">{summaryData.total}<small>건</small></span></div>
+          <div className="card-info-left"><span className="summary-label">전체</span><span className="summary-value">{summaryData.total}<small>건</small></span></div>
           <div className="card-trend-right"><span className="status-badge bg-all-light text-muted">당월</span></div>
         </div>
         <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">신규</span><span className="summary-value text-green">{summaryData.completed}<small>건</small></span></div>
+          <div className="card-info-left"><span className="summary-label">신규</span><span className="summary-value text-green">{summaryData.new}<small>건</small></span></div>
           <div className="card-trend-right"><span className="status-badge bg-green-light text-green">당월</span></div>
         </div>
         <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">패킹중</span><span className="summary-value text-orange">{summaryData.imminent}<small>건</small></span></div>
+          <div className="card-info-left"><span className="summary-label">패킹중</span><span className="summary-value text-orange">{summaryData.onpacking}<small>건</small></span></div>
           <div className="card-trend-right"><span className="status-badge bg-orange-light text-orange">당월</span></div>
         </div>
         <div className="summary-card-item">
-          <div className="card-info-left"><span className="summary-label">패킹완료</span><span className="summary-value text-blue">{summaryData.new}<small>건</small></span></div>
+          <div className="card-info-left"><span className="summary-label">패킹완료</span><span className="summary-value text-blue">{summaryData.completed}<small>건</small></span></div>
           <div className="card-trend-right"><span className="status-badge bg-blue-light text-blue">당월</span></div>
         </div>
       </div>
@@ -239,7 +238,7 @@ export default function PackingPage() {
           </div>
           <div className="filter-group">
             <label>고객사 검색</label>
-            <input type="text" className="filter-control" value={filterCustomer} onChange={(e) => setFilterCustomer(e.target.value)} />
+            <input type="text" className="filter-control" value={filterPartnerName} onChange={(e) => setFilterPartnerName(e.target.value)} />
           </div>
           <div className="filter-group">
             <label htmlFor="search_status">진행 상태</label>
@@ -263,7 +262,7 @@ export default function PackingPage() {
           <table className="order-data-table">
             <thead>
               <tr>
-                <th>주문번호</th><th>발주처(고객사)</th><th>총 물량(세트)</th><th>주문일자</th><th>납기요청일</th><th>기한</th><th>진행상태</th>
+                <th>주문번호</th><th>발주처(고객사)</th><th>총 물량(세트)</th><th>주문일자</th><th>주문마감일자</th><th>출고예정일자</th><th>진행상태</th>
               </tr>
             </thead>
             <tbody>
@@ -273,11 +272,11 @@ export default function PackingPage() {
                 filteredOrders.map((order, index) => (
                   <tr key={index} onClick={() => openOrderDetailModal(order.orderNo)} style={{ cursor: 'pointer' }}>
                     <td className="text-center font-bold text-link">{order.orderNo}</td>
-                    <td>{order.customer}</td>
-                    <td className="text-center text-green">{order.totalQty}</td>
+                    <td>{order.partnerName}</td>
+                    <td className="text-center text-green">{order.totalSet}</td>
                     <td className="text-center">{order.orderDate}</td>
-                    <td className="text-center">{order.deliveryDate}</td>
-                    <td className="text-center">{order.timeLeft}</td>
+                    <td className="text-center">{order.deadline}</td>
+                    <td className="text-center">{order.etd}</td>
                     <td className="text-center"><span className={`table-badge ${getStatusBadgeClass(order.status)}`}>{order.status}</span></td>
                   </tr>
                 ))
@@ -305,7 +304,7 @@ export default function PackingPage() {
                 </div>
                 <div className="form-group">
                   <label>발주처 (고객사)</label>
-                  <input type="text" className="modal-input" value={orderData.customer} readOnly />
+                  <input type="text" className="modal-input" value={orderData.partnerName} readOnly />
                 </div>
                 <div className="form-group">
                   <label>진행상태</label>
@@ -405,7 +404,7 @@ export default function PackingPage() {
                               </tr>
                               <tr>
                                 <th>받는 사람</th>
-                                <td>{invoicePreviews[currentSlipIdx].customer}</td>
+                                <td>{invoicePreviews[currentSlipIdx].partnerName}</td>
                               </tr>
                               <tr>
                                 <th>주소</th>
