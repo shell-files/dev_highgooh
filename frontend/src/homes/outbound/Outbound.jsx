@@ -280,7 +280,7 @@ const Outbound = () => {
                                     <th>기한</th>
                                     <th>박스번호</th>
                                     <th>주문번호</th>
-                                    <th>발주처</th>
+                                    <th>고객사</th>
                                     <th>운송사</th>
                                     <th>상태</th>
                                     <th>송장번호</th>
@@ -321,7 +321,7 @@ const Outbound = () => {
                             <thead>
                                 <tr>
                                     <th className="table-header-checkbox"></th>
-                                    <th>기한</th>
+                                    {/* <th>기한</th> */}
                                     <th>매니페스트번호</th>
                                     <th>운송사</th>
                                     <th>차량</th>
@@ -342,7 +342,7 @@ const Outbound = () => {
                                                 checked={checkedManifests.includes(item.mnfNo)} 
                                             />
                                         </td>
-                                        <td className={`text-center ${item.due.includes('초과') ? 'text-red' : ''}`}>{item.due}</td>
+                                        {/* <td className={`text-center ${item.due.includes('초과') ? 'text-red' : ''}`}>{item.due}</td> */}
                                         <td className="text-center font-bold text-link manifest-no-link" onClick={() => openInvoiceModal(item.mnfNo)}>
                                             {item.mnfNo}
                                         </td>

@@ -187,9 +187,9 @@
     color: #e53e3e;
 }
 
-@media (max-width: 1024px) {
+/* @media (max-width: 1024px) {
     .dashboard-chart-grid {
         grid-template-columns: 1fr;
         
     }
-}
+} */

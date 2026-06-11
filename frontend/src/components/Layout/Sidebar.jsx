@@ -12,7 +12,7 @@ const Sidebar = () => {
       <ul>
           <h4 className="released_icon">출고</h4>
           <li><a onClick={()=>navigate("/home/order")}>주문</a></li>
-          <li><a href="./packing.html">패킹</a></li>
+          <li><a onClick={()=>navigate("/home/packing")}>패킹</a></li>
           <li><a onClick={()=>navigate("/home/outbound")}>출고/송장</a></li>
           <li><a onClick={()=>navigate("/home/outhistory")}>출고이력</a></li>
       </ul>
