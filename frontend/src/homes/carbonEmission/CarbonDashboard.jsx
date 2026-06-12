@@ -1,11 +1,11 @@
 import { React, useState, useEffect, useRef } from 'react';
 import { POST } from "@utils/Network";
 import '@styles/pcf.css';
-import CarbonBarChart from '@homes/carbonEmission/CarbonBarChart.jsx';
-import CarbonDoughnutChart from '@homes/carbonEmission/CarbonDoughnutChart.jsx';
-import CarbonLineChart from '@homes/carbonEmission/CarbonLineChart.jsx';
-import processCarbonData from '@homes/carbonEmission/CarbonTableData.jsx';
-import { getLineChartData, getBarChartData, getDoughnutChartData } from '@homes/carbonEmission/ChartData.jsx';
+import CarbonBarChart from '@components/UI/CarbonBarChart.jsx';
+import CarbonDoughnutChart from '@components/UI/CarbonDoughnutChart.jsx';
+import CarbonLineChart from '@components/UI/CarbonLineChart.jsx';
+import processCarbonData from '@components/UI/CarbonTableData.jsx';
+import { getLineChartData, getBarChartData, getDoughnutChartData } from '@components/UI/CarbonChartData.jsx';
 
 
 
@@ -17,6 +17,10 @@ const CarbonDashboard = () => {
   const [selectedYear, setSelectedYear] = useState("2026");
   const [selectedQuarter, setSelectedQuarter] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
+  const [searchYear, setSearchYear] = useState("2026");
+  const [searchQuarter, setSearchQuarter] = useState("");
+  const [searchMonth, setSearchMonth] = useState("");
+
 
   // 기본 조회 데이터
   const [data, setData] = useState([]);
@@ -53,22 +57,32 @@ const CarbonDashboard = () => {
         setSelectedYear(params.selectedYear);
         setSelectedQuarter(params.selectedQuarter);
         setSelectedMonth(params.selectedMonth);
+        setSearchYear(params.selectedYear);
+        setSearchQuarter(params.selectedQuarter);
+        setSearchMonth(params.selectedMonth);
         const line = getLineChartData(res.data);
         const bar = getBarChartData(res.data, ['빌릿 가열기', '간접 압출기', '인발기', '알루미늄 시효로', '4축 CNC', '알루미늄 절단기', '아노다이징', '자동 구리스 디스펜서 시스템']);
         const doughnut = getDoughnutChartData(res.data);
         
         setChartData({ line, bar, doughnut });
-        console.log(res.data)
-        console.log("전달할 데이터",chartData.line)
 
         const processed = processCarbonData(res.data);
         setFinalData(processed);
-
       }
     })
   };
+  // 총계 계산
   const totalEmissionSum = finalData.reduce((acc, item) => acc + item.emission, 0);
 
+  // 차트 타이틀
+  const chartTitle =
+  searchYear === ''
+    ? '전체 기간 탄소 배출량 변경 추이 (tCO₂eq)'
+    : searchMonth
+      ? `${searchYear}년 ${searchMonth}월 탄소 배출량 변경 추이 (tCO₂eq)`
+      : searchQuarter
+        ? `${searchYear}년 ${searchQuarter}분기 탄소 배출량 변경 추이 (tCO₂eq)`
+        : `${searchYear}년 탄소 배출량 변경 추이 (tCO₂eq)`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,6 +111,7 @@ const CarbonDashboard = () => {
     };
 
     fetchData();
+    periodSearch();
   }, []);
 
   return (
@@ -186,7 +201,7 @@ const CarbonDashboard = () => {
 
       <div className="dashboard-chart-grid" style={{ gridTemplateColumns: '1fr', marginBottom: '1.25rem' }}>
         <div className="chart-card">
-          <h3 className="chart-title">선택기간별 탄소 배출량 변경 추이 (tCO₂eq)</h3>
+          <h3 className="chart-title">{chartTitle}</h3>
           <div className="chart-container" style={{ height: '300px' }}>
             <CarbonLineChart chartData={chartData.line} />
           </div>
