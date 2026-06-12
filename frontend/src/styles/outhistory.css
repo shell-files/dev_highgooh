@@ -1,0 +1,658 @@
+/* ==========================================================================
+   출고이력 공급망 관리 전용 스타일시트 (outhistory.css)
+   ========================================================================== */
+
+/* 1. 기본 레이아웃 및 헤더 */
+/* #outHistory-page {
+    padding: 1.5rem;
+} */
+
+#outHistory-page .page-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color, #e2e8f0);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+#outHistory-page .page-title {
+    font-size: 1.35rem;
+    color: var(--text-dark, #1e293b);
+    font-weight: 700;
+}
+
+/* 2. 통계 데이터 현황판 (Summary Grid) */
+#outHistory-page .order-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+#outHistory-page .summary-card-item {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
+}
+
+#outHistory-page .card-info-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+#outHistory-page .summary-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+#outHistory-page .summary-value {
+font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.1;   
+}
+
+#outHistory-page .summary-value small {
+    font-size: 0.9rem;
+    margin-left: 0.1rem;
+    font-weight: 500;
+}
+
+/* 3. 검색 필터 카드 영역 */
+#outHistory-page .filter-wrapper-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#outHistory-page .search-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.25rem;
+    align-items: end;
+}
+
+#outHistory-page .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#outHistory-page .filter-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dark, #1e293b);
+}
+
+#outHistory-page .date-range-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#outHistory-page .filter-control {
+    width: 100%;
+    height: 38px;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--text-dark, #1e293b);
+    box-sizing: border-box;
+}
+
+#outHistory-page .date-separator {
+    color: #64748b;
+    font-weight: 500;
+}
+
+#outHistory-page .filter-btn-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+#outHistory-page .btn-filter-search {
+    background-color: var(--primary-green, #10b981);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    height: 38px;
+    transition: background-color 0.2s;
+}
+
+#outHistory-page .btn-filter-search:hover {
+    background-color: var(--primary-hover, #059669);
+}
+
+#outHistory-page .btn-filter-reset {
+    background-color: #ffffff;
+    color: #4a5568;
+    border: 1px solid var(--border-color, #e2e8f0);
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    height: 38px;
+    transition: all 0.2s;
+}
+
+#outHistory-page .btn-filter-reset:hover {
+    background-color: #f8fafc;
+}
+
+/* 4. 메인 데이터 테이블 영역 */
+#outHistory-page .content-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#outHistory-page .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#outHistory-page .inhistory-btn-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+#outHistory-page .history-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+#outHistory-page .history-data-table th,
+#outHistory-page .history-data-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    text-align: left;
+}
+
+#outHistory-page .history-data-table th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+#outHistory-page .history-data-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* 5. 모달 상세 명세 팝업 */
+#outHistory-page .modal-window {
+    max-width: 1000px;
+    width: 90%;
+}
+
+#outHistory-page .modal-body {
+    padding: 1.5rem;
+}
+
+#outHistory-page .modal-form-inline-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    background: #f8fafc;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 6px;
+}
+
+#outHistory-page .modal-form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dark, #2d3748);
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+#outHistory-page .disabled-input {
+    background-color: #e2e8f0 !important;
+    color: #4a5568 !important;
+    cursor: not-allowed !important;
+    width: 100%;
+    height: 38px;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#outHistory-page .sheet-tab-content.active {
+    border-top: none;
+}
+
+#outHistory-page .excel-table-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color, #cbd5e0);
+}
+
+#outHistory-page .excel-styled-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#outHistory-page .excel-styled-table th {
+    background-color: #f1f5f9;
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 0.5rem;
+    font-size: 0.85rem;
+}
+
+#outHistory-page .excel-styled-table .th-no {
+    width: 80px;
+    text-align: center;
+}
+
+#outHistory-page .excel-styled-table .th-code {
+    width: 25%;
+    text-align: left;
+}
+
+#outHistory-page .excel-styled-table .th-name {
+    text-align: left;
+}
+
+#outHistory-page .excel-styled-table .th-qty {
+    width: 25%;
+    text-align: right;
+}
+
+#outHistory-page .excel-styled-table td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 0.6rem;
+    font-size: 0.85rem;
+}
+
+#outHistory-page .excel-styled-table .td-no {
+    text-align: center;
+    background-color: #f8fafc;
+    color: #666;
+}
+
+#outHistory-page .excel-styled-table .td-code {
+    text-align: left;
+    color: #4a5568;
+    font-family: monospace;
+}
+
+#outHistory-page .excel-styled-table .td-name {
+    text-align: left;
+    color: var(--text-dark, #2d3748);
+}
+
+
+#outHistory-page .modal-footer {
+    padding: 1rem 1.5rem;
+    background-color: #f8fafc;
+    border-top: 1px solid var(--border-color, #cbd5e0);
+    display: flex;
+    justify-content: flex-end;
+}
+
+#outHistory-page .btn-pop-cancel {
+    min-width: 120px;
+    background-color: #64748b;
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#outHistory-page .btn-pop-cancel:hover {
+    background-color: #475569;
+}
+
+/* 6. Asn.jsx 패턴 동적 페이지네이션 */
+#outHistory-page .pagination-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color, #cbd5e0);
+}
+
+#outHistory-page .pagination-info {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+#outHistory-page .pagination-info span {
+    font-weight: 700;
+    color: var(--text-dark, #2d3748);
+}
+
+#outHistory-page .pagination-buttons {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+#outHistory-page .btn-page {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #cbd5e0);
+    color: #64748b;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+#outHistory-page .btn-page:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    color: var(--text-dark, #2d3748);
+}
+
+#outHistory-page .btn-page:disabled {
+    background-color: #f8fafc;
+    color: #cbd5e0;
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+}
+
+#outHistory-page .btn-page-num {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color, #cbd5e0);
+    color: #4a5568;
+    min-width: 34px;
+    height: 34px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#outHistory-page .btn-page-num:hover {
+    background-color: #f1f5f9;
+}
+
+#outHistory-page .btn-page-num.active {
+    background-color: var(--primary-green, #10b981);
+    color: #ffffff;
+    border-color: var(--primary-green, #10b981);
+    font-weight: 700;
+}
+
+#outHistory-page .pagination-size-selector {
+    width: 60px;
+}
+
+/* 7. 공통 유틸리티 클래스 */
+#outHistory-page .text-center {
+    text-align: center !important;
+}
+
+#outHistory-page .font-bold {
+    font-weight: 700;
+}
+
+#outHistory-page .text-link {
+    color: var(--primary-green);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#outHistory-page .status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+#outHistory-page .bg-green-light {
+    background-color: #f0fff4;
+    border: 1px solid #c6f6d5;
+}
+
+#outHistory-page .bg-blue-light {
+    background-color: #f0f9ff;
+    border: 1px solid #d7f0fe;
+}
+
+#outHistory-page .bg-orange-light {
+    background-color: #fffaf0;
+    border: 1px solid #feebc8;
+}
+
+#outHistory-page .bg-red-light {
+    background-color: #fff5f5;
+    border: 1px solid #fed7d7;
+}
+
+#outHistory-page .text-green {
+    color: #10b981 !important;
+}
+
+#outHistory-page .text-blue {
+    color: #3182ce !important;
+}
+
+#outHistory-page .text-orange {
+    color: #dd6b20 !important;
+}
+
+#outHistory-page .text-red {
+    color: #e53e3e !important;
+}
+
+/* 회사 선택 전용 select 박스 스타일 커스텀 */
+#outHistory-page .filter-control.select-control {
+    background-color: #ffffff;
+    cursor: pointer;
+    padding-right: 1.5rem;
+    /* 브라우저 기본 select 화살표 디자인이 어색할 경우를 대비한 유연한 스타일 보강 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    appearance: none;
+}
+
+#outHistory-page .filter-control.select-control::-ms-expand {
+    display: none;
+    /* 익스플로러 화살표 제거 */
+}
+
+/* ==========================================================================
+   #packign-page 리액트 인라인 코드 오버라이드 커스텀 클래스
+   ========================================================================== */
+
+#packign-page .clickable-row {
+    cursor: pointer;
+}
+
+/* 모달 컴포넌트 크기 및 정렬 제어 */
+#packign-page .packing-modal-width {
+    width: 980px;
+    max-width: 95%;
+}
+
+#packign-page .modal-padding-sm {
+    padding: 1rem;
+}
+
+#packign-page .modal-header-info-cols {
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+}
+
+#packign-page .disabled-bg-input {
+    background-color: #f8fafc;
+    cursor: default;
+}
+
+#packign-page .select-status-height {
+    height: 38px;
+    padding: 0.5rem;
+}
+
+/* 서브 타이틀 가독성 명세 */
+#packign-page .modal-split-left .first-title,
+#packign-page .modal-split-right .first-title {
+    margin-top: 0;
+}
+
+#packign-page .title-muted-desc {
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+/* 내부 데이터 스크롤 테이블 조절 */
+#packign-page .pdt-table-max-height {
+    max-height: 180px;
+    margin-bottom: 1rem;
+}
+
+#packign-page .th-orders-width {
+    width: 55%;
+}
+
+#packign-page .th-pdt-name { width: 55%; }
+#packign-page .th-pdt-qty { width: 20%; text-align: right; }
+#packign-page .th-pdt-price { width: 25%; text-align: right; }
+
+#packign-page .product-item-row {
+    cursor: pointer;
+}
+
+#packign-page .cell-pdt-title {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    color: var(--text-dark);
+}
+
+#packign-page .font-semibold {
+    padding: 0.75rem 0.5rem;
+    font-weight: 600;
+}
+
+#packign-page .config-title-margin {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+}
+
+/* 송장 상세 인쇄 레이아웃 컴포넌트 */
+#packign-page .invoice-pdt-cell-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+#packign-page .invoice-highlight-no {
+    color: var(--primary-green);
+}
+
+/* ==========================================================================
+   추가된 모달 레이아웃 구조 스타일 (전체 화면 블라인드 및 중앙 정렬)
+   ========================================================================== */
+
+/* 1. 모달 전체 오버레이 (배경 어둡게 처리 및 숨김/보임 제어) */
+#outHistory-page .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* 화면을 어둡게 블라인드 처리 */
+    z-index: 9999; /* 최상단에 배치 */
+    
+    /* 기본적으로 숨김 상태 */
+    display: none; 
+    align-items: center;
+    justify-content: center;
+}
+
+/* 2. active 클래스가 붙었을 때만 플렉스로 가시화 */
+#outHistory-page .modal-overlay.active {
+    display: flex;
+}
+
+/* 3. 모달 컨테이너 창 스타일 */
+#outHistory-page .modal-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* 화면을 벗어나지 않도록 제한 */
+    overflow: hidden;
+    animation: modalFadeIn 0.25s ease-out; /* 부드러운 등장 효과 */
+}
+
+/* 4. 모달 헤더 정렬 보완 */
+#outHistory-page .modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color, #cbd5e0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+#outHistory-page .modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    cursor: pointer;
+    color: #94a3b8;
+    line-height: 1;
+}
+
+#outHistory-page .modal-close-btn:hover {
+    color: #475569;
+}
+
+/* 등장 애니메이션 */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#outHistory-page .bg-all-light {
+    background-color: #f1f5f9;
+}
