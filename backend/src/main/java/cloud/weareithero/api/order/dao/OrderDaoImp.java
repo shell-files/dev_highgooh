@@ -13,6 +13,10 @@ import cloud.weareithero.api.order.dto.OrderSummaryDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Order DaoImpl - Mapper 위임 레이어
+ * Inbound AsnDaoImp 패턴 동일 유지
+ */
 @Slf4j
 @Repository
 @RequiredArgsConstructor
@@ -31,13 +35,13 @@ public class OrderDaoImp implements OrderDao {
   }
 
   @Override
-  public OrderDTO findByOrderId(int orderId) {
-    return orderMapper.findByOrderId(orderId);
+  public OrderDTO findByOutboundId(int outboundId) {
+    return orderMapper.findByOutboundId(outboundId);
   }
 
   @Override
-  public List<OrderDetailProductDTO> findOne(int orderId) {
-    return orderMapper.findOne(orderId);
+  public List<OrderDetailProductDTO> findOne(int outboundId) {
+    return orderMapper.findOne(outboundId);
   }
 
   @Override
@@ -51,6 +55,21 @@ public class OrderDaoImp implements OrderDao {
   }
 
   @Override
+  public int update(OrderDTO orderDTO) {
+    return orderMapper.update(orderDTO);
+  }
+
+  // @Override
+  // public int deleteOrderProducts(int outboundId) {
+  //   return orderMapper.deleteOrderProducts(outboundId);
+  // }
+
+  // @Override
+  // public int delete(int outboundId) {
+  //   return orderMapper.delete(outboundId);
+  // }
+
+  @Override
   public List<OrderCustomerDTO> findByCustomer() {
     return orderMapper.findByCustomer();
   }
@@ -59,5 +78,5 @@ public class OrderDaoImp implements OrderDao {
   public List<OrderProductDTO> findByProduct() {
     return orderMapper.findByProduct();
   }
-  
+
 }
