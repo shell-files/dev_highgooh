@@ -188,7 +188,7 @@ const CarbonDashboard = () => {
         <div className="chart-card">
           <h3 className="chart-title">선택기간별 탄소 배출량 변경 추이 (tCO₂eq)</h3>
           <div className="chart-container" style={{ height: '300px' }}>
-            {/* <CarbonLineChart chartData={chartData.line} /> */}
+            <CarbonLineChart chartData={chartData.line} />
           </div>
         </div>
       </div>
