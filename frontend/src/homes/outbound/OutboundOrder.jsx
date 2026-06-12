@@ -113,11 +113,20 @@ const OutboundOrder = () => {
             </div>
             <div className="summary-card-item">
               <div className="card-info-left">
-                <span className="summary-label">신규</span>
-                <span className="summary-value text-green">34<small>건</small></span>
+                <span className="summary-label">출고완료</span>
+                <span className="summary-value text-green">3<small>건</small></span>
               </div>
               <div className="card-trend-right">
                 <span className="status-badge bg-green-light text-green">당월</span>
+              </div>
+            </div>
+            <div className="summary-card-item">
+              <div className="card-info-left">
+                <span className="summary-label">신규</span>
+                <span className="summary-value text-blue ">34<small>건</small></span>
+              </div>
+              <div className="card-trend-right">
+                <span className=" status-badge bg-blue-light text-blue">당월</span>
               </div>
             </div>
             <div className="summary-card-item">
@@ -129,15 +138,7 @@ const OutboundOrder = () => {
                 <span className="status-badge bg-orange-light text-orange">당월</span>
               </div>
             </div>
-            <div className="summary-card-item">
-              <div className="card-info-left">
-                <span className="summary-label">출고완료</span>
-                <span className="summary-value text-blue">3<small>건</small></span>
-              </div>
-              <div className="card-trend-right">
-                <span className="status-badge bg-blue-light text-blue">당월</span>
-              </div>
-            </div>
+            
           </div>
 
           {/* 검색 영역 */}
