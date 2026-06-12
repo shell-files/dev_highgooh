@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <header className='home_header'>
       <div className="logo-area">
-          <h1 className="logo-section" style={{cursor: 'pointer'}} onClick={()=>navigate("/home")}></h1>
+          <h1 className="logo-section" style={{cursor: 'pointer'}} onClick={()=>navigate("/")}></h1>
       </div>
       <div className="header_right_area">
           <div className="user-section">

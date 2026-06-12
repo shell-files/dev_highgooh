@@ -3,9 +3,9 @@
  */
 
 import { createContext, useContext, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { GET, POST, PUT, PATCH, DELETE } from "@utils/Network";
 import { encodeJson, safeJsonParse } from "@utils/Base64";
-
 import { useDispatch, useSelector } from "react-redux";
 import { checkUser, logoutUser, loginUser } from '@stores/authSlice';
 
@@ -13,6 +13,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
 
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
 	// [변수] isAuthReady: localStorage 복원 완료 여부 (라우터 가드에서 활용)
@@ -33,17 +34,37 @@ export const AuthProvider = ({ children }) => {
 	/**
    * [이펙트] 앱 진입 시 localStorage에서 이전 세션 복원
    */
-  useEffect(() => { dispatch(checkUser()); }, []);
+  useEffect(() => { 
+    dispatch(checkUser()); 
+  }, []);
+
+  const redirectEvent = (res) => {
+    if(res.status === true) {
+      navigate(redirectUrl);
+    } else {
+      // 알림 필요하면 추가
+    }
+  }
 
 	/**
    * [함수] login: 로그인 API 응답 데이터를 받아 전역 상태 및 localStorage에 저장
    */
-  const login = (data) => dispatch(loginUser(data));
+  const login = async (data) => {
+    const resultAction = await dispatch(loginUser(data));
+    if(loginUser.fulfilled.match(resultAction)) {
+      redirectEvent(resultAction.payload);
+    }
+  }
 
   /**
    * [함수] logout: 로그아웃 API 응답 데이터를 받아 전역 상태 및 localStorage에 초기화
    */
-  const logout = () => dispatch(logoutUser());
+  const logout = async () => {
+    const resultAction = await dispatch(logoutUser());
+    if(logoutUser.fulfilled.match(resultAction)) {
+      redirectEvent(resultAction.payload);
+    }
+  }
 
 	// 전역 인증 상태 관리 컨텍스트에 필요한 값들을 객체로 묶어서 제공
 	const authContextValue = {

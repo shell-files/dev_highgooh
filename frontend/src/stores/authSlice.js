@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
 import { GET, POST, PUT, PATCH, DELETE } from "@utils/Network";
 import { encodeJson, safeJsonParse } from "@utils/Base64";
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
@@ -51,6 +51,8 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+const authAsyncActions = [checkUser, loginUser, logoutUser];
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -68,7 +70,7 @@ const authSlice = createSlice({
           // state.companies = storedCompanies;
           state.isAuthReady = true;
           // state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
-          state.redirectUrl = "/home";
+          state.redirectUrl = "/";
         } else {
           // localStorage.removeItem("companies");
           state.isAuthReady = false;
@@ -85,7 +87,7 @@ const authSlice = createSlice({
           // state.companies = storedCompanies;
           state.isAuthReady = true;
           // state.redirectUrl = getAuthRedirectUrl(storedCompanies.length > 0);
-          state.redirectUrl = "/home";
+          state.redirectUrl = "/";
           // showDefaultAlert("로그인 완료", "회원 인증이 완료되었습니다.", "success");
         } else {
           // localStorage.removeItem("companies");
@@ -112,16 +114,33 @@ const authSlice = createSlice({
       });
 
     builder
-      .addMatcher((action) => action.type.endsWith('/pending'), (state) => {
-        state.loading = true;
-        state.error = null;
-      }
+      .addMatcher(
+        isPending(...authAsyncActions), 
+        (state) => {
+          state.loading = true;
+          state.error = null;
+        }
+      )
+      .addMatcher(
+        isRejected(...authAsyncActions), 
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload || action.error.message || '알 수 없는 에러가 발생했습니다.';
+        }
       );
-    builder
-      .addMatcher((action) => action.type.endsWith('/rejected'), (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
+
+    // builder
+    //   .addMatcher((action) => action.type.endsWith('/pending'), (state) => {
+    //     state.loading = true;
+    //     state.error = null;
+    //   }
+    //   );
+    // builder
+    //   .addMatcher((action) => action.type.endsWith('/rejected'), (state, action) => {
+    //     state.loading = false;
+    //     state.error = action.payload;
+    //   });
+
   },
 });
 
