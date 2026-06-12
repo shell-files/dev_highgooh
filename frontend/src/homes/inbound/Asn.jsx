@@ -168,10 +168,11 @@ const Asn = () => {
               }</span>
             </div>
           </div>
+          
           <div className="summary-card-item">
             <div className="card-info-left">
-              <span className="summary-label">입고예정</span>
-              <span className="summary-value text-green">{summary.expected}<small>건</small></span>
+              <span className="summary-label">입고완료</span>
+              <span className="summary-value text-green">{summary.completed}<small>건</small></span>
             </div>
             <div className="card-trend-right">
               <span className="status-badge bg-green-light text-green">{
@@ -179,13 +180,14 @@ const Asn = () => {
               }</span>
             </div>
           </div>
+
           <div className="summary-card-item">
             <div className="card-info-left">
-              <span className="summary-label">입고완료</span>
-              <span className="summary-value text-blue">{summary.completed}<small>건</small></span>
+              <span className="summary-label">입고예정</span>
+              <span className="summary-value text-blue">{summary.expected}<small>건</small></span>
             </div>
             <div className="card-trend-right">
-              <span className="status-badge bg-blue-light text-blue">{
+              <span className="status-badge bg-blue-light text-blue ">{
                 getFirstDay() === firstDate && getLastDayOfMonth() === endDate ? "당월" : "선택"
               }</span>
             </div>
