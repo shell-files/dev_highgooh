@@ -94,8 +94,36 @@ const Inbound = () => {
     const [page, setPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [size, setSize] = useState(20);
+    const [size, setSize] = useState(10);
     const [detailData, setDetailData] = useState(null);
+
+
+    const [firstDate, setFirstDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+
+    const getFirstDay = () => {
+        const today = new Date();
+        // 이번 달 1일 구하기 ("YYYY-MM-01")
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const firstDayStr = `${year}-${month}-01`;
+        return firstDayStr;
+    }
+
+    const getLastDayOfMonth = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        // today.getMonth() + 1 은 '다음 달'의 인덱스가 됩니다.
+        // 일(Day) 자리에 0을 주면 '이번 달의 마지막 날' 객체가 생성됩니다.
+        const lastDay = new Date(year, today.getMonth() + 1, 0);
+
+        const lastYear = lastDay.getFullYear();
+        const lastMonth = String(lastDay.getMonth() + 1).padStart(2, '0');
+        const lastDate = String(lastDay.getDate()).padStart(2, '0');
+
+        const lastDayStr = `${lastYear}-${lastMonth}-${lastDate}`;
+        return lastDayStr; // 예: "2026-06-30" 또는 "2026-02-28" 등 자동 계산
+    };
 
     const openDetailModal = (id) => {
         POST(`/inbound/${id}`).then(res => {
@@ -111,6 +139,27 @@ const Inbound = () => {
         getData();
     }
 
+    const addOneDay = (dateStr) => {
+        if (!dateStr) return "";
+
+        const date = new Date(dateStr);
+        date.setDate(date.getDate() + 1); // 하루 더하기
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    };
+
+    const resetResearch = () => {
+        if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
+        if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
+        if (asnRef.current) asnRef.current.value = null;
+        // 초기 데이터 로드 호출
+        getData();
+    }
+
     const getData = () => {
         const params = { page, size };
 
@@ -118,12 +167,14 @@ const Inbound = () => {
             params.asnId = asnRef.current.value;
         }
 
-        if (orderStartRef.current !== null) {
+        if (orderStartRef.current?.value) {
             params.orderStart = orderStartRef.current.value;
+            setFirstDate(params.orderStart)
         }
 
-        if (orderEndRef.current !== null) {
-            params.orderEnd = orderEndRef.current.value;
+        if (orderEndRef.current?.value) {
+            params.orderEnd = addOneDay(orderEndRef.current.value);
+            setEndDate(orderEndRef.current.value)
         }
 
         if (params?.orderStart !== "" && params?.orderEnd === "") {
@@ -138,6 +189,16 @@ const Inbound = () => {
             setTotalPages(res.data.pagination.totalPages);
         });
     }
+
+    useEffect(() => {
+
+        // input 엘리먼트에 초기값 주입
+        if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
+        if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
+
+        // 초기 데이터 로드 호출
+        getData();
+    }, []); 
 
     useEffect(() => {
         getData()
@@ -168,7 +229,7 @@ const Inbound = () => {
                     </div>
                     <div></div>
                     <div className="filter-btn-group">
-                        <button type="reset" className="btn-filter-reset">초기화</button>
+                        <button type="button" onClick={() => resetResearch()} className="btn-filter-reset">초기화</button>
                         <button type="submit" className="btn-filter-search">조회하기</button>
                     </div>
                 </form>
