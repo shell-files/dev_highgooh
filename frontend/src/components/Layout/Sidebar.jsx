@@ -6,20 +6,20 @@ const Sidebar = () => {
     <div className="sidebar">
       <ul>
           <h4 className="factory_icon">입고</h4>
-          <li><a onClick={()=>navigate("/home/asn")}>ASN</a></li>
-          <li><a onClick={()=>navigate("/home/inbound")}>입고이력</a></li>
+          <li><a onClick={()=>navigate("/asn")}>ASN</a></li>
+          <li><a onClick={()=>navigate("/inbound")}>입고이력</a></li>
       </ul>
       <ul>
           <h4 className="released_icon">출고</h4>
-          <li><a onClick={()=>navigate("/home/order")}>주문</a></li>
-          <li><a onClick={()=>navigate("/home/packing")}>패킹</a></li>
-          <li><a onClick={()=>navigate("/home/outbound")}>출고/송장</a></li>
-          <li><a onClick={()=>navigate("/home/outhistory")}>출고이력</a></li>
+          <li><a onClick={()=>navigate("/order")}>주문</a></li>
+          <li><a onClick={()=>navigate("/packing")}>패킹</a></li>
+          <li><a onClick={()=>navigate("/outbound")}>출고/송장</a></li>
+          <li><a onClick={()=>navigate("/outhistory")}>출고이력</a></li>
       </ul>
       <ul>
           <h4 className="carbon_icon">탄소배출량</h4>
-          <li><a onClick={() => navigate("/home/carbonemission")}>대시보드</a></li>
-          <li><a onClick={() => navigate("/home/anomaly")}>이상치탐지</a></li>
+          <li><a onClick={() => navigate("/carbonemission")}>대시보드</a></li>
+          <li><a onClick={() => navigate("/anomaly")}>이상치탐지</a></li>
       </ul>
     </div>
   )
