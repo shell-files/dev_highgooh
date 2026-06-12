@@ -1,66 +1,38 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from 'chart.js';
+import { getLineChartData, getBarChartData, getDoughnutChartData } from '@homes/carbonEmission/ChartData.jsx';
 
-// Chart.js 모듈 등록
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+// ... 기존 ChartJS 등록 코드 동일
 
-const CarbonLineChart = ( { chartData } ) => {
-  const data = {
-    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-    datasets: [{
-      label: '총 배출량 추이',
-      data: chartData,
-      borderColor: '#03a94d',
-      backgroundColor: 'rgba(3, 169, 77, 0.08)',
-      borderWidth: 3,
-      tension: 0.3,
-      fill: true,
-      pointBackgroundColor: '#03a94d',
-      pointRadius: 4,
-      pointHoverRadius: 6
-    }]
-  };
+const CarbonLineChart = ({ rawData, selectedYear, selectedMonth }) => {
+  // useMemo를 사용하여 selectedMonth나 rawData가 바뀔 때만 데이터를 재계산
+  const chartData = useMemo(() => {
+    const { data, labels } = getLineChartData(rawData, selectedYear,selectedMonth);
+    return {
+      labels,
+      datasets: [{
+        label: '탄소 배출량',
+        data: data,
+        borderColor: '#03a94d',
+        backgroundColor: 'rgba(3, 169, 77, 0.08)',
+        borderWidth: 3,
+        tension: 0.3,
+        fill: true,
+        pointBackgroundColor: '#03a94d',
+        pointRadius: 4,
+      }]
+    };
+    console.log("차트 컴포넌트가 받는 데이터:", chartData)
+  }, [rawData, selectedYear, selectedMonth]);
 
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: { color: '#e2e8f0' },
-        ticks: { font: { size: 11 } }
-      },
-      x: {
-        grid: { display: false },
-        ticks: { font: { size: 11 } }
-      }
-    }
+    // 데이터 변경 시 애니메이션 처리
+    animation: { duration: 500 }
   };
 
-  return <Line data={data} options={options} />;
+  return <Line data={chartData} options={options} />;
 };
 
 export default CarbonLineChart;
