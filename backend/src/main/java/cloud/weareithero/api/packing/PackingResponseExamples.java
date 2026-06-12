@@ -1,0 +1,46 @@
+package cloud.weareithero.api.packing;
+
+public interface PackingResponseExamples {
+
+    final String SUCCESS1_DEFAULT = """
+      {
+        "orderId": 0,
+        "orderStart": "",
+        "orderEnd": "",
+        "partnerName": "",
+        "page": 1,
+        "size": 20
+      }
+      """;
+  final String SUCCESS2_DEFAULT = """
+      {
+        "asnId": 1,
+        "orderStart": "",
+        "orderEnd": "",
+        "partnerName": "",
+        "page": 1,
+        "size": 20
+      }
+      """;
+  final String SUCCESS3_DEFAULT = """
+      {
+        "asnId": 0,
+        "orderStart": "2026-05-20",
+        "orderEnd": "2026-06-25",
+        "partnerName": "",
+        "page": 1,
+        "size": 20
+      }
+      """;
+  final String SUCCESS4_DEFAULT = """
+      {
+        "asnId": 1,
+        "orderStart": "2026-05-20",
+        "orderEnd": "2026-06-25",
+        "partnerName": "",
+        "page": 1,
+        "size": 20
+      }
+      """;
+    
+}

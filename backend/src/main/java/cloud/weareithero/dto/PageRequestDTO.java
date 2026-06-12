@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PageRequestDTO {
   
+  @Builder.Default
   private int page = 1;
+  @Builder.Default
   private int size = 20;
   public int getOffset() {
     return (this.page - 1) * this.size;

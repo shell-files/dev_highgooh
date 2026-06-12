@@ -59,7 +59,7 @@ const authSlice = createSlice({
     builder
       .addCase(checkUser.fulfilled, (state, action) => {
         const res = action.payload;
-        console.log(res);
+        // console.log(res);
         if (res.status === true) {
           state.name = res.data?.name;
           const roles = res.data?.role.split(/\s*,\s*/);

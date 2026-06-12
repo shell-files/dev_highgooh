@@ -1,0 +1,333 @@
+/* ==========================================================================
+   자재 입고이력 공급망 전용 스타일시트 (inhistory.css)
+   ========================================================================== */
+
+/* 상단 액션 그룹 레이아웃 */
+#inbound-page .history-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+#inbound-page .btn-action-green {
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.1rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#inbound-page .btn-action-green:hover {
+    background-color: var(--primary-hover);
+}
+
+#inbound-page .btn-action-gray {
+    background-color: #ffffff;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+    padding: 0.5rem 1.1rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#inbound-page .btn-action-gray:hover {
+    background-color: #f7fafc;
+    border-color: #a0aec0;
+}
+
+/* 4분할 통계 데이터 현황판 그리드 */
+#inbound-page .history-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+#inbound-page .summary-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid #718096;
+    border-radius: 6px;
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* 신규 공급망 인디케이터 컬러 매핑 */
+#inbound-page .summary-card.border-blue { border-left-color: #3182ce; }
+#inbound-page .summary-card.border-purple { border-left-color: #805ad5; }
+#inbound-page .summary-card.border-indigo { border-left-color: #4c51bf; }
+#inbound-page .summary-card.border-green { border-left-color: var(--primary-green); }
+
+
+#inbound-page .content-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    overflow-x: auto;
+    
+}
+
+
+#inbound-page .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+#inbound-page .card-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+#inbound-page .card-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+#inbound-page .card-value small {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* 신규 텍스트 컬러 유틸리티 */
+#inbound-page .text-purple { color: #805ad5 !important; }
+#inbound-page .text-indigo { color: #4c51bf !important; }
+#inbound-page .text-green { color: var(--primary-green) !important; }
+
+/* 입고이력 메인 데이터 테이블 */
+#inbound-page .history-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+#inbound-page .history-data-table th,
+#inbound-page .history-data-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+#inbound-page .history-data-table th {
+    background-color: #f8fafc;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+#inbound-page .history-data-table tbody tr:hover td {
+    background-color: #f1f5f9;
+}
+
+#inbound-page .text-center { text-align: center !important; }
+#inbound-page .text-right { text-align: right !important; }
+#inbound-page .font-bold { font-weight: 600; }
+#inbound-page .text-link { color: var(--primary-green); cursor: pointer; text-decoration: underline;}
+
+/* 미디어 쿼리 반응형 처리 */
+/* @media (max-width: 1200px) {
+    .history-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 640px) {
+    .history-summary-grid {
+        grid-template-columns: 1fr;
+    }
+} */
+
+
+/* ==========================================================================
+   표 하단 페이지네이션 전용 레이아웃 확장 서식 
+   ========================================================================== */
+
+#inbound-page .content-card .pagination-container {
+    display: flex !important;              /* Flex 무조건 강제 */
+    flex-direction: row !important;         /* 🚨 column으로 바뀐 것을 다시 가로 방향(row)으로 리셋 */
+    justify-content: space-between !important; /* 🚨 center로 깨진 정렬을 다시 양쪽 끝 정렬로 리셋 */
+    align-items: center !important;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    background-color: #ffffff;
+    width: 100%;                            /* 가로 너비 확보 */
+}
+
+/* 좌측 정보 텍스트 서식 */
+#inbound-page .pagination-info {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+#inbound-page .pagination-info span {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* 중앙 페이지네이션 버튼 트랙 */
+#inbound-page .pagination-buttons {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+/* 우측 페이지 로우 셀렉터 박스 */
+#inbound-page .pagination-size-selector select {
+    padding: 0.4rem 1.8rem 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: #ffffff;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+#inbound-page .pagination-size-selector select:focus {
+    border-color: var(--primary-green);
+}
+
+
+/* ==========================================================================
+   [추가] ASN 상세 조회 모달 전용 테두리 및 링크 스타일 서식
+   ========================================================================== */
+#inbound-page .text-link {
+    color: var(--primary-green) !important;
+    text-decoration: underline !important;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+#inbound-page .text-link:hover {
+    color: var(--primary-hover) !important;
+}
+
+/* 1. 모달 전체 오버레이 기본 숨김 처리 (★핵심 수정사항) */
+#inbound-page .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none; /* 기본 상태는 숨김 */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* active 클래스가 붙으면 유연하게 화면 중앙 배치 노출 */
+#inbound-page .modal-overlay.active {
+    display: flex !important;
+}
+
+/* 2. 모달 컨테이너 윈도우 상자 디자인 */
+#inbound-page .modal-window {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    animation: modalFadeIn 0.25s ease-out;
+    overflow: hidden;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 3. 모달 헤더 구역 */
+#inbound-page .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#inbound-page .modal-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin: 0;
+}
+
+#inbound-page .modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #a0aec0;
+    cursor: pointer;
+}
+
+#inbound-page .modal-close-btn:hover {
+    color: var(--text-dark);
+}
+
+/* 4. 엑셀 시트 탭 스타일시트 매칭 */
+#inbound-page .sheet-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #f8fafc;
+}
+
+#inbound-page .sheet-tab-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a5568;
+    background: none;
+    border: none;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+#inbound-page .sheet-tab-btn.active {
+    background-color: #ffffff;
+    color: var(--primary-green);
+    font-weight: 700;
+    border-bottom: 2px solid var(--primary-green);
+    margin-bottom: -1px;
+}
+
+/* 5. 엑셀 양식 테이블 팝업 전용 상세 테두리 라인업 */
+#inbound-page .excel-styled-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#inbound-page .excel-styled-table th {
+    font-weight: 600;
+    color: #4a5568;
+    background-color: #f1f5f9 !important;
+    border: 1px solid var(--border-color) !important;
+    text-align: center !important;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+}
+
+#inbound-page .excel-styled-table td {
+    border: 1px solid var(--border-color) !important;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    vertical-align: middle;
+}
+

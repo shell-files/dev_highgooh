@@ -50,4 +50,4 @@ token:
     refresh: 2592000
 
 logging.level.org:
-  springframework.security: INFO #trace
+  springframework.security: DEBUG #INFO trace
