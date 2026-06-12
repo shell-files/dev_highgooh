@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { GET, POST, PUT } from "@utils/Network";
 import '@styles/asn.css';
+import { useDispatch, useSelector } from "react-redux";
+import { closeAsnModal, addAsnModal } from '@stores/asnSlice';
  
 /**
  * AsnModal
@@ -10,12 +12,20 @@ import '@styles/asn.css';
  * @param {'register'|'detail'} mode - 'register': 신규 등록, 'detail': 상세 조회
  * @param {object|null} initialData  - mode='detail'일 때 서버에서 받아온 ASN 데이터
  */
-const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData = null }) => {
-  const isDetail = mode === 'detail';
- 
-  const [partnerCompany, setPartnerCompany] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
-  const [materials, setMaterials] = useState([]);
+const AsnModal = () => {
+  const dispatch = useDispatch();
+
+  const isModal = useSelector((state) => state.asn.isModal);
+  const modalMode = useSelector((state) => state.asn.modalMode);
+  const initialData = useSelector((state) => state.asn.detailData);
+
+  const setModal = () => dispatch(closeAsnModal());
+
+  const isDetail = modalMode === 'detail';
+
+  const partnerCompany = useSelector((state) => state.asn.modal.partnerCompany);
+  const warehouses = useSelector((state) => state.asn.modal.warehouses);
+  const materials = useSelector((state) => state.asn.modal.materials);
  
   const [asn, setAsn] = useState({
     partnerCompany: 0,
@@ -24,17 +34,6 @@ const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData =
     vehicleNumber: ''
   });
   const [asnMaterials, setAsnMaterials] = useState([]);
- 
-  /* ── 공통 드롭다운 데이터 로드 ── */
-  useEffect(() => {
-    GET("/asn").then(res => {
-      if (res.status === true) {
-        setPartnerCompany(res.data.suppliers);
-        setWarehouses(res.data.warehouses);
-        setMaterials(res.data.materials);
-      }
-    });
-  }, []);
  
   /* ── 상세 모드: initialData 로 폼 채우기 ── */
   useEffect(() => {
@@ -99,15 +98,7 @@ const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData =
       items:            asnMaterials
     };
  
-    PUT("/asn", params).then(res => {
-      if (res.status === true) {
-        alert("사전입고 통지(ASN)가 등록되었습니다.");
-        setModal(false);
-        getData?.();
-      } else {
-        alert(res.message);
-      }
-    });
+    dispatch(addAsnModal(params));
   };
  
   /* ── 렌더링 ── */
@@ -115,7 +106,7 @@ const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData =
     <>
       <div
         className={isModal ? 'modal-overlay active' : 'modal-overlay'}
-        onClick={() => setModal(false)}
+        onClick={setModal}
       />
       <div className={isModal ? 'modal-overlay2 active' : 'modal-overlay'}>
         <div className="modal-window">
@@ -123,7 +114,7 @@ const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData =
           {/* 헤더 */}
           <div className="modal-header">
             <h3>{isDetail ? '사전입고 통지(ASN) 상세' : '사전입고 통지(ASN) 등록'}</h3>
-            <button className="modal-close-btn" onClick={() => setModal(false)}>&times;</button>
+            <button className="modal-close-btn" onClick={setModal}>&times;</button>
           </div>
  
           {/* 바디 */}
@@ -252,7 +243,7 @@ const AsnModal = ({ isModal, setModal, getData, mode = 'register', initialData =
  
           {/* 푸터 */}
           <div className="modal-footer">
-            <button className="btn-pop-cancel" onClick={() => setModal(false)}>
+            <button className="btn-pop-cancel" onClick={setModal}>
               {isDetail ? '닫기' : '취소'}
             </button>
             {!isDetail && (
