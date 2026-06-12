@@ -22,7 +22,7 @@ import Packing from '@homes/outbound/Packing.jsx';
 function App() {
   const location = useLocation();
   const { isAuthReady, isLoading, redirectUrl } = useAuth();
-  console.log(" 현재 브라우저 주소 위치:", location.pathname);
+
   if (isLoading) return <></>;
   if(!isAuthReady) {
     return (
