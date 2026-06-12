@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
-import { getLineChartData, getBarChartData, getDoughnutChartData } from '@homes/carbonEmission/ChartData.jsx';
+import { getLineChartData, getBarChartData, getDoughnutChartData } from '@components/UI/CarbonChartData.jsx';
 
 const CarbonLineChart = ({ chartData }) => {
-
-    console.log(chartData);
 
     const data = {
         labels: chartData?.labels ?? [],
