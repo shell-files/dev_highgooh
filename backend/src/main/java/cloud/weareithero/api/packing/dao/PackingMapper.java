@@ -47,6 +47,7 @@ public interface PackingMapper {
                 `o`.`order_date` AS 'orderDate',
                 `o`.`deadline`,
                 `o`.`etd`,
+                `o`.`state_code` AS 'stepCode',
                 `cc`.`name` AS 'step'
             FROM `OUTBOUND` `o`
             JOIN `PARTNER_COMPANY_MASTER` `pcm`
@@ -76,6 +77,7 @@ public interface PackingMapper {
                 `o`.`order_date` AS 'orderDate',
                 `o`.`deadline`,
                 `o`.`etd`,
+                `o`.`state_code` AS 'stepCode',
                 `cc`.`name` AS 'step'
             FROM `OUTBOUND` `o`
             JOIN `PARTNER_COMPANY_MASTER` `pcm`
@@ -97,7 +99,7 @@ public interface PackingMapper {
                 `op`.`name` AS 'productName',
                 `o`.`quantity`,
                 `o`.`price`,
-                `o`.`total_price`
+                `o`.`total_price` as 'totalPrice'
             FROM `ORDER_PRODUCT` o
             JOIN `OUTBOUND_PRODUCT_MASTER` op
                 ON(`o`.`outbound_product_id` = `op`.`id`)
