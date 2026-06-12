@@ -1,0 +1,195 @@
+/* ==========================================================================
+   대시보드 콘텐츠 영역 레이아웃 (Dashboard Content Area)
+   ========================================================================== */
+
+#carbon-page .dashboard-filter-bar {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+#carbon-page .toggle-group-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+#carbon-page .toggle-group-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border-bottom: 1px dashed #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+#carbon-page .toggle-group-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+#carbon-page .toggle-group-item .select_label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    min-width: 90px;
+    cursor: pointer;
+}
+
+#carbon-page .toggle-group-item .select_label span:hover {
+    color: var(--primary-green);
+}
+
+#carbon-page .toggle-content {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+#carbon-page .btn-filter-tab {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.83rem;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    width: 80px;
+}
+
+#carbon-page .btn-filter-tab:hover {
+    background-color: #edf2f7;
+    color: var(--text-dark);
+}
+
+#carbon-page .btn-filter-tab.active {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* 차트 2분할 그리드 구조 */
+#carbon-page .dashboard-chart-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+#carbon-page .chart-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+}
+
+#carbon-page .chart-title {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+#carbon-page .chart-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 12px;
+    background-color: var(--primary-green);
+    border-radius: 2px;
+}
+
+#carbon-page .chart-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+}
+
+/* 하단 명세 테이블 카드 영역 */
+#carbon-page .dashboard-table-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.25rem;
+}
+
+#carbon-page .table-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#carbon-page .table-title {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 700;
+}
+
+#carbon-page .btn-excel-download {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e0;
+    color: #4a5568;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#carbon-page .btn-excel-download:hover {
+    background-color: #f7fafc;
+    border-color: #a0aec0;
+}
+
+#carbon-page .dashboard-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+#carbon-page .dashboard-data-table th,
+#carbon-page .dashboard-data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+#carbon-page .dashboard-data-table th {
+    background-color: #f8fafc;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+#carbon-page .dashboard-data-table tbody tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* 유틸리티 클래스 */
+#carbon-page .text-right { text-align: right !important; }
+#carbon-page .text-center { text-align: center !important; }
+#carbon-page .font-bold { font-weight: 600; }
+#carbon-page .color-green { color: var(--primary-green); font-weight: 600; }
+
+#carbon-page .table-summary-row {
+    background-color: #edf2f7;
+    font-weight: 700;
+}
+#carbon-page .table-summary-row td {
+    border-bottom: 2px solid #cbd5e0;
+}
+#carbon-page .total-amount {
+    color: #e53e3e;
+}
+
+/* @media (max-width: 1024px) {
+    .dashboard-chart-grid {
+        grid-template-columns: 1fr;
+        
+    }
+} */

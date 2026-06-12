@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Outlet } from "react-router";
+import { Routes, Route, Navigate, Outlet,useLocation } from "react-router";
 // import '@styles/App.css';
 import Gate from '@gates/Gate.jsx';
 import NotFound from '@errors/NotFound.jsx';
@@ -19,7 +19,7 @@ const PrivateRoute = () => {
 };
 
 function App() {
-
+  
   return (
     <>
       <Routes>
