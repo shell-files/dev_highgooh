@@ -65,7 +65,8 @@ const Anomaly = () => {
   };
 
   // 조회 버튼 이벤트
-  const periodSearch = () => {
+  const periodSearch = (e) => {
+    e.preventDefault();
     const filterPayload = {
       year: selectedYear,
       quarter: selectedQuarter,
@@ -450,7 +451,7 @@ const Anomaly = () => {
 
             {/* 연도 선택 */}
             <div className="toggle-group-item id_quarter">
-              <div className="select_label"><span>연도 선택</span></div>
+              <div className="select_label"><label>연도 선택</label></div>
               <div className="toggle-content">
                 <select
                   className="year-select btn-filter-tab"
@@ -474,7 +475,7 @@ const Anomaly = () => {
               <>
                 {/* 분기 선택 영역 */}
                 <div className="toggle-group-item id_quarter">
-                  <div className="select_label"><span>분기 선택</span></div>
+                  <div className="select_label"><label>분기 선택</label></div>
                   <div className="toggle-content">
                     {[
                       { code: "all", name: "전체" },
@@ -497,7 +498,7 @@ const Anomaly = () => {
 
                 {/* 월 선택 영역 */}
                 <div className="toggle-group-item id_quarter">
-                  <div className="select_label"><span>월 선택</span></div>
+                  <div className="select_label"><label>월 선택</label></div>
                   <div className="toggle-content">
                     <select
                       className="year-select btn-filter-tab"
