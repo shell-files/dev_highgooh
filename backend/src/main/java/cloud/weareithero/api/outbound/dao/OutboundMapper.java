@@ -270,7 +270,7 @@ public interface OutboundMapper {
    *
    * JOIN 경로:
    *   OUTBOUND_TRANSPORTATION ot
-   *     → PARTNER_COMPANY_MASTER carrier  ON ot.carrier_company_id = carrier.id
+   *     → PARTNER_COMPANY_MASTER carrier  ON ot.partner_company_id = carrier.id
    *     → TRANSPORTATION_VEHICLE_MASTER tvm ON ot.transportation_vehicle_id = tvm.id
    *     → OUTBOUND_PACKING op             ON op.outbound_transportation_id = ot.id (LEFT JOIN)
    *       → OUTBOUND ob                  ON op.outbound_id = ob.id (LEFT JOIN, 필터용)
@@ -312,7 +312,7 @@ public interface OutboundMapper {
             `ot`.`driver`                                                   AS `driver`
           FROM `OUTBOUND_TRANSPORTATION` `ot`
           JOIN `PARTNER_COMPANY_MASTER` `carrier`
-            ON `ot`.`carrier_company_id` = `carrier`.`id`
+            ON `ot`.`partner_company_id` = `carrier`.`id`
           JOIN `TRANSPORTATION_VEHICLE_MASTER` `tvm`
             ON `ot`.`transportation_vehicle_id` = `tvm`.`id`
           LEFT JOIN `OUTBOUND_PACKING` `op`
@@ -373,7 +373,7 @@ public interface OutboundMapper {
    * 9. 차량 배정 - OUTBOUND_TRANSPORTATION INSERT
    *
    * 저장 컬럼:
-   *   carrier_company_id         ← carrierId
+   *   partner_company_id         ← carrierId
    *   transportation_vehicle_id  ← vehicleId
    *   lpn                        ← lpn (차량번호 직접 입력)
    *   driver                     ← driver (기사명)
@@ -387,7 +387,7 @@ public interface OutboundMapper {
    *   */
   @Insert("""
       INSERT INTO `OUTBOUND_TRANSPORTATION` (
-        `carrier_company_id`,
+        `partner_company_id`,
         `transportation_vehicle_id`,
         `lpn`,
         `driver`,
