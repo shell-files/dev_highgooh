@@ -1,6 +1,6 @@
 package cloud.weareithero.api.packing;
 
-import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
+import cloud.weareithero.api.packing.dto.PackingAddDTO;
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.docs.ApiCommonErrors;
 import cloud.weareithero.docs.ApiCommonSuccess;
@@ -35,6 +35,6 @@ public interface PackingControllerDocs {
     @Operation(summary = "Packing 생성", description = "Packing API")
     @ApiCommonSuccess
     @ApiCommonErrors
-    public ResponseDTO InsertPacking(PackingInvoiceDTO packingInvoiceDTO);
+    public ResponseDTO InsertPacking(PackingAddDTO packingAddDTO);
     
 }
