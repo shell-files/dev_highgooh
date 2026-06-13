@@ -16,4 +16,7 @@ public interface PackingDao {
     List<PackingOrderProductDTO> findOrderProduct(int orderId);
     List<PackingCarrierDTO> findCarrierCompany();
     List<PackingInvoiceDTO> findInvoice(int orderId);
+    public int updateStateCode(int orderId);
+    public int addInvoice(PackingInvoiceDTO packingInvoiceDTO);
+
 }
