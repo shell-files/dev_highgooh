@@ -1,6 +1,7 @@
 package cloud.weareithero.api.order.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +31,10 @@ public class OrderDTO {
   private String partnerName;      // PARTNER_COMPANY_MASTER.name (JOIN)
   private LocalDate orderDate;     // OUTBOUND.order_date
   private LocalDate deadline;      // OUTBOUND.deadline
+  private java.time.LocalDate etd;
   private Long totalPrice;         // ORDER_PRODUCT.total_price SUM (목록 집계용)
+  private Integer totalQuantity;
   private String stateCode;        // COMMON_CODE.name (상태명 문자열)
+  private List<OrderProductDTO> items;
 
 }

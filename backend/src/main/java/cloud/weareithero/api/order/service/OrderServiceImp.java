@@ -26,12 +26,12 @@ import lombok.extern.slf4j.Slf4j;
  * Order ServiceImpl
  *
  * [DB 변경] OUTBOUND 테이블이 주문 헤더
- *           ORDER_PRODUCT 테이블이 주문 품목 (outbound_id FK)
+ * ORDER_PRODUCT 테이블이 주문 품목 (outbound_id FK)
  *
  * Inbound 패턴 완전 유지:
- *   - try-catch + isSuccess + ResponseDTO.builder() 패턴
- *   - 복합 등록: OUTBOUND INSERT → useGeneratedKeys → ORDER_PRODUCT 반복 INSERT
- *   - 로그: log.info() 레벨
+ * - try-catch + isSuccess + ResponseDTO.builder() 패턴
+ * - 복합 등록: OUTBOUND INSERT → useGeneratedKeys → ORDER_PRODUCT 반복 INSERT
+ * - 로그: log.info() 레벨
  */
 @Slf4j
 @Service
@@ -100,9 +100,9 @@ public class OrderServiceImp implements OrderService {
 
   // ─────────────────────────────────────────────
   // 3. 신규 주문 등록
-  //    Inbound add() 복합 등록 패턴 동일:
-  //    OUTBOUND INSERT → useGeneratedKeys로 outboundId 획득
-  //    → ORDER_PRODUCT 반복 INSERT → 건수 비교
+  // Inbound add() 복합 등록 패턴 동일:
+  // OUTBOUND INSERT → useGeneratedKeys로 outboundId 획득
+  // → ORDER_PRODUCT 반복 INSERT → 건수 비교
   // ─────────────────────────────────────────────
   @Override
   public ResponseDTO add(OrderAddDTO orderAddDTO) {
@@ -113,12 +113,25 @@ public class OrderServiceImp implements OrderService {
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
       int itemCount = (orderAddDTO.getItems() == null) ? 0 : orderAddDTO.getItems().size();
 
+      // 💡 [수정] 1. 하위 제품 항목들을 돌며 총 주문 수량(totalQuantity) 먼저 계산
+      int totalQty = 0;
+      if (itemCount > 0) {
+        for (OrderDetailProductDTO item : orderAddDTO.getItems()) {
+          totalQty += item.getQuantity();
+        }
+      }
+
       // OUTBOUND 헤더 INSERT용 DTO 구성
-      // [DB 변경] ORDER_PRODUCT_LIST → OUTBOUND, state_code 미포함(DB DEFAULT 의존)
+      // 💡 [수정] 2. etd 파싱 추가, 계산한 totalQuantity 주입, 초기 상태 코드(7: 주문접수) 주입 완료
       OrderDTO orderDTO = OrderDTO.builder()
           .partnerCompanyId(orderAddDTO.getCustomerCompanyId())
           .orderDate(LocalDate.parse(orderAddDTO.getOrderDate(), formatter))
           .deadline(LocalDate.parse(orderAddDTO.getDeadline(), formatter))
+          .etd(orderAddDTO.getEtd() != null && !orderAddDTO.getEtd().isEmpty()
+              ? LocalDate.parse(orderAddDTO.getEtd(), formatter)
+              : null)
+          .totalQuantity(totalQty)
+          .stateCode("7") // 👈 목록 조회 BETWEEN 7 AND 9 조건에 부합하도록 초기값 '7' 강제 부여
           .build();
 
       // OUTBOUND INSERT (useGeneratedKeys → orderDTO.outboundId에 PK 주입)
@@ -132,9 +145,8 @@ public class OrderServiceImp implements OrderService {
           int size = 0;
           for (OrderDetailProductDTO item : orderAddDTO.getItems()) {
             // [DB 변경] ORDER_PRODUCT INSERT:
-            //   outbound_id FK = 방금 생성된 outboundId
-            //   price, total_price 모두 클라이언트 전달값 저장
-            //   (서버 재계산 여부는 팀 정책에 따라 결정 필요)
+            // outbound_id FK = 방금 생성된 outboundId
+            // price, total_price 모두 클라이언트 전달값 저장
             OrderDetailProductDTO detailDTO = OrderDetailProductDTO.builder()
                 .outboundId(orderDTO.getOutboundId())
                 .outboundProductId(item.getOutboundProductId())
@@ -163,15 +175,15 @@ public class OrderServiceImp implements OrderService {
 
   // ─────────────────────────────────────────────
   // 4. 주문 수정
-  //    [신규] Inbound에 없던 기능
-  //    OUTBOUND 헤더(deadline, state_code) 수정
-  //    ORDER_PRODUCT 품목 수정 (quantity, price, total_price)
+  // [신규] Inbound에 없던 기능
+  // OUTBOUND 헤더(deadline, state_code) 수정
+  // ORDER_PRODUCT 품목 수정 (quantity, price, total_price)
   //
-  //    TODO: 품목 수정 전략 결정 필요
-  //          현재는 "기존 품목 전체 삭제 후 재삽입" 방식으로 구현
-  //          항목별 UPDATE 방식이 필요하면 orderDao.updateOrderProduct() 별도 추가
+  // TODO: 품목 수정 전략 결정 필요
+  // 현재는 "기존 품목 전체 삭제 후 재삽입" 방식으로 구현
+  // 항목별 UPDATE 방식이 필요하면 orderDao.updateOrderProduct() 별도 추가
   // ─────────────────────────────────────────────
-@Override
+  @Override
   public ResponseDTO update(int outboundId, OrderUpdateDTO orderUpdateDTO) {
     boolean isSuccess = false;
     String message = null;
@@ -186,7 +198,7 @@ public class OrderServiceImp implements OrderService {
               ? LocalDate.parse(orderUpdateDTO.getDeadline(), formatter)
               : null)
           .build();
-      
+
       // DB 업데이트 실행
       orderDao.update(orderDTO);
 
@@ -196,7 +208,7 @@ public class OrderServiceImp implements OrderService {
       log.error("OrderServiceImp update error : {}", e.getMessage());
       message = "주문 수정에 실패했습니다.";
     }
-    
+
     return ResponseDTO.builder()
         .status(isSuccess)
         .data(request)
@@ -204,71 +216,72 @@ public class OrderServiceImp implements OrderService {
         .build();
   }
 
-      // 품목 수정: 기존 품목 전체 삭제 후 재삽입
-  //     if (orderUpdateDTO.getItems() != null && !orderUpdateDTO.getItems().isEmpty()) {
-  //       orderDao.deleteOrderProducts(outboundId);
-  //       int size = 0;
-  //       for (OrderDetailProductDTO item : orderUpdateDTO.getItems()) {
-  //         OrderDetailProductDTO detailDTO = OrderDetailProductDTO.builder()
-  //             .outboundId(outboundId)
-  //             .outboundProductId(item.getOutboundProductId())
-  //             .quantity(item.getQuantity())
-  //             .price(item.getPrice())
-  //             .totalPrice(item.getQuantity() * item.getPrice())
-  //             .build();
-  //         size += orderDao.addOrderProduct(detailDTO);
-  //       }
-  //       // TODO: 부분 실패 시 롤백이 필요하다면 @Transactional 적용 검토
-  //       //       현재 프로젝트는 @Transactional 미사용 원칙이나, 삭제+재삽입 복합 작업이므로 확인 필요
-  //       log.info("OrderServiceImp update items inserted : {}", size);
-  //     }
+  // 품목 수정: 기존 품목 전체 삭제 후 재삽입
+  // if (orderUpdateDTO.getItems() != null &&
+  // !orderUpdateDTO.getItems().isEmpty()) {
+  // orderDao.deleteOrderProducts(outboundId);
+  // int size = 0;
+  // for (OrderDetailProductDTO item : orderUpdateDTO.getItems()) {
+  // OrderDetailProductDTO detailDTO = OrderDetailProductDTO.builder()
+  // .outboundId(outboundId)
+  // .outboundProductId(item.getOutboundProductId())
+  // .quantity(item.getQuantity())
+  // .price(item.getPrice())
+  // .totalPrice(item.getQuantity() * item.getPrice())
+  // .build();
+  // size += orderDao.addOrderProduct(detailDTO);
+  // }
+  // // TODO: 부분 실패 시 롤백이 필요하다면 @Transactional 적용 검토
+  // // 현재 프로젝트는 @Transactional 미사용 원칙이나, 삭제+재삽입 복합 작업이므로 확인 필요
+  // log.info("OrderServiceImp update items inserted : {}", size);
+  // }
 
-  //     isSuccess = true;
-  //     message = "주문 수정이 완료되었습니다.";
-  //   } catch (Exception e) {
-  //     log.info("OrderServiceImp update error : {}", e.getMessage());
-  //     message = "주문 수정에 실패했습니다.";
-  //   }
-  //   return ResponseDTO.builder()
-  //       .status(isSuccess)
-  //       .data(request)
-  //       .message(message)
-  //       .build();
+  // isSuccess = true;
+  // message = "주문 수정이 완료되었습니다.";
+  // } catch (Exception e) {
+  // log.info("OrderServiceImp update error : {}", e.getMessage());
+  // message = "주문 수정에 실패했습니다.";
+  // }
+  // return ResponseDTO.builder()
+  // .status(isSuccess)
+  // .data(request)
+  // .message(message)
+  // .build();
   // }
 
   // ─────────────────────────────────────────────
   // 5. 주문 삭제
-  //    [신규] Inbound에 없던 기능
-  //    ORDER_PRODUCT 품목 먼저 삭제 후 OUTBOUND 헤더 삭제 (FK 순서)
-  //    TODO: OUTBOUND_PACKING, OUTBOUND_TRANSPORT 등 연관 테이블
-  //          데이터가 있는 주문의 삭제 정책 결정 필요
+  // [신규] Inbound에 없던 기능
+  // ORDER_PRODUCT 품목 먼저 삭제 후 OUTBOUND 헤더 삭제 (FK 순서)
+  // TODO: OUTBOUND_PACKING, OUTBOUND_TRANSPORT 등 연관 테이블
+  // 데이터가 있는 주문의 삭제 정책 결정 필요
   // ─────────────────────────────────────────────
   // @Override
   // public ResponseDTO delete(int outboundId) {
-  //   boolean isSuccess = false;
-  //   String message = null;
-  //   Map<String, Object> request = new HashMap<>();
-  //   try {
-  //     // 1. ORDER_PRODUCT 품목 삭제 (FK 제약 순서)
-  //     orderDao.deleteOrderProducts(outboundId);
-  //     // 2. OUTBOUND 헤더 삭제
-  //     orderDao.delete(outboundId);
-  //     isSuccess = true;
-  //     message = "주문 삭제가 완료되었습니다.";
-  //   } catch (Exception e) {
-  //     log.info("OrderServiceImp delete error : {}", e.getMessage());
-  //     message = "주문 삭제에 실패했습니다.";
-  //   }
-  //   return ResponseDTO.builder()
-  //       .status(isSuccess)
-  //       .data(request)
-  //       .message(message)
-  //       .build();
+  // boolean isSuccess = false;
+  // String message = null;
+  // Map<String, Object> request = new HashMap<>();
+  // try {
+  // // 1. ORDER_PRODUCT 품목 삭제 (FK 제약 순서)
+  // orderDao.deleteOrderProducts(outboundId);
+  // // 2. OUTBOUND 헤더 삭제
+  // orderDao.delete(outboundId);
+  // isSuccess = true;
+  // message = "주문 삭제가 완료되었습니다.";
+  // } catch (Exception e) {
+  // log.info("OrderServiceImp delete error : {}", e.getMessage());
+  // message = "주문 삭제에 실패했습니다.";
+  // }
+  // return ResponseDTO.builder()
+  // .status(isSuccess)
+  // .data(request)
+  // .message(message)
+  // .build();
   // }
 
   // ─────────────────────────────────────────────
   // 6. 등록 모달 기초 데이터 조회
-  //    Inbound findAllAsn() 패턴 동일
+  // Inbound findAllAsn() 패턴 동일
   // ─────────────────────────────────────────────
   @Override
   public ResponseDTO findAllOrders() {
