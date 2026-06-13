@@ -42,5 +42,19 @@ public interface PackingResponseExamples {
         "size": 20
       }
       """;
+  final String ADD_PACKING_DEFAULT = """
+      {
+        "orderId": 1,
+        "packingInvoice" : [
+        {"orderId": 1,
+        "packingInvoiceNumber": "IVC-1-1",
+        "productId": 1,
+        "carrierId": 7,           
+        "stepCode": 19}
+        ]
+      }
+      """;
+
+      
     
 }

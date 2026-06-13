@@ -35,6 +35,11 @@ public interface PackingControllerDocs {
     @Operation(summary = "Packing 생성", description = "Packing API")
     @ApiCommonSuccess
     @ApiCommonErrors
-    public ResponseDTO InsertPacking(PackingAddDTO packingAddDTO);
+    public ResponseDTO InsertPacking(
+        @RequestBody(content = @Content(schema = @Schema(implementation = PackingAddDTO.class), examples = {
+            @ExampleObject(name = "패킹 생성 예시", value = PackingResponseExamples.ADD_PACKING_DEFAULT, description = "addInvoice의 요소 개수에 맞게 송장이 생성됩니다."),
+        }
+    )) 
+    PackingAddDTO packingAddDTO);
     
 }
