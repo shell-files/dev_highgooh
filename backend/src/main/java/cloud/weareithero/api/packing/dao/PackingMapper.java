@@ -2,8 +2,10 @@ package cloud.weareithero.api.packing.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import cloud.weareithero.api.packing.dto.PackingCarrierDTO;
 import cloud.weareithero.api.packing.dto.PackingDTO;
@@ -134,5 +136,16 @@ public interface PackingMapper {
             """)
     public List<PackingInvoiceDTO> findInvoice(int orderId);
                 
+    // 주문 상태 패킹중(19)으로 업데이트
+    @Update("UPDATE `OUTBOUND` SET `state_code` = 19 WHERE `id` = #{orderId}")
+    public int updateStateCode(int orderId);
+
+    // OUTBOUND_PACKING 테이블에 행 추가
+    @Insert("""
+            INSERT INTO `OUTBOUND_PACKING` 
+                (`outbound_id`, `packing_invoice_number`, `outbound_product_id`, `partner_company_id`, `state_code`)
+            VALUES (#{orderId}, #{packingInvoiceNumber}, #{productId}, #{carrierId}, 19)
+            """)
+    public int addInvoice(PackingInvoiceDTO packingInvoiceDTO);
 
 }

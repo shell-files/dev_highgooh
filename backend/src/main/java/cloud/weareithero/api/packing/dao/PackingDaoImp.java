@@ -47,4 +47,14 @@ public class PackingDaoImp implements PackingDao {
     public List<PackingInvoiceDTO> findInvoice(int orderId) {
         return packingMapper.findInvoice(orderId);
     }
+
+    @Override
+    public int updateStateCode(int orderId) {
+        return packingMapper.updateStateCode(orderId);
+    }
+
+    @Override
+    public int addInvoice(PackingInvoiceDTO packingInvoiceDTO) {
+        return packingMapper.addInvoice(packingInvoiceDTO);
+    }
 }
