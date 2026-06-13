@@ -15,12 +15,10 @@ import lombok.ToString;
  * OrderAddDTO - 신규 주문 등록 요청
  *
  * [DB] OUTBOUND 테이블 기준:
- *   customerCompanyId → partner_company_id
- *   orderDate         → order_date
- *   deadline          → deadline
- *   TODO: JSX OrderModal에서 '출고마감일자(deliveryDeadline)' 입력값을
- *         deadline으로 매핑할지 etd로 매핑할지 프론트와 협의 필요
- *         현재는 deadline으로 처리
+ * customerCompanyId → partner_company_id
+ * orderDate         → order_date
+ * deadline          → deadline (주문마감일자)
+ * etd               → etd (출고마감일자)
  */
 @Setter @Getter @ToString
 @AllArgsConstructor
@@ -36,9 +34,13 @@ public class OrderAddDTO {
   @Schema(description = "주문일자 (yyyy-MM-dd)", example = "2026-06-09")
   private String orderDate;
 
-  @NotBlank(message = "출고마감일자를 입력하세요.")
-  @Schema(description = "출고마감일자 (yyyy-MM-dd) → OUTBOUND.deadline", example = "2026-06-25")
+  @NotBlank(message = "주문마감일자를 입력하세요.")
+  @Schema(description = "주문마감일자 (yyyy-MM-dd) → OUTBOUND.deadline", example = "2026-06-24")
   private String deadline;
+
+  @NotBlank(message = "출고마감일자를 입력하세요.") // 👈 형식을 맞춘 Validation 가드 추가
+  @Schema(description = "출고마감일자 (yyyy-MM-dd) → OUTBOUND.etd", example = "2026-06-25") // 👈 Swagger 문서화 양식 매핑
+  private String etd; // 👈 드디어 자바 그릇에 etd 안착!
 
   @Schema(description = "주문 품목 목록")
   private List<OrderDetailProductDTO> items;
