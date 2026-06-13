@@ -4,63 +4,80 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyRequestDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyYesterdayDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyCountDTO;
+
 
 @Mapper
 public interface CarbonAnomalyMapper {
 
     @Select("""
-        SELECT
-            al.id,
-            pm.process,
-            al.anomaly_score AS anomalyScore,
-            cc.name AS state,
-            al.create_at AS createAt,
-            pce.direct_emission AS directEmission,
-            pm.proper_direct_emission AS properDirectEmission,
-            pce.electricity_used AS electricityUsed,
-            pm.proper_electricity_used AS properElectricityUsed,
-            pce.indirect_emission AS indirectEmission,
-            pm.proper_indirect_emission AS properIndirectEmission
-        FROM ANOMALY_LOG al
-        JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
-        JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
-        JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
-        JOIN COMMON_CODE cc ON cc.id = al.state_code
-        WHERE al.create_at >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
-          AND al.create_at < CURDATE()
-        ORDER BY al.anomaly_score DESC
-        """)
-    List<CarbonAnomalyDTO> selectYesterdayPipeline();
-
+    <script>
+            SELECT 
+                MAX(pd.process_start) AS process_start, 
+                pm.process, 
+                pm.proper_direct_emission * 24 AS proper_direct_emission, 
+                COALESCE(SUM(pce.direct_emission), 0) AS sum_direct_emission,
+                pm.proper_indirect_emission * 24 AS proper_indirect_emission,
+                COALESCE(SUM(pce.indirect_emission), 0) AS sum_indirect_emission,
+                pm.proper_electricity_used * 24 AS proper_electricity_used,
+                COALESCE(SUM(pce.electricity_used), 0) AS sum_electricity_used,
+                COUNT(al.id) AS total_anomaly_count, 
+                COUNT(CASE WHEN al.state_code != 17 THEN 1 END) AS unactioned_anomaly_count
+            FROM PROCESS_MASTER pm
+            LEFT JOIN PRODUCTION_DETAIL pd 
+                ON pd.process_id = pm.id 
+               AND pd.process_start LIKE CONCAT('%', #{yesterdayStr}, '%') 
+            LEFT JOIN PRODUCT_CARBON_EMISSION pce 
+                ON pd.id = pce.production_detail_id
+            LEFT JOIN ANOMALY_LOG al 
+                ON al.product_carbon_emission_id = pce.id
+            GROUP BY 
+                pm.id, 
+                pm.process, 
+                pm.proper_direct_emission, 
+                pm.proper_indirect_emission
+    </script>
+            """)
+    List<CarbonAnomalyYesterdayDTO> getYesterdayPipeline(@Param("yesterdayStr") String yesterdayStr);
 
     @Select("""
-<script>
-        SELECT
-            al.id,
-            pm.process,
-            al.anomaly_score AS anomaly_score,
-            cc.name AS state,
-            al.create_at AS create_at,
-            pce.direct_emission AS direct_emission,
-            pm.proper_direct_emission AS proper_direct_emission,
-            pce.electricity_used AS electricity_used,
-            pm.proper_electricity_used AS proper_electricity_used,
-            pce.indirect_emission AS indirect_emission,
-            pm.proper_indirect_emission AS proper_indirect_emission
-        FROM ANOMALY_LOG al
-        JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
-        JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
-        JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
-        JOIN COMMON_CODE cc ON cc.id = al.state_code
-        WHERE 1 = 1
-          AND pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
-          AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
-        ORDER BY al.create_at DESC
-        LIMIT #{dto.limit} OFFSET #{dto.offset}
-</script>
-        """)
+    <script>
+            SELECT
+                al.id, pm.process, al.anomaly_score AS anomaly_score, cc.name AS state, al.create_at AS create_at,
+                pce.direct_emission AS direct_emission, pm.proper_direct_emission AS proper_direct_emission,
+                pce.electricity_used AS electricity_used, pm.proper_electricity_used AS proper_electricity_used,
+                pce.indirect_emission AS indirect_emission, pm.proper_indirect_emission AS proper_indirect_emission
+            FROM ANOMALY_LOG al
+            JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
+            JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
+            JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
+            JOIN COMMON_CODE cc ON cc.id = al.state_code
+            WHERE 1 = 1
+              AND pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
+              AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
+            ORDER BY al.create_at DESC
+            LIMIT #{dto.limit} OFFSET #{dto.offset}
+    </script>
+            """)
     List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
+
+    @Select("""
+        <script>
+            SELECT pm.process AS process, COUNT(al.id) AS anomaly_count
+            FROM ANOMALY_LOG al
+            JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
+            JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
+            JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
+            WHERE pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
+              AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
+            GROUP BY pm.process
+            ORDER BY pm.id ASC
+        </script>
+    """)
+    List<CarbonAnomalyCountDTO> selectAnomalyCount(@Param("dto") CarbonAnomalyRequestDTO dto);
+
+    
 }
