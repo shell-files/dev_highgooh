@@ -9,6 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PackingInvoiceDTO {
 
-    private String orderId;
+    private int id;
+    private int orderId;
+    private String packingInvoiceNumber;
+    private int productId;
+    private String productName;
+    private int carrierId;
+    private String carrierName;
     
 }
