@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import cloud.weareithero.api.packing.dao.PackingDaoImp;
 import cloud.weareithero.api.packing.dto.PackingAddDTO;
@@ -86,6 +88,7 @@ public class PackingServiceImp implements PackingService {
     }
 
     
+    @Transactional
     @Override
     public ResponseDTO addPacking(PackingAddDTO PackingAddDTO) {
         boolean isSuccess = false;
@@ -111,6 +114,7 @@ public class PackingServiceImp implements PackingService {
             }
         } catch (Exception e) {
             log.info("PackingServiceImp InsertPacking error : {}", e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             message = "Packing 탭 // 패킹 송장 생성에 실패했습니다.";
         }
         return ResponseDTO.builder()
