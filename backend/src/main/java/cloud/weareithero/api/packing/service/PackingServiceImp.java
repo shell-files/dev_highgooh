@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import cloud.weareithero.api.packing.dao.PackingDaoImp;
+import cloud.weareithero.api.packing.dto.PackingAddDTO;
+import cloud.weareithero.api.packing.dto.PackingCarrierDTO;
 import cloud.weareithero.api.packing.dto.PackingDTO;
 import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
 import cloud.weareithero.api.packing.dto.PackingOrderProductDTO;
@@ -62,8 +64,14 @@ public class PackingServiceImp implements PackingService {
         try {
             PackingDTO order = packingDao.findOne(orderId);
             List<PackingOrderProductDTO> items = packingDao.findOrderProduct(orderId);
+            List<PackingCarrierDTO> carrier = packingDao.findCarrierCompany();
             data.put("order", order);
             data.put("items", items);
+            data.put("carrier", carrier);
+            if (order.getStepCode() == 19 || order.getStepCode() == 20) {
+            List<PackingInvoiceDTO> packingDetail = packingDao.findInvoice(orderId);
+            data.put("packingDetail", packingDetail);
+            }
             isSuccess = true;
             message = "Packing 탭 // 주문 상세 정보 조회가 완료되었습니다.";
         } catch (Exception e) {
@@ -79,21 +87,35 @@ public class PackingServiceImp implements PackingService {
 
     
     @Override
-    public ResponseDTO InsertPacking(PackingInvoiceDTO packingInvoiceDTO) {
+    public ResponseDTO addPacking(PackingAddDTO PackingAddDTO) {
         boolean isSuccess = false;
         String message = null;
-        
+        Map<String, Object> data = new HashMap<>();
         try {
-            // todo
-            isSuccess = true;
-            message = "Packing 탭 // 패킹 송장 생성 및 인쇄가 완료되었습니다.";
+            // 1. OUTBOUND state_code 19로 변경
+            int updated = packingDao.updateStateCode(PackingAddDTO.getOrderId());
+
+            if (updated > 0) {
+                // 2. OUTBOUND_Packing 행 추가
+                int size = 0;
+                for (PackingInvoiceDTO invoice : PackingAddDTO.getPackingInvoice()) {
+                    size += packingDao.addInvoice(invoice);
+                }
+                if (size == PackingAddDTO.getPackingInvoice().size()) {
+                    isSuccess = true;
+                    message = "Packing 탭 // 송장 %d건 생성이 완료되었습니다.".formatted(size);
+                } else {
+                    isSuccess = false;
+                    message = "Packing 탭 // 패킹 송장 생성 일부 실패했습니다.";
+                }
+            }
         } catch (Exception e) {
             log.info("PackingServiceImp InsertPacking error : {}", e.getMessage());
-            message = "Packing 탭 // 패킹 송장 생성 및 인쇄에 실패했습니다.";
+            message = "Packing 탭 // 패킹 송장 생성에 실패했습니다.";
         }
         return ResponseDTO.builder()
             .status(isSuccess)
-            // .data(data)
+            .data(data)
             .message(message)
             .build();
     }

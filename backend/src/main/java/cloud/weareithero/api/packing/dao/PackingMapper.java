@@ -2,10 +2,14 @@ package cloud.weareithero.api.packing.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
+import cloud.weareithero.api.packing.dto.PackingCarrierDTO;
 import cloud.weareithero.api.packing.dto.PackingDTO;
+import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
 import cloud.weareithero.api.packing.dto.PackingOrderProductDTO;
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.api.packing.dto.PackingSummaryDTO;
@@ -40,14 +44,15 @@ public interface PackingMapper {
     @Select("<script>" +
         """
             SELECT
-                `o`.`id` AS 'orderId',
-                `o`.`partner_company_id` AS 'partnerId',
-                `pcm`.`name` AS 'partnerName',
-                `o`.`total_quantity` AS 'totalSets',
-                `o`.`order_date` AS 'orderDate',
+                `o`.`id`                    AS 'orderId',
+                `o`.`partner_company_id`    AS 'partnerId',
+                `pcm`.`name`                AS 'partnerName',
+                `o`.`total_quantity`        AS 'totalSets',
+                `o`.`order_date`            AS 'orderDate',
                 `o`.`deadline`,
                 `o`.`etd`,
-                `cc`.`name` AS 'step'
+                `o`.`state_code`            AS 'stepCode',
+                `cc`.`name`                 AS 'step'
             FROM `OUTBOUND` `o`
             JOIN `PARTNER_COMPANY_MASTER` `pcm`
                 ON(`o`.`partner_company_id` = `pcm`.`id`)
@@ -66,46 +71,81 @@ public interface PackingMapper {
     public List<PackingDTO> findAll(PackingRequestDTO packingRequestDTO);
 
     // 주문 단건 조회
-    @Select("<script>" + 
-        """
+    @Select("""
             SELECT
-                `o`.`id` AS 'orderId',
-                `o`.`partner_company_id` AS 'partnerId',
-                `pcm`.`name` AS 'partnerName',
-                `o`.`total_quantity` AS 'totalSets',
-                `o`.`order_date` AS 'orderDate',
+                `o`.`id`                    AS 'orderId',
+                `o`.`partner_company_id`    AS 'partnerId',
+                `pcm`.`name`                AS 'partnerName',
+                `o`.`total_quantity`        AS 'totalSets',
+                `o`.`order_date`            AS 'orderDate',
                 `o`.`deadline`,
                 `o`.`etd`,
-                `cc`.`name` AS 'step'
+                `o`.`state_code`            AS 'stepCode',
+                `cc`.`name`                 AS 'step'
             FROM `OUTBOUND` `o`
             JOIN `PARTNER_COMPANY_MASTER` `pcm`
                 ON(`o`.`partner_company_id` = `pcm`.`id`)
             JOIN `COMMON_CODE` `cc`
                 ON(`o`.`state_code` = `cc`.`id`)
             WHERE `o`.`id` = #{orderId}
-        """
-        + "</script>"
-    )
+        """)
     public PackingDTO findOne(int orderId);
 
     // 주문 상품 ORDER_PRODUCT 목록 조회
-    @Select("<script>" +
-        """
+    @Select("""
             SELECT
-                `o`.id	AS 'orderProductNo',
-                `o`.outbound_product_id AS 'productId',
-                `op`.`name` AS 'productName',
+                `o`.id	                    AS 'orderProductNo',
+                `o`.outbound_product_id     AS 'productId',
+                `op`.`name`                 AS 'productName',
                 `o`.`quantity`,
                 `o`.`price`,
-                `o`.`total_price`
+                `o`.`total_price`           AS 'totalPrice'
             FROM `ORDER_PRODUCT` o
             JOIN `OUTBOUND_PRODUCT_MASTER` op
                 ON(`o`.`outbound_product_id` = `op`.`id`)
             WHERE `o`.`outbound_id` = #{orderId}
-            """
-        + "</script>"
-    )
+        """)
     public List<PackingOrderProductDTO> findOrderProduct(int orderId);
 
+    // 협력사(운송사) 목록
+    @Select("""
+            SELECT
+                `id` AS 'id',
+                `name` AS 'name'
+            FROM `PARTNER_COMPANY_MASTER`
+            WHERE `carrier_yn_code` = 1
+            """)
+    public List<PackingCarrierDTO> findCarrierCompany();
+
+    // 주문 상태가 패킹중(19), 패킹완료(20) 이면 패킹 테이블에서 패킹 정보 불러오기
+    @Select("""
+            SELECT
+                `p`.`id`,
+                `p`.`outbound_id`					AS 'orderId',
+                `p`.`packing_invoice_number`	    AS 'packingInvoiceNumber',
+                `p`.`outbound_product_id`		    AS 'productId',
+                `opm`.`name`						AS 'productName',
+                `p`.`partner_company_id`		    AS 'carrierId',
+                `pcm`.`name`						AS 'carrierName'
+                FROM `OUTBOUND_PACKING` p
+                JOIN `OUTBOUND_PRODUCT_MASTER` opm
+                    ON(`p`.`outbound_product_id` = `opm`.`id`)
+                JOIN `PARTNER_COMPANY_MASTER` pcm
+                    ON(`p`.`partner_company_id` = `pcm`.id)
+                WHERE `p`.`outbound_id` = #{orderId}
+            """)
+    public List<PackingInvoiceDTO> findInvoice(int orderId);
+                
+    // 주문 상태 패킹중(19)으로 업데이트
+    @Update("UPDATE `OUTBOUND` SET `state_code` = 19 WHERE `id` = #{orderId}")
+    public int updateStateCode(int orderId);
+
+    // OUTBOUND_PACKING 테이블에 행 추가
+    @Insert("""
+            INSERT INTO `OUTBOUND_PACKING` 
+                (`outbound_id`, `packing_invoice_number`, `outbound_product_id`, `partner_company_id`, `state_code`)
+            VALUES (#{orderId}, #{packingInvoiceNumber}, #{productId}, #{carrierId}, 19)
+            """)
+    public int addInvoice(PackingInvoiceDTO packingInvoiceDTO);
 
 }
