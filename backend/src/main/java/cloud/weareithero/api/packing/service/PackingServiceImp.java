@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import cloud.weareithero.api.packing.dao.PackingDaoImp;
+import cloud.weareithero.api.packing.dto.PackingCarrierDTO;
 import cloud.weareithero.api.packing.dto.PackingDTO;
 import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
 import cloud.weareithero.api.packing.dto.PackingOrderProductDTO;
@@ -62,8 +63,14 @@ public class PackingServiceImp implements PackingService {
         try {
             PackingDTO order = packingDao.findOne(orderId);
             List<PackingOrderProductDTO> items = packingDao.findOrderProduct(orderId);
+            List<PackingCarrierDTO> carrier = packingDao.findCarrierCompany();
             data.put("order", order);
             data.put("items", items);
+            data.put("carrier", carrier);
+            if (order.getStepCode() == 19 || order.getStepCode() == 20) {
+            List<PackingInvoiceDTO> packingDetail = packingDao.findInvoice(orderId);
+            data.put("packingDetail", packingDetail);
+            }
             isSuccess = true;
             message = "Packing 탭 // 주문 상세 정보 조회가 완료되었습니다.";
         } catch (Exception e) {

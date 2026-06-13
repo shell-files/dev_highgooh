@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import cloud.weareithero.api.packing.dto.PackingCarrierDTO;
 import cloud.weareithero.api.packing.dto.PackingDTO;
+import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
 import cloud.weareithero.api.packing.dto.PackingOrderProductDTO;
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.api.packing.dto.PackingSummaryDTO;
@@ -34,5 +36,15 @@ public class PackingDaoImp implements PackingDao {
     @Override
     public List<PackingOrderProductDTO> findOrderProduct(int orderId) {
         return packingMapper.findOrderProduct(orderId);
+    }
+
+    @Override
+    public List<PackingCarrierDTO> findCarrierCompany() {
+        return packingMapper.findCarrierCompany();
+    }
+
+    @Override
+    public List<PackingInvoiceDTO> findInvoice(int orderId) {
+        return packingMapper.findInvoice(orderId);
     }
 }
