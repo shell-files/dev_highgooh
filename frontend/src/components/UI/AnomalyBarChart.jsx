@@ -3,7 +3,7 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-const AnomalyBarChart = ({ dataValues }) => {
+const AnomalyBarChart = ({ dataValues = { label: [], data: [] } }) => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
@@ -22,10 +22,10 @@ const AnomalyBarChart = ({ dataValues }) => {
     chartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['설비 01', '설비 02', '설비 03', '설비 04', '설비 05', '설비 06', '설비 07', '설비 08'],
+        labels: dataValues.label,
         datasets: [{
           label: '이상치 발생 횟수 (건)',
-          data: dataValues,
+          data: dataValues.data,
           backgroundColor: '#dd6b20',
           borderRadius: 4,
           borderWidth: 0
@@ -36,6 +36,20 @@ const AnomalyBarChart = ({ dataValues }) => {
         maintainAspectRatio: false, // 이 설정이 차트의 가로세로비를 부모에 맞춤
         plugins: {
           legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { drawBorder: false }
+          },
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxRotation: 45, // 최대 기울기 (45도)
+              minRotation: 45, // 최소 기울기 (45도)
+              autoSkip: false  // 라벨이 많아도 생략하지 않고 다 표시
+            }
+          }
         }
       }
     });
@@ -50,11 +64,11 @@ const AnomalyBarChart = ({ dataValues }) => {
   }, [dataValues]);
 
   return (
-    <div style={{ 
-      position: 'relative', 
-      width: '100%', 
+    <div style={{
+      position: 'relative',
+      width: '100%',
       height: '300px',
-      display: 'block' 
+      display: 'block'
     }}>
       <canvas ref={chartRef} />
     </div>
