@@ -2,7 +2,6 @@ package cloud.weareithero.api.order.dao;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -198,21 +197,23 @@ public interface OrderMapper {
   // 5. 주문 마스터 INSERT (OUTBOUND 테이블)
   // [DB 변경] 테이블: ORDER_PRODUCT_LIST → OUTBOUND
   // [DB 변경] keyProperty: orderId → outboundId
-  // [DB 변경] state_code: DB DEFAULT 의존 (명시 미삽입)
-  // [DB 변경] etd, updated_at: 등록 시 미포함, 이후 업데이트
-  //
-  // TODO: OUTBOUND.state_code DEFAULT 값이 DB에 없어서
-  // INSERT 시 state_code 컬럼 추가하고 초기값 하드코딩 필요
+  // 💡 [수정완료] 빠져있던 etd, state_code, total_quantity 컬럼 및 매핑 추가
   // ──────────────────────────────────────────────────────────────
   @Insert("""
       INSERT INTO `OUTBOUND` (
         `partner_company_id`,
         `order_date`,
-        `deadline`
+        `deadline`,
+        `etd`,
+        `state_code`,
+        `total_quantity`
       ) VALUES (
         #{partnerCompanyId},
         #{orderDate},
-        #{deadline}
+        #{deadline},
+        #{etd},
+        #{stateCode},
+        #{totalQuantity}
       )
       """)
   @Options(useGeneratedKeys = true, keyProperty = "outboundId", keyColumn = "id")
