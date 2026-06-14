@@ -3,7 +3,7 @@ import { Routes, Route, useLocation } from "react-router";
 import Gate from '@gates/Gate.jsx';
 import NotFound from '@errors/NotFound.jsx';
 import Login from '@logins/Login.jsx';
-import Home from '@homes/main';
+// import Home from '@homes/main';
 import { useAuth } from '@hooks/AuthContext.jsx';
 
 import '@styles/common.css';
@@ -18,6 +18,7 @@ import OutHistory from '@homes/outbound/OutHistory.jsx';
 import Anomaly from '@homes/carbonEmission/Anomaly.jsx';
 import CarbonDashboard from '@homes/carbonEmission/CarbonDashboard.jsx';
 import Packing from '@homes/outbound/Packing.jsx';
+import PackingInvoicePage from '@homes/outbound/PackingInvoicePage.jsx';
 
 function App() {
   const location = useLocation();
@@ -33,28 +34,37 @@ function App() {
       </Routes>
     )
   }
-  // 주소가 바뀔 때마다 콘솔에 찍어봅니다.
+
   return (
     <>
-      <Header />
-      <div className="main-wrapper">
-          <Sidebar />
-          <div className="content-area">
-            <Routes>
-              {/* ⚠️ 맨 앞의 슬래시(/)를 모두 제거했습니다. */}
-              <Route path='/' element={<Main />}/>
-              <Route path='/asn' element={<Asn />}/>
-              <Route path='/inbound' element={<Inbound />}/>
-              <Route path='/order' element={<OutboundOrder />}/>
-              <Route path='/outbound' element={<Outbound />}/>
-              <Route path='/outhistory' element={<OutHistory />}/>
-              <Route path='/anomaly' element={<Anomaly />}/>
-              <Route path='/carbonemission' element={<CarbonDashboard />}/>
-              <Route path='/packing' element={<Packing />}/>
-              <Route path="*" element={ <NotFound />} />
-            </Routes>
+      <Routes>
+      {/* PackingInvoicePage — 레이아웃 없이 독립 */}
+      <Route path='/packing/:invoiceId' element={<PackingInvoicePage />}/>
+
+      {/* 나머지 — Header/Sidebar 포함 */}
+      <Route path='/*' element={
+        <>
+          <Header />
+          <div className="main-wrapper">
+            <Sidebar />
+            <div className="content-area">
+              <Routes>
+                <Route path='/' element={<Main />}/>
+                <Route path='/asn' element={<Asn />}/>
+                <Route path='/inbound' element={<Inbound />}/>
+                <Route path='/order' element={<OutboundOrder />}/>
+                <Route path='/outbound' element={<Outbound />}/>
+                <Route path='/outhistory' element={<OutHistory />}/>
+                <Route path='/anomaly' element={<Anomaly />}/>
+                <Route path='/carbonemission' element={<CarbonDashboard />}/>
+                <Route path='/packing' element={<Packing />}/>
+                <Route path="*" element={<NotFound />}/>
+              </Routes>
+            </div>
           </div>
-      </div>
+        </>
+      }/>
+    </Routes>
     </>
   )
 }
