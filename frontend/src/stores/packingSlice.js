@@ -96,7 +96,7 @@ const packingSlice = createSlice({
         const res = action.payload;
         if (res.status === true) {
           alert(res.message);
-          state.isModal = false;
+          // state.isModal = false;
         } else {
           state.error = res.message;
         }
