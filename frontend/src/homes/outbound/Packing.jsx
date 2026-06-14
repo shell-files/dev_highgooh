@@ -199,7 +199,7 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip, cu
   }
 
   const currentInvoice = invoicePreviews[currentSlipIdx];
-  const qrUrl = `${window.location.origin}packing/${currentInvoice.id}`;
+  const qrUrl = `${window.location.origin}/packing/${currentInvoice.id}`;
 
   return (
     <div className="invoice-preview-card">
