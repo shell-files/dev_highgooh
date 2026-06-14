@@ -28,6 +28,8 @@ public interface PackingMapper {
             FROM `OUTBOUND` `o`
             JOIN `COMMON_CODE` `cc`
                 ON(`o`.`state_code` = `cc`.`id`)
+            JOIN `PARTNER_COMPANY_MASTER` `pcm`
+                ON(`o`.`partner_company_id` = `pcm`.`id`)
             WHERE `o`.`state_code` IN (9, 19, 20)
         """ +
         "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
@@ -35,6 +37,12 @@ public interface PackingMapper {
         "</if>" +
         "<if test='orderId != null and orderId != 0'>" +
         " AND `o`.`id` LIKE CONCAT('%', #{orderId}, '%') " +
+        "</if>" +
+        "<if test='partnerName != null and partnerName != \"\"'>" +
+        " AND `pcm`.`name` LIKE CONCAT('%', #{partnerName}, '%') " +
+        "</if>" +
+        "<if test='stepCode != null and stepCode != \"\" and stepCode != 0'>" +
+        " AND `o`.`state_code` = #{stepCode} " +
         "</if>" +
         "</script>")
     public PackingSummaryDTO findSummary(PackingRequestDTO packingRequestDTO);
@@ -65,6 +73,12 @@ public interface PackingMapper {
         "</if>" +
         "<if test='orderId != null and orderId != 0'>" +
         " AND `o`.`id` LIKE CONCAT('%', #{orderId}, '%') " +
+        "</if>" +
+        "<if test='partnerName != null and partnerName != \"\"'>" +
+        " AND `pcm`.`name` LIKE CONCAT('%', #{partnerName}, '%') " +
+        "</if>" +
+        "<if test='stepCode != null and stepCode != \"\" and stepCode != 0'>" +
+        " AND `o`.`state_code` = #{stepCode} " +
         "</if>" +
         "ORDER BY `o`.`id` DESC LIMIT #{offset}, #{size} " +
         "</script>")
