@@ -5,7 +5,7 @@ public interface ResponseExamples {
   final String SUCCESS_DEFAULT = """
     {
       "status": true,
-      "result": {},
+      "data": {},
       "message": null
     }
     """;
@@ -13,7 +13,7 @@ public interface ResponseExamples {
   final String UNAUTHORIZED = """
     {
       "status": false,
-      "result": null,
+      "data": null,
       "message": "Unauthorized"
     }
     """;
@@ -21,7 +21,7 @@ public interface ResponseExamples {
   final String ACCESS_DENIED = """
     {
       "status": false,
-      "result": null,
+      "data": null,
       "message": "Access Denied"
     }
     """;
@@ -29,7 +29,7 @@ public interface ResponseExamples {
   final String USER_NOT_FOUND = """
     {
       "status": false,
-      "result": null,
+      "data": null,
       "message": "존재하지 않는 사용자 입니다."
     }
     """;

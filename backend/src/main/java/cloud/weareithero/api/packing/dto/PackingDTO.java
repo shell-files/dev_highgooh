@@ -22,6 +22,7 @@ public class PackingDTO {
     private LocalDate orderDate;
     private LocalDate deadline;
     private LocalDate etd;
+    private int stepCode;
     private String step;
     
 }

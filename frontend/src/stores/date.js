@@ -23,8 +23,23 @@ export const getLastDayOfMonth = () => {
     return lastDayStr; // 예: "2026-06-30" 또는 "2026-02-28" 등 자동 계산
 };
 
+
+
+
 // console.log("첫날:", getFirstDay())
 // console.log("마지막날:", getLastDayOfMonth())
+
+
+export const getToday = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    // getMonth()는 0부터 시작하므로 항상 +1을 해줘야 합니다.
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const date = String(today.getDate()).padStart(2, '0');
+
+    const todayStr = `${year}-${month}-${date}`;
+    return todayStr; // 예: "2026-06-14" 등 자동 계산
+};
 
 export const addOneDay = (dateStr) => {
     if (!dateStr) return "";
@@ -38,3 +53,5 @@ export const addOneDay = (dateStr) => {
 
     return `${year}-${month}-${day}`;
 };
+
+

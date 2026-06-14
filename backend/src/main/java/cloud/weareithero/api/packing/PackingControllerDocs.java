@@ -1,6 +1,6 @@
 package cloud.weareithero.api.packing;
 
-import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
+import cloud.weareithero.api.packing.dto.PackingAddDTO;
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.docs.ApiCommonErrors;
 import cloud.weareithero.docs.ApiCommonSuccess;
@@ -35,6 +35,11 @@ public interface PackingControllerDocs {
     @Operation(summary = "Packing 생성", description = "Packing API")
     @ApiCommonSuccess
     @ApiCommonErrors
-    public ResponseDTO InsertPacking(PackingInvoiceDTO packingInvoiceDTO);
+    public ResponseDTO InsertPacking(
+        @RequestBody(content = @Content(schema = @Schema(implementation = PackingAddDTO.class), examples = {
+            @ExampleObject(name = "패킹 생성 예시", value = PackingResponseExamples.ADD_PACKING_DEFAULT, description = "addInvoice의 요소 개수에 맞게 송장이 생성됩니다."),
+        }
+    )) 
+    PackingAddDTO packingAddDTO);
     
 }
