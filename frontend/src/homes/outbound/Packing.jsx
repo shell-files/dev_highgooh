@@ -80,6 +80,7 @@ const PackingFilter = ({ filters, setFilters, onSearch, onReset }) => {
 // 3. 하위 컴포넌트: 메인 테이블 리스트 (PackingTable)
 // ==========================================
 const PackingTable = ({ orders, onRowClick, view }) => {
+  const dispatch = useDispatch();
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case '주문완료': return 'text-blue bg-blue-light';
@@ -230,6 +231,7 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip }) 
 // ==========================================
 const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, setCarrier, invoicePreviews, currentSlipIdx, prevSlip, nextSlip, onGenerateInvoice, onPrintAllInvoices, onClose }) => {
   if (!isOpen || !orderData) return null;
+  const isInvoiceGenerationDisabled = orderData.status === '패킹중' || orderData.status === '패킹완료';
   return (
     <div className={`modal-overlay ${isOpen ? 'active' : ''}`}>
       <div className="modal-container" style={{ width: '980px', maxWidth: '95%' }}>
@@ -271,7 +273,7 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
                 <div className="config-form-row">
                   <div className="form-group">
                     <label htmlFor="select_carrier">택배사/물류업체</label>
-                    <select id="select_carrier" className="modal-input select-styled" value={carrier} onChange={(e) => setCarrier(e.target.value)}>
+                    <select id="select_carrier" className="modal-input select-styled" value={carrier} onChange={(e) => setCarrier(e.target.value)} disabled={isInvoiceGenerationDisabled}>
                       <option value="">-- 택배사 선택 --</option>
                       {
                         carrierList.map((v, i) => (
@@ -282,7 +284,7 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
                   </div>
                 </div>
                 <div className="action-btn-wrap">
-                  <button type="button" className="btn-generate-invoice" onClick={onGenerateInvoice}>송장 생성 (전체 품목 낱개 발행)</button>
+                  <button type="button" className={isInvoiceGenerationDisabled ? "btn-generate-invoice-disabled" : "btn-generate-invoice"} onClick={onGenerateInvoice} disabled={isInvoiceGenerationDisabled}>송장 생성 (전체 품목 낱개 발행)</button>
                 </div>
               </div>
             </div>
@@ -325,7 +327,7 @@ const Packing = () => {
   const { page, size } = view;
 
   useEffect(() => {
-    dispatch(getPacking({ orderId: filters.orderId ? Number(filters.orderId) : 0, orderStart: filters.start, orderEnd: filters.end, page, size }));
+    dispatch(getPacking({ orderId: filters.orderId ? Number(filters.orderId) : 0, orderStart: filters.start, orderEnd: filters.end, partnerName: filters.customer, page, size }));
   }, [page]);
 
   const openOrderDetailModal = (orderId) => {
