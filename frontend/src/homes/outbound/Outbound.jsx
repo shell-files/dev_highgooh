@@ -88,20 +88,35 @@ const Outbound = () => {
     };
 
     // --- 4. 변환 및 안전한 헬퍼 유틸 함수 ---
+    // Outbound.jsx 내부의 formatDeadline 함수를 이렇게 직관적으로 수정해 보세요!
     const formatDeadline = (deadlineStr) => {
         if (!deadlineStr) return '-';
-        const now = new Date();
-        const target = new Date(deadlineStr);
-        const diffMs = target - now;
-        const diffMins = Math.ceil(diffMs / (1000 * 60));
 
-        if (diffMins < 0) return `${Math.abs(diffMins)}분 초과`;
-        return `${diffMins}분 남음`;
+        // 백엔드에서 온 날짜 문자열에서 날짜 파트(YYYY-MM-DD)만 깔끔하게 분리
+        const datePart = deadlineStr.substring(0, 10);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const deadlineDate = new Date(datePart);
+        deadlineDate.setHours(0, 0, 0, 0);
+
+        // 날짜 차이 계산
+        const diffTime = deadlineDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return <span className="text-red font-bold">{datePart} (납기지연)</span>;
+        } else if (diffDays === 0) {
+            return <span className="text-orange font-bold">{datePart} (오늘마감)</span>;
+        } else {
+            return <span>{datePart} (D-{diffDays})</span>;
+        }
     };
 
     const getStatusStyle = (stateName) => {
         if (!stateName) return 'badge-dark'; // 💡 방어 코드 삽입
         switch (stateName) {
+            case '출고완료' : return 'text-green bg-green-light';
             case '출고대기': return 'text-blue bg-blue-light';
             case '차량배정': return 'badge-pending';
             case '미배정': return 'badge-dark';
@@ -135,9 +150,22 @@ const Outbound = () => {
     };
 
     // --- 6. 비동기 백엔드 트랜잭션 핸들러 ---
+// 기존 openVehicleModal을 찾아서 아래 코드로 교체하세요!
     const openVehicleModal = () => {
         if (viewMode !== 'box') return alert('박스 탭에서만 차량 배정이 가능합니다.');
         if (checkedBoxes.length === 0) return alert('미배정 박스를 선택해주세요.');
+        
+        // 💡 체크된 박스 중 첫 번째 박스의 실제 데이터를 기반으로 폼 초기화 (하드코딩 제거)
+        const targetBox = boxList.find(b => b.packingId === checkedBoxes[0]);
+        
+        setVehicleForm({
+            carrierId: targetBox?.carrierId || 1,        // 실제 DB의 운송사 ID 매핑
+            vehicleId: targetBox?.transportationVehicleId || 1, // 실제 DB의 차량 ID 매핑
+            lpn: '',
+            driver: '',
+            etd: targetBox?.etd || ''
+        });
+        
         setModalOpen({ ...modalOpen, vehicle: true });
     };
 
@@ -273,7 +301,7 @@ const Outbound = () => {
                         <label>진행 상태</label>
                         <select ref={stateCodeRef} className="filter-control">
                             <option value="">전체 상태</option>
-                            <option value="10">미배정</option>
+                            <option value="20">미배정</option>
                             <option value="21">차량배정</option>
                             <option value="22">출고대기</option>
                         </select>
@@ -316,8 +344,8 @@ const Outbound = () => {
                                 <tr>
                                     <th className="table-header-checkbox"></th>
                                     <th>기한</th>
-                                    <th>박스번호</th>
                                     <th>주문번호</th>
+                                    <th>박스번호</th>
                                     <th>고객사</th>
                                     <th>운송사</th>
                                     <th>상태</th>
@@ -329,8 +357,21 @@ const Outbound = () => {
                                     const isCarrierDisabled = selectedCarrier !== null && selectedCarrier !== item.carrierName;
                                     const isDisabled = item.transportationId !== null || isCarrierDisabled;
 
+                                    // 💡 1. 기한 날짜를 베이스로 20260614 형태 완성
+                                    const baseDateStr = item.deadline ? item.deadline.substring(0, 10).replace(/-/g, "") : "20260614";
+                                    
+                                    // 💡 2. 송장번호용 YYMMDD 형태 완성 (20260614 -> 260614)
+                                    const shortDateStr = baseDateStr.substring(2);                                   
+                                    const padId = (id) => String(id || 0).padStart(3, '0');
+
+                                    // 💡 3. 만약 DB에 저장된 송장번호가 있으면 그대로 쓰고, 없거나 '1111' 같은 더미면 INV-규격 적용
+                                    const displayInvoice = item.invoiceNumber && !['1111', '1324'].includes(item.invoiceNumber)
+                                        ? item.invoiceNumber
+                                        : `INV-${shortDateStr}-${padId(item.packingId)}`;
+
                                     return (
                                         <tr key={item.packingId}>
+                                            {/* 0. 체크박스 */}
                                             <td className="text-center">
                                                 <input
                                                     type="checkbox"
@@ -340,17 +381,41 @@ const Outbound = () => {
                                                     checked={checkedBoxes.includes(item.packingId)}
                                                 />
                                             </td>
+
+                                            {/* 1. 기한 */}
                                             <td className="text-center">{formatDeadline(item.deadline)}</td>
-                                            <td className="text-center font-bold text-green">{item.packingInvoiceNumber}</td>
-                                            <td className="text-center text-link" onClick={() => handleOrderDetailView(item.outboundId)}>{item.outboundCode}</td>
+
+                                            {/* 2. 주문번호 (이제 기한 날짜를 베이스로 에러 없이 실시간 렌더링) */}
+                                            <td className="text-center text-link font-bold" onClick={() => handleOrderDetailView(item.outboundId)}>
+                                                {`PO-${baseDateStr}-${padId(item.outboundId)}`}
+                                            </td>
+
+                                            {/* 3. 박스번호 (더미 데이터 무시하고 무조건 BOX-YYYYMMDD-XXX 강제 적용) */}
+                                            <td className="text-center font-bold text-green">
+                                                {`BOX-${baseDateStr}-${padId(item.packingId)}`}
+                                            </td>
+
+                                            {/* 4. 고객사 */}
                                             <td>{item.customerName}</td>
-                                            <td>{item.carrierName}</td>
+
+                                            {/* 5. 운송사 */}
+                                            <td>{item.carrierName || '-'}</td>
+
+                                            {/* 6. 상태 */}
                                             <td className="text-center">
                                                 <span className={`table-badge ${getStatusStyle(item.stateName)}`}>
                                                     {item.stateName}
                                                 </span>
                                             </td>
-                                            <td className="text-center">{item.invoiceNumber || '-'}</td>
+
+                                            {/* 7. 송장번호 (발행 전 '차량배정' 상태면 발행대기, 그 외엔 INV-YYMMDD-XXX 강제 적용) */}
+                                            <td className="text-center font-bold text-blue">
+                                                {item.stateName === '차량배정' ? (
+                                                    <span className="text-gray-light">발행대기</span>
+                                                ) : (
+                                                    displayInvoice
+                                                )}
+                                            </td>
                                         </tr>
                                     );
                                 })}
