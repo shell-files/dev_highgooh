@@ -89,6 +89,14 @@ const Outbound = () => {
         dispatch(getOutboundFormData());
     }, [dispatch]);
 
+    useEffect(() => {
+        console.log("boxList", boxList);
+    }, [boxList]);
+
+    useEffect(() => {
+        console.log("manifestList", manifestList);
+    }, [manifestList]);
+
     // 탭 전환 핸들러
     const handleViewModeChange = (mode) => {
         setViewMode(mode);
@@ -573,7 +581,10 @@ const Outbound = () => {
                                                     type="checkbox"
                                                     className="manifest-check"
                                                     // 💡 '차량배정' 완벽 일치가 아니라 '배정'이라는 글자가 포함되어 있으면 체크박스 활성화
-                                                    disabled={!item.stateName || !item.stateName.includes('배정')}
+                                                    disabled={
+                                                        item.stateCode !== 21 &&
+                                                        item.stateCode !== 22
+                                                    }
                                                     onChange={() => handleManifestCheck(item.transportationId)}
                                                     checked={checkedManifests.includes(item.transportationId)}
                                                 />
