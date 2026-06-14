@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
-import { GET, POST, PUT } from "@utils/Network";
+import { GET, POST, PUT } from "@utils/Network"; // 기존 작성 인프라 사용
 
 const initialState = {
   loading: false,
   error: null,
   isModal: false,
-  modalMode: 'register', // 'register' | 'detail' | 'vehicle' | 'invoice'
+  modalMode: 'detail',
   detailData: null,
 
   view: {
@@ -21,75 +21,68 @@ const initialState = {
     page: 1,
     totalCount: 0,
     totalPages: 0,
-    size: 20           // Outbound.jsx 기본 설정 규격인 20개 매핑
-  },
-
-  modal: {
-    orders: [],
-    vehicles: [],
-    warehouses: []
+    size: 20           // 기본 페이징 스펙 규격 동기화
   }
 };
 
 // ─────────────────────────────────────
-// 1. 비동기 Thunk 액션 정의 (클로드 피드백 API 엔드포인트 규격 반영)
+// 1. 비동기 Thunk 액션 정의
 // ─────────────────────────────────────
 
-// 박스 / 매니페스트 목록 조회
+// 박스 및 매니페스트 데이터 목록 동적 획득
 export const getOutboundList = createAsyncThunk(
   'outbound/list',
-  async (credentials, { rejectWithValue }) => {
+  async (filters, { rejectWithValue }) => {
     try {
-      // credentials에 viewMode('box'|'manifest') 및 필터 조건 포함하여 전송
-      return await POST('/outbound', credentials);
+      return await POST('/outbound', filters);
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
   }
 );
 
-// 매니페스트 상세 (또는 박스 상세) 단건 조회
+// 단건 출고 상세 보기 데이터 획득
 export const getOutboundDetail = createAsyncThunk(
   'outbound/detail',
   async (outboundId, { rejectWithValue }) => {
     try {
-      return await POST(`/outbound/${outboundId}`);
+      return await GET(`/outbound/detail/${outboundId}`);
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
   }
 );
 
-// 차량 배정 승인 요청 (OB-FIX-06 반영: PUT /outbound/vehicle)
+// 21번 차량 배정 확정 승인 공정
 export const assignOutboundVehicle = createAsyncThunk(
   'outbound/assignVehicle',
-  async (vehicleData, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      return await PUT('/outbound/vehicle', vehicleData);
+      return await PUT('/outbound/vehicle', payload);
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
   }
 );
 
-// 송장 발급 요청 (OB-FIX-07 반영: PUT /outbound/invoice)
+// 22번 고유 송장 발급 및 출력 마감 승인 공정
 export const issueOutboundInvoice = createAsyncThunk(
   'outbound/issueInvoice',
-  async (invoiceData, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      return await PUT('/outbound/invoice', invoiceData);
+      return await PUT('/outbound/invoice', payload);
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
   }
 );
 
-// 출고 확정 요청 (OB-FIX-08 반영: PUT /outbound/confirm)
+// 23번 출고 최종 확정 공정 (매니페스트 기준 완료)
 export const confirmOutboundShipment = createAsyncThunk(
   'outbound/confirmShipment',
-  async (confirmData, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      return await PUT('/outbound/confirm', confirmData);
+      return await PUT('/outbound/confirm', payload);
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
@@ -105,7 +98,7 @@ const outboundAsyncActions = [
 ];
 
 // ─────────────────────────────────────
-// 2. 슬라이스 생성
+// 2. 슬라이스 본체 및 풀필드 매퍼 설계
 // ─────────────────────────────────────
 const outboundSlice = createSlice({
   name: 'outbound',
@@ -113,76 +106,85 @@ const outboundSlice = createSlice({
   reducers: {
     setOutboundPage: (state, action) => {
       state.view.page = action.payload;
-    },
-    clearOutboundError: (state) => {
-      state.error = null;
     }
   },
   extraReducers: (builder) => {
     builder
-      // 목록 조회 성공 시 (박스 / 매니페스트 데이터 분기 수용)
+      // 1) 박스 / 매니페스트 목록 조회 성공 시
       .addCase(getOutboundList.fulfilled, (state, action) => {
+        // 💡 F12 콘솔창에서 백엔드가 준 진짜 데이터의 형태를 확인하는 로그입니다.
+        console.log("=========================================");
+        console.log("★ 백엔드가 프론트에 준 실시간 데이터(action.payload) ★ :", action.payload);
+        console.log("=========================================");
+
         const res = action.payload;
-        if (res.status === true) {
-          state.view.summary = res.data.summary || state.view.summary;
-          
-          // 백엔드가 현재 탭 세션에 맞춰 list를 유연하게 제공한다고 가정하고 바인딩
-          if (res.data.viewMode === 'manifest') {
-            state.view.manifestList = res.data.list || [];
-          } else {
-            state.view.boxList = res.data.list || [];
+
+        if (res && res.status === true) {
+          // 백엔드의 res.data.list 데이터를 boxList와 manifestList에 유연하게 매핑합니다.
+          state.view.list = res.data?.list || [];
+          state.view.boxList = res.data?.list || [];
+          state.view.manifestList = res.data?.list || [];
+
+          // 페이지네이션 규격 연동
+          state.view.page = res.data?.pagination?.page || 1;
+          state.view.totalCount = res.data?.pagination?.totalCount || 0;
+          state.view.totalPages = res.data?.pagination?.totalPages || 1;
+
+          // 상단 대시보드 카드 요약 데이터 연동
+          if (res.data?.summary) {
+            state.view.summary = res.data.summary;
           }
-          
-          state.view.page = res.data.pagination?.page || 1;
-          state.view.totalCount = res.data.pagination?.totalCount || 0;
-          state.view.totalPages = res.data.pagination?.totalPages || 1;
         } else {
-          state.error = res.message;
+          state.error = res?.message || "데이터 로드 실패";
         }
         state.loading = false;
       })
-      // 상세 조회 성공 시
+
+      // 2) 단건 상세조회 성공 시 바인딩
       .addCase(getOutboundDetail.fulfilled, (state, action) => {
         const res = action.payload;
-        if (res.status === true) {
-          state.detailData = res.data;
+        if (res && res.status === true) {
+          state.detailData = res.data; // 필요에 따라 상세 보기 팝업 데이터 연동용
         } else {
-          state.error = res.message;
+          state.error = res?.message || "상세 내역 조회 실패";
         }
         state.loading = false;
       })
-      // 차량 배정 완료 시
+
+      // 3) 차량 배정 피드백 알림
       .addCase(assignOutboundVehicle.fulfilled, (state, action) => {
         const res = action.payload;
-        if (res.status === true) {
-          alert('차량 배정이 완료되었습니다.');
+        if (res && res.status === true) {
+          alert('차량 배정이 성공적으로 처리되었습니다.');
         } else {
-          state.error = res.message;
+          alert(res?.message || '차량 배정 처리 중 오류가 발생했습니다.');
         }
         state.loading = false;
       })
-      // 송장 발급 완료 시
+
+      // 4) 송장 인쇄 공정 피드백 알림
       .addCase(issueOutboundInvoice.fulfilled, (state, action) => {
         const res = action.payload;
-        if (res.status === true) {
-          alert("선택된 건들의 송장 인쇄 및 발급 공정이 마감되었습니다.");
+        if (res && res.status === true) {
+          alert('선택된 박스들의 송장 마감 및 공정 채번이 완료되었습니다.');
         } else {
-          state.error = res.message;
+          alert(res?.message || '송장 처리 중 문제가 발생했습니다.');
         }
         state.loading = false;
       })
-      // 출고 확정 완료 시
+
+      // 5) 최종 출고 확정 피드백 알림
       .addCase(confirmOutboundShipment.fulfilled, (state, action) => {
         const res = action.payload;
-        if (res.status === true) {
-          alert('출고 처리가 최종 확정되었습니다.');
+        if (res && res.status === true) {
+          alert('선택한 매니페스트 단위 출고가 최종 확정 마감되었습니다.');
         } else {
-          state.error = res.message;
+          alert(res?.message || '출고 확정 공정 처리 실패');
         }
         state.loading = false;
       });
 
-    // 강사님 스타일 공통 로딩/에러 매처 익스텐션
+    // 로딩 및 에러 통신 처리 공통 매처
     builder
       .addMatcher(isPending(...outboundAsyncActions), (state) => {
         state.loading = true;
@@ -190,10 +192,10 @@ const outboundSlice = createSlice({
       })
       .addMatcher(isRejected(...outboundAsyncActions), (state, action) => {
         state.loading = false;
-        state.error = action.payload || action.error.message || '알 수 없는 에러가 발생했습니다.';
+        state.error = action.payload?.message || "서버 통신 중 장애 발생";
       });
   }
 });
 
-export const { setOutboundPage, clearOutboundError } = outboundSlice.actions;
+export const { setOutboundPage } = outboundSlice.actions;
 export default outboundSlice.reducer;

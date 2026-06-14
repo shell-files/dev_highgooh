@@ -2,18 +2,18 @@ import '@styles/outbound.css';
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    getOutboundList,           // 💡 outboundSlice.js에 정의된 실제 액션 함수명으로 매칭
+    getOutboundList,
     getOutboundDetail,
-    assignOutboundVehicle, // (참고: 슬라이스 내부 비동기 액션명과 매칭 필요)
+    assignOutboundVehicle,
     issueOutboundInvoice,
     confirmOutboundShipment,
     setOutboundPage
-} from '@/stores/outboundSlice.js'; 
+} from '@/stores/outboundSlice.js';
 
 const Outbound = () => {
     const dispatch = useDispatch();
 
-    // --- 1. 컴포넌트 로컬 상태 관리 (viewMode를 최상단으로 이동!) ---
+    // --- 1. 컴포넌트 로컬 상태 관리 ---
     const [viewMode, setViewMode] = useState('box'); // 'box' | 'manifest'
     const [modalOpen, setModalOpen] = useState({
         invoice: false,
@@ -21,19 +21,19 @@ const Outbound = () => {
         detail: false
     });
 
-    // 💡 체크박스 상태 추적 단위를 문자열 번호에서 정수(ID) 식별자로 변경
-    const [checkedBoxes, setCheckedBoxes] = useState([]);         // 정수형 packingId 담음
-    const [checkedManifests, setCheckedManifests] = useState([]);     // 정수형 transportationId 담음
+    // 체크박스 추적 (정수 ID 식별자 관리)
+    const [checkedBoxes, setCheckedBoxes] = useState([]);         // 정수형 packingId
+    const [checkedManifests, setCheckedManifests] = useState([]);     // 정수형 transportationId
 
-    // 박스 테이블에서 처음 선택된 운송사를 저장할 상태 변수
+    // 박스 테이블 제어용 운송사 고정 필터링 상태
     const [selectedCarrier, setSelectedCarrier] = useState(null);
 
-    // 모달 내부 활성 컨텍스트 컨테이너
+    // 모달 내부 캐러셀 상태
     const [selectedInvoiceBox, setSelectedInvoiceBox] = useState(null);
-    const [activeInvoiceBoxes, setActiveInvoiceBoxes] = useState([]); // 현재 팝업 슬라이더에 출력할 packingId 목록
+    const [activeInvoiceBoxes, setActiveInvoiceBoxes] = useState([]); // 팝업 슬라이더용 packingId 배열
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    // 차량 배정용 드롭다운 폼 상태 관리
+    // 차량 배정용 폼 
     const [vehicleForm, setVehicleForm] = useState({
         carrierId: 1,
         vehicleId: 1,
@@ -42,36 +42,31 @@ const Outbound = () => {
         etd: ''
     });
 
-    // --- 2. Redux 상태 구독 (강사님 스타일 통일) ---
-    // 안전장치(|| {})를 추가하여 데이터가 없을 때의 크래시를 방지합니다.
+    // --- 2. Redux 상태 구독 (슬라이스 규격 정밀 매핑) ---
     const { loading, view = {}, detailData } = useSelector((state) => state.outbound || {});
 
-    // outboundSlice.js의 구조(list)에 맞추고 기본값을 지정합니다.
+    // 💡 크리티컬 포인트 해결: list를 쪼개지 말고, 슬라이스가 저장해 둔 전용 배열 상태를 직접 구독합니다.
     const {
-        summary = { total: 0, waiting: 0, shipping: 0, completed: 0 },
-        list = [],
-        page = 1,
-        totalCount = 0,
-        totalPages = 0,
-        size = 10
-    } = view;
+        summary,
+        boxList,
+        manifestList,
+        page,
+        totalCount,
+        totalPages,
+        size = 20
+    } = useSelector((state) => state.outbound.view);
 
-    // --- 3. 리덕스 list 데이터를 화면용 boxList/manifestList 변수에 매핑 ---
-    // viewMode 상태가 위에서 먼저 정의되었으므로 이제 에러가 나지 않습니다!
-    const boxList = viewMode === 'box' ? list : [];
-    const manifestList = viewMode === 'manifest' ? list : [];
-
-    // 필터 데이터 제어를 위한 useRef 매핑
+    // 필터 제어용 useRef
     const orderNoRef = useRef();
     const customerRef = useRef();
     const stateCodeRef = useRef();
 
-    // --- 2. 데이터 페칭 로직 (useEffect 연동) ---
+    // --- 3. 데이터 페칭 로직 ---
     const getData = () => {
         const filters = {
             page: page,
             size: size,
-            viewMode: viewMode,
+            viewMode: viewMode, // 'box' 또는 'manifest'
             orderNo: orderNoRef.current?.value || '',
             customer: customerRef.current?.value || '',
             stateCode: stateCodeRef.current?.value ? Number(stateCodeRef.current.value) : null
@@ -81,21 +76,18 @@ const Outbound = () => {
 
     useEffect(() => {
         getData();
-        // 의존성 배열에 page와 viewMode를 조합하여 탭 전환 및 페이지 이동 처리
     }, [page, viewMode]);
 
-    // 탭(뷰모드) 전환 시 선택값 초기화 및 페이지 리셋
+    // 탭 전환 핸들러
     const handleViewModeChange = (mode) => {
         setViewMode(mode);
         setCheckedBoxes([]);
         setCheckedManifests([]);
         setSelectedCarrier(null);
-        dispatch(setOutboundPage(1));
+        dispatch(setOutboundPage(1)); // 페이지 번호 초기화 및 데이터 리로드 유도
     };
 
-    // --- 3. 변환 및 헬퍼 유틸 함수 (OB-FIX-13, 14 해결) ---
-
-    // BE 날짜 데이터를 상대 시간 문자열로 변환하는 포맷터
+    // --- 4. 변환 및 안전한 헬퍼 유틸 함수 ---
     const formatDeadline = (deadlineStr) => {
         if (!deadlineStr) return '-';
         const now = new Date();
@@ -107,8 +99,8 @@ const Outbound = () => {
         return `${diffMins}분 남음`;
     };
 
-    // 공통 상태 코드명 매핑 및 배지 스타일러 
     const getStatusStyle = (stateName) => {
+        if (!stateName) return 'badge-dark'; // 💡 방어 코드 삽입
         switch (stateName) {
             case '출고대기': return 'text-blue bg-blue-light';
             case '차량배정': return 'badge-pending';
@@ -117,8 +109,7 @@ const Outbound = () => {
         }
     };
 
-    // --- 4. 이벤트 핸들러 명세 ---
-
+    // --- 5. 체크박스 핸들러 ---
     const handleBoxCheck = (packingId, carrierName) => {
         setCheckedBoxes(prev => {
             const isExist = prev.includes(packingId);
@@ -143,7 +134,7 @@ const Outbound = () => {
         );
     };
 
-    // 차량 배정 액션 호출 (OB-FIX-06 해결)
+    // --- 6. 비동기 백엔드 트랜잭션 핸들러 ---
     const openVehicleModal = () => {
         if (viewMode !== 'box') return alert('박스 탭에서만 차량 배정이 가능합니다.');
         if (checkedBoxes.length === 0) return alert('미배정 박스를 선택해주세요.');
@@ -160,11 +151,10 @@ const Outbound = () => {
             setModalOpen({ ...modalOpen, vehicle: false });
             setCheckedBoxes([]);
             setSelectedCarrier(null);
-            getData(); // 목록 새로고침
+            getData();
         }
     };
 
-    // 송장 발행 모달 액션 호출 (OB-FIX-07 해결)
     const openInvoiceModal = (singleTransId = null) => {
         let linkedBoxes = [];
 
@@ -180,13 +170,13 @@ const Outbound = () => {
                 targetManifests = checkedManifests;
             }
 
-            // 매니페스트 탭인 경우 해당 매니페스트(출고건)에 속한 packingId 수집
+            // 💡 boxList 상태를 안전하게 순회하여 연결된 상자를 추적합니다.
             linkedBoxes = boxList
                 .filter(box => targetManifests.includes(box.transportationId))
                 .map(box => box.packingId);
 
             if (linkedBoxes.length === 0) {
-                return alert('선택한 매니페스트에 연동된 박스 데이터가 존재하지 않습니다.');
+                return alert('선택한 매니페스트에 배정된 리얼 박스 데이터 매핑 정보를 찾을 수 없습니다.');
             }
         }
 
@@ -206,10 +196,9 @@ const Outbound = () => {
         }
     };
 
-    // 출고 확정 액션 호출 (OB-FIX-08 해결)
     const handleConfirmShipment = async () => {
         if (checkedManifests.length === 0) return alert('출고를 확정할 매니페스트를 선택해주세요.');
-        if (window.confirm(`선택한 ${checkedManifests.length}건의 출고를 최종 확정하시겠습니까?`)) {
+        if (window.confirm(`선택한 ${checkedManifests.length}건의 출고 공정을 최종 확정 승인하시겠습니까?`)) {
             const result = await dispatch(confirmOutboundShipment({ transportationIds: checkedManifests }));
             if (result.meta.requestStatus === 'fulfilled') {
                 setCheckedManifests([]);
@@ -218,13 +207,12 @@ const Outbound = () => {
         }
     };
 
-    // 상세 조회 레이어 바인딩 (OB-FIX-12 해결)
     const handleOrderDetailView = (outboundId) => {
         dispatch(getOutboundDetail(outboundId));
         setModalOpen({ ...modalOpen, detail: true });
     };
 
-    // 슬라이더 조작 모듈
+    // 캐러셀 유틸리티
     const handleListBoxClick = (packingId, index) => {
         setSelectedInvoiceBox(packingId);
         setCurrentSlide(index);
@@ -252,7 +240,7 @@ const Outbound = () => {
                 <h2 className="page-title">출고/송장</h2>
             </div>
 
-            {/* 통계 서머리 대시보드 - Redux State 동적 연동 (OB-FIX-09 완결) */}
+            {/* 통계 서머리 대시보드 */}
             <div className="order-summary-grid">
                 <div className="summary-card-item">
                     <div className="card-info-left"><span className="summary-label">출고 예정</span><span className="summary-value">{summary.expectedToday}<small>건</small></span></div>
@@ -276,7 +264,7 @@ const Outbound = () => {
                 </div>
             </div>
 
-            {/* 통합 필터 바 - refs 연결 및 COMMON_CODE 정수 밸류 치환 (OB-FIX-11 완결) */}
+            {/* 통합 필터 바 */}
             <div className="filter-wrapper-card">
                 <form className="search-filter-grid" onSubmit={(e) => { e.preventDefault(); dispatch(setOutboundPage(1)); getData(); }}>
                     <div className="filter-group"><label>주문번호 검색</label><input type="text" ref={orderNoRef} className="filter-control" /></div>
@@ -339,7 +327,7 @@ const Outbound = () => {
                             <tbody>
                                 {boxList.map((item) => {
                                     const isCarrierDisabled = selectedCarrier !== null && selectedCarrier !== item.carrierName;
-                                    const isDisabled = item.transportationId !== null || isCarrierDisabled; // 이미 배정된 건 체크 제한
+                                    const isDisabled = item.transportationId !== null || isCarrierDisabled;
 
                                     return (
                                         <tr key={item.packingId}>
@@ -410,7 +398,7 @@ const Outbound = () => {
                     )}
                 </div>
 
-                {/* 페이지네이션 인터페이스 구역 - Redux 전역 Page 연동 */}
+                {/* 페이지네이션 인터페이스 구역 */}
                 <div className="pagination-container">
                     <div className="pagination-info">전체 <span>{totalCount}</span>건</div>
                     <div className="pagination-buttons">
@@ -431,7 +419,7 @@ const Outbound = () => {
                 </div>
             </div>
 
-            {/* --- 1. 차량 배정 모달 --- */}
+            {/* --- 차량 배정 모달 --- */}
             {modalOpen.vehicle && (
                 <div className="modal-overlay active">
                     <div className="modal-container vehicle-modal-container">
@@ -467,7 +455,7 @@ const Outbound = () => {
                 </div>
             )}
 
-            {/* --- 2. 송장 발급 모달 (슬라이더 고도화) --- */}
+            {/* --- 송장 발급 모달 --- */}
             {modalOpen.invoice && (
                 <div className="modal-overlay active">
                     <div className="modal-container invoice-modal-container">
@@ -477,7 +465,6 @@ const Outbound = () => {
                         </div>
                         <div className="modal-body">
                             <div className="invoice-manager-layout">
-                                {/* 왼쪽 박스 목록 구역 */}
                                 <div className="invoice-box-list">
                                     <div className="invoice-list-title">대상 식별 ID 목록 ({activeInvoiceBoxes.length}건)</div>
                                     <ul id="invoiceBoxList">
@@ -493,7 +480,6 @@ const Outbound = () => {
                                     </ul>
                                 </div>
 
-                                {/* 오른쪽 송장 캐러셀 슬라이더 구역 */}
                                 <div className="invoice-preview-panel slider-mode">
                                     <div className="slider-controls">
                                         <button type="button" className="btn-slide-nav" onClick={handlePrevSlide} disabled={currentSlide === 0}>이전</button>
@@ -501,7 +487,6 @@ const Outbound = () => {
                                         <button type="button" className="btn-slide-nav" onClick={handleNextSlide} disabled={currentSlide === activeInvoiceBoxes.length - 1}>다음</button>
                                     </div>
 
-                                    {/* 슬라이드 윈도우 뷰포트 */}
                                     <div className="slider-viewport slider-viewport-window">
                                         <div className="slider-track slider-track-animate" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
                                             {activeInvoiceBoxes.map((packingId) => (
