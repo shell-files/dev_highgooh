@@ -63,9 +63,9 @@ const PackingFilter = ({ filters, setFilters, onSearch, onReset }) => {
           <label htmlFor="search_status">진행 상태</label>
           <select id="search_status" className="filter-control" value={filters.status} onChange={(e) => handleChange('status', e.target.value)}>
             <option value="">전체 상태</option>
-            <option value="approved">신규</option>
-            <option value="pending">패킹중</option>
-            <option value="rejected">패킹완료</option>
+            <option value="9">신규</option>
+            <option value="19">패킹중</option>
+            <option value="20">패킹완료</option>
           </select>
         </div>
         <div className="filter-btn-group">
@@ -351,13 +351,14 @@ const Packing = () => {
 
   const fetchPackingData = (targetPage = page) => {
     const processedEnd = filters.end ? addOneDay(filters.end) : '';
+    const stepCode = filters.status ? Number(filters.status) : '';
 
     dispatch(getPacking({
       orderId: filters.orderId ? Number(filters.orderId) : 0,
       orderStart: filters.start,
       orderEnd: processedEnd,
       partnerName: filters.customer,
-      // status: filters.status, // 백엔드 스펙에 맞춰 주석 해제
+      stepCode: stepCode,
       page: targetPage,
       size
     }));
@@ -446,7 +447,7 @@ const Packing = () => {
     const defaultEnd = getLastDayOfMonth();
 
     setFilters({ start: defaultStart, end: defaultEnd, orderId: '', customer: '', status: '' });
-    dispatch(getPacking({ orderId: 0, orderStart: defaultStart, orderEnd: addOneDay(defaultEnd), partnerName: '', page: 1, size: 20 }));
+    dispatch(getPacking({ orderId: 0, orderStart: defaultStart, orderEnd: addOneDay(defaultEnd), partnerName: '', stepCode: '', page: 1, size: 20 }));
 
     setAppliedDates({ start: defaultStart, end: defaultEnd });
   };

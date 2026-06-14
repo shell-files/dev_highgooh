@@ -41,6 +41,9 @@ public interface PackingMapper {
         "<if test='partnerName != null and partnerName != \"\"'>" +
         " AND `pcm`.`name` LIKE CONCAT('%', #{partnerName}, '%') " +
         "</if>" +
+        "<if test='stepCode != null and stepCode != \"\" and stepCode != 0'>" +
+        " AND `o`.`state_code` = #{stepCode} " +
+        "</if>" +
         "</script>")
     public PackingSummaryDTO findSummary(PackingRequestDTO packingRequestDTO);
 
@@ -73,6 +76,9 @@ public interface PackingMapper {
         "</if>" +
         "<if test='partnerName != null and partnerName != \"\"'>" +
         " AND `pcm`.`name` LIKE CONCAT('%', #{partnerName}, '%') " +
+        "</if>" +
+        "<if test='stepCode != null and stepCode != \"\" and stepCode != 0'>" +
+        " AND `o`.`state_code` = #{stepCode} " +
         "</if>" +
         "ORDER BY `o`.`id` DESC LIMIT #{offset}, #{size} " +
         "</script>")

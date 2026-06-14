@@ -28,6 +28,6 @@ public class PackingRequestDTO extends PageRequestDTO {
     // `전체` 선택 시 : step이 9,19,20  /   `신규` 선택 시 : step이 9
     // `처리중` 선택 시 : step이 19     /   `완료` 선택 시 : step이 20
     @Schema(description = "진행 상태 검색", defaultValue = "0", example = "0")
-    private String step;
+    private int stepCode;
 
 }
