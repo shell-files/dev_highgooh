@@ -93,7 +93,6 @@ const PackingTable = ({ orders, onRowClick, view }) => {
       case 20:
         return { text: '패킹완료', badgeClass: 'text-green bg-green-light' };
       default:
-        // 혹시 정의되지 않은 다른 코드가 올 경우를 대비한 예외 처리
         return { text: originalStep, badgeClass: 'text-muted bg-all-light' };
     }
   };
@@ -121,7 +120,6 @@ const PackingTable = ({ orders, onRowClick, view }) => {
                       <td>{order.partnerName}</td>
                       <td className="text-center text-green font-bold">{order.totalSets} 개</td>
                       <td className="text-center">{order.orderDate}</td>
-                      {/* 3. 변환된 텍스트와 클래스 적용 */}
                       <td className="text-center">
                         <span className={`table-badge ${currentStatus.badgeClass}`}>
                           {currentStatus.text}
@@ -201,7 +199,7 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip, cu
   }
 
   const currentInvoice = invoicePreviews[currentSlipIdx];
-  const qrUrl = `http://aigo.weareithero.cloud/packing/${currentInvoice.id}`;
+  const qrUrl = `${window.location.origin}packing/${currentInvoice.id}`;
 
   return (
     <div className="invoice-preview-card">

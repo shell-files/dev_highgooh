@@ -12,5 +12,5 @@ public interface PackingService {
 
     public ResponseDTO addPacking(PackingAddDTO PackingAddDTO);
 
-    public ResponseDTO completePacking(int invoiceId);
+    public ResponseDTO completePacking(String invoiceId);
 }

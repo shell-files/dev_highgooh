@@ -39,9 +39,9 @@ public class PackingController implements PackingControllerDocs {
         return packingService.addPacking(packingAddDTO);
     }
 
-    @PatchMapping("/{invoiceId:[0-9]+}")
+    @PatchMapping("/{invoiceId:[A-Za-z0-9-]+}")
     @Override
-    public ResponseDTO completePacking(@PathVariable int invoiceId) {
+    public ResponseDTO completePacking(@PathVariable String invoiceId) {
         return packingService.completePacking(invoiceId);
     }
 }

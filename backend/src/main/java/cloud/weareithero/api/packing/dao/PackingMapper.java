@@ -164,11 +164,11 @@ public interface PackingMapper {
     
     // 패킹 송장 단건 조회 (이미 완료된 건지 확인용)
     @Select("SELECT `state_code` FROM `OUTBOUND_PACKING` WHERE `id` = #{invoiceId}")
-    public int findPackingInvoiceStateCode(int invoiceId);
+    public int findPackingInvoiceStateCode(String invoiceId);
     
     // 패킹 송장 state_code 20(패킹완료)으로 업데이트
     @Update("UPDATE `OUTBOUND_PACKING` SET `state_code` = 20 WHERE `id` = #{invoiceId}")
-    public int updatePackingInvoiceStateCode(int invoiceId);
+    public int updatePackingInvoiceStateCode(String invoiceId);
 
     // 해당 주문의 전체 패킹 송장 중 20(패킹완료)이 아닌 것이 있는지 확인
     @Select("SELECT COUNT(*) FROM `OUTBOUND_PACKING` WHERE `outbound_id` = #{orderId} AND `state_code` != 20")
@@ -180,7 +180,7 @@ public interface PackingMapper {
 
     // 패킹 송장으로 outbound_id(주문번호) 조회
     @Select("SELECT `outbound_id` FROM `OUTBOUND_PACKING` WHERE `id` = #{invoiceId}")
-    public int findOrderIdByInvoiceId(int invoiceId);
+    public int findOrderIdByInvoiceId(String invoiceId);
 
 
 }
