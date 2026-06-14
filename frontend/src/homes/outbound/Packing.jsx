@@ -16,7 +16,7 @@ const PackingSummary = ({ summary }) => {
         <div className="card-trend-right"><span className="status-badge bg-all-light text-muted">당월</span></div>
       </div>
       <div className="summary-card-item">
-        <div className="card-info-left"><span className="summary-label">패킹 완료</span><span className="summary-value text-green">{summary.completed}<small>건</small></span></div>
+        <div className="card-info-left"><span className="summary-label">패킹완료</span><span className="summary-value text-green">{summary.completed}<small>건</small></span></div>
         <div className="card-trend-right"><span className="status-badge bg-green-light text-green">당월</span></div>
       </div>
       <div className="summary-card-item">
@@ -79,7 +79,7 @@ const PackingFilter = ({ filters, setFilters, onSearch, onReset }) => {
 // ==========================================
 // 3. 하위 컴포넌트: 메인 테이블 리스트 (PackingTable)
 // ==========================================
-const PackingTable = ({ orders, onRowClick }) => {
+const PackingTable = ({ orders, onRowClick, view }) => {
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case '주문완료': return 'text-blue bg-blue-light';
@@ -114,6 +114,27 @@ const PackingTable = ({ orders, onRowClick }) => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* 페이지네이션 */}
+      <div className="pagination-container">
+        <div className="pagination-info">전체 <span>{view.totalCount}</span>건</div>
+        <div className="pagination-buttons">
+          <button className="btn-page first" onClick={() => dispatch(setPage(1))} disabled={view.page <= 1}>&laquo;</button>
+          <button className="btn-page prev" onClick={() => dispatch(setPage(view.page - 1))} disabled={view.page <= 1}>&lsaquo;</button>
+          {Array.from({ length: view.totalPages }, (_, i) => i + 1).map(index => (
+            <button
+              key={index}
+              className={view.page === index ? 'btn-page-num active' : 'btn-page-num'}
+              onClick={() => dispatch(setPage(index))}
+            >
+              {index}
+            </button>
+          ))}
+          <button className="btn-page next" onClick={() => dispatch(setPage(view.page + 1))} disabled={view.page === view.totalPages}>&rsaquo;</button>
+          <button className="btn-page last" onClick={() => dispatch(setPage(view.totalPages))} disabled={view.page === view.totalPages}>&raquo;</button>
+        </div>
+        <div className="pagination-size-selector" />
       </div>
     </div>
   );
@@ -171,16 +192,11 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip }) 
           <div className="invoice-header-title">출고 거래 송장 (PACKING SLIP)</div>
           <table className="invoice-mini-table">
             <tbody>
-              {/* <tr><th>고유키 (ID)</th><td><strong style={{ color: 'var(--primary-green)' }}>{currentInvoice.id}</strong></td></tr> */}
               <tr><th>패킹 송장번호</th><td>{currentInvoice.packingInvoiceNumber}</td></tr>
               <tr><th>출고 번호</th><td>{currentInvoice.orderId}</td></tr>
-              {/* <tr><th>완제품명</th><td>{currentInvoice.outbound_product_id}</td></tr> */}
               <tr><th>품목명</th><td style={{ fontSize: '0.82rem', fontWeight: 600, color: '#2d3748' }}>{currentInvoice.productName}</td></tr>
               <tr><th>고객사</th><td><span className="text-green font-bold">{currentInvoice.partnerName}</span></td></tr>
               <tr><th>운송사</th><td>{currentInvoice.carrierName}</td></tr>
-              {/* <tr><th>운송장번호</th><td><span style={{ color: '#aaa', fontStyle: 'italic' }}>{currentInvoice.invoice_number === null ? 'null (미배정)' : currentInvoice.invoice_number}</span></td></tr> */}
-              {/* <tr><th>매니페스트 FK</th><td><span style={{ color: '#aaa', fontStyle: 'italic' }}>{currentInvoice.outbound_transportation_id === null ? 'null (미배정)' : currentInvoice.outbound_transportation_id}</span></td></tr> */}
-              {/* <tr><th>상태 코드</th><td><span className="table-badge text-blue bg-blue-light">{currentInvoice.state_code}</span></td></tr> */}
             </tbody>
           </table>
 
@@ -200,8 +216,6 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip }) 
               QR 링크: <span style={{ color: '#007bff' }}>{qrUrl}</span>
             </div>
           </div>
-
-          {/* ★ 요구사항 반영: 개별 라벨 출력 버튼 영역 제거 */}
           <div style={{ height: '5px' }}></div>
         </div>
 
@@ -282,16 +296,11 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
           </div>
         </div>
 
-        {/* 모달 푸터 영역: 요구사항 반영 버튼 배치 조정 */}
+        {/* 모달 푸터 영역 */}
         <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-          {/* ★ 요구사항 반영: 닫기(취소) 버튼 왼쪽에 전체 송장 출력 버튼 배치 */}
           {invoicePreviews.length > 0 && (
-            <button
-              type="button"
-              className="btn-filter-search"
-              style={{ backgroundColor: 'var(--primary-green, #10b981)', borderColor: 'var(--primary-green, #10b981)', padding: '0.5rem 1.25rem' }}
-              onClick={onPrintAllInvoices}
-            >
+            <button type="button" className="btn-filter-search"
+              style={{ backgroundColor: 'var(--primary-green, #10b981)', borderColor: 'var(--primary-green, #10b981)', padding: '0.5rem 1.25rem' }} onClick={onPrintAllInvoices}>
               전체 송장 출력 ({invoicePreviews.length}장 일괄 인쇄)
             </button>
           )}
@@ -306,41 +315,20 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
 // 메인 페이지 컴포넌트 (기본 내보내기)
 // ==========================================
 const Packing = () => {
-  // const [summaryData, setSummaryData] = useState({ total: 0, completed: 0, new: 0, imminent: 0, overdue: 0 });
-  // const [orders, setOrders] = useState([]);
-  // const [filteredOrders, setFilteredOrders] = useState([]);
   const [filters, setFilters] = useState({ start: '', end: '', orderId: '', customer: '', status: '' });
-
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [selectedorderId, setSelectedorderId] = useState('');
-  // const [orderData, setOrderData] = useState(null);
-
   const [carrier, setCarrier] = useState('');
   const [invoicePreviews, setInvoicePreviews] = useState([]);
   const [currentSlipIdx, setCurrentSlipIdx] = useState(0);
 
   const dispatch = useDispatch();
   const { view, isModal, detailData, loading } = useSelector(state => state.packing);
-
+  const { page, size } = view;
 
   useEffect(() => {
-    // setTimeout(() => {
-    //   setSummaryData(MOCK_SERVER_DB.summary);
-    //   setOrders(MOCK_SERVER_DB.orders);
-    //   setFilteredOrders(MOCK_SERVER_DB.orders);
-    // }, 100);
-    dispatch(getPacking({ orderId: 0, orderStart: '', orderEnd: '', page: 1, size: 20 }));
-  }, []);
+    dispatch(getPacking({ orderId: filters.orderId ? Number(filters.orderId) : 0, orderStart: filters.start, orderEnd: filters.end, page, size }));
+  }, [page]);
 
   const openOrderDetailModal = (orderId) => {
-    // const fetchedDetail = MOCK_SERVER_DB.orderItemDetails[orderId];
-    // if (!fetchedDetail) {
-    //   alert('상세 제품 정보를 찾을 수 없습니다.');
-    //   return;
-    // }
-    // setSelectedorderId(orderId);
-    // setOrderData(fetchedDetail);
-    // setIsModalOpen(true);
     setCarrier('');
     setInvoicePreviews([]);
     setCurrentSlipIdx(0);
@@ -349,9 +337,6 @@ const Packing = () => {
 
   const closeOrderDetailModal = () => {
     dispatch(closePackingModal());
-    // setIsModalOpen(false);
-    // setOrderData(null);
-    // setSelectedorderId('');
     setCarrier('');
     setInvoicePreviews([]);
     setCurrentSlipIdx(0);
@@ -386,11 +371,11 @@ const Packing = () => {
           });
       }
     });
-   
-    alert(`[낱개 분할 처리 완료] 총 주문 수량 ${reSelectedInvoices.length}개에 매핑되는 개별 QR 라벨 송장 기록이 생성되었습니다.`);
+
+    // alert(`[낱개 분할 처리 완료] 총 주문 수량 ${reSelectedInvoices.length}개에 매핑되는 개별 QR 라벨 송장 기록이 생성되었습니다.`);
   };
 
-  // ★ 추가 기능: 전체 송장 일괄 출력 핸들러 함수
+  // 전체 송장 일괄 출력 핸들러 함수
   const handlePrintAllInvoices = () => {
     const totalCount = invoicePreviews.length;
     const keyListStr = invoicePreviews.map(inv => inv.id).join('\n - ');
@@ -403,21 +388,11 @@ const Packing = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // const statusMap = { 'approved': '신규', 'pending': '처리중', 'rejected': '완료' };
-    // const result = orders.filter(order => {
-    //   const matchorderId = filters.orderId ? order.orderId.toLowerCase().includes(filters.orderId.toLowerCase()) : true;
-    //   const matchCustomer = filters.customer ? order.customer.toLowerCase().includes(filters.customer.toLowerCase()) : true;
-    //   const matchStatus = filters.status ? order.status === statusMap[filters.status] : true;
-    //   const orderDate = new Date(order.orderDate);
-    //   const matchStart = filters.start ? orderDate >= new Date(filters.start) : true;
-    //   const matchEnd = filters.end ? orderDate <= new Date(filters.end) : true;
-    //   return matchorderId && matchCustomer && matchStatus && matchStart && matchEnd;
-    // });
-    // setFilteredOrders(result);
     dispatch(getPacking({
-      orderId: filters.orderNo ? Number(filters.orderNo) : 0,
+      orderId: filters.orderId ? Number(filters.orderId) : 0,
       orderStart: filters.start,
       orderEnd: filters.end,
+      partnerName: filters.customer,
       page: 1,
       size: 20
     }));
@@ -425,7 +400,7 @@ const Packing = () => {
 
   const handleResetFilter = () => {
     setFilters({ start: '', end: '', orderId: '', customer: '', status: '' });
-    dispatch(getPacking({ orderId: 0, orderStart: '', orderEnd: '', page: 1, size: 20 }));
+    dispatch(getPacking({ orderId: 0, orderStart: '', orderEnd: '', partnerName: '', page: 1, size: 20 }));
   };
 
   return (
@@ -433,7 +408,7 @@ const Packing = () => {
       <div className="page-header-flex"><h2 className="page-title">패킹</h2></div>
       <PackingSummary summary={view.summary} />
       <PackingFilter filters={filters} setFilters={setFilters} onSearch={handleSearchSubmit} onReset={handleResetFilter} />
-      <PackingTable orders={view.list} onRowClick={openOrderDetailModal} />
+      <PackingTable orders={view.list} onRowClick={openOrderDetailModal} view={view} />
       <PackingDetailModal
         isOpen={isModal}
         orderId={detailData?.order?.orderId}
