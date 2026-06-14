@@ -8,6 +8,7 @@ public interface PackingResponseExamples {
         "orderStart": "",
         "orderEnd": "",
         "partnerName": "",
+        "stepCode": 0,
         "page": 1,
         "size": 20
       }
@@ -18,6 +19,7 @@ public interface PackingResponseExamples {
         "orderStart": "",
         "orderEnd": "",
         "partnerName": "",
+        "stepCode": 0,
         "page": 1,
         "size": 20
       }
@@ -28,6 +30,7 @@ public interface PackingResponseExamples {
         "orderStart": "2026-05-20",
         "orderEnd": "2026-06-25",
         "partnerName": "",
+        "stepCode": 0,
         "page": 1,
         "size": 20
       }
@@ -38,6 +41,7 @@ public interface PackingResponseExamples {
         "orderStart": "2026-05-20",
         "orderEnd": "2026-06-25",
         "partnerName": "",
+        "stepCode": 0,
         "page": 1,
         "size": 20
       }
