@@ -781,6 +781,23 @@
     box-shadow: 0 2px 4px rgba(3, 169, 77, 0.15);
 }
 
+#packing-page .btn-generate-invoice-disabled {
+    width: 100%;
+    background-color: #d1d1d1;
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
 #packing-page .btn-generate-invoice:hover {
     background-color: var(--primary-hover);
 }
