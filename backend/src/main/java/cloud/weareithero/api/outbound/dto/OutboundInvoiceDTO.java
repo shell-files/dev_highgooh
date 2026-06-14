@@ -43,5 +43,4 @@ public class OutboundInvoiceDTO {
     // TODO: 송장번호 채번 방식 팀 결정 필요
     //   옵션 A) 날짜 + OUTBOUND_PACKING.id 조합 (INV-YYYYMMDD-{packingId})
 
-    private int stateCode;
 }
