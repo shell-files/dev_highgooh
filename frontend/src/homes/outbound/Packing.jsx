@@ -212,8 +212,8 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip, cu
           <div className="invoice-header-title">출고 거래 송장 (PACKING SLIP)</div>
           <table className="invoice-mini-table">
             <tbody>
+              <tr><th>주문 번호</th><td>{currentInvoice.orderId}</td></tr>
               <tr><th>패킹 송장번호</th><td>{currentInvoice.packingInvoiceNumber}</td></tr>
-              <tr><th>출고 번호</th><td>{currentInvoice.orderId}</td></tr>
               <tr><th>품목명</th><td style={{ fontSize: '0.82rem', fontWeight: 600, color: '#2d3748' }}>{currentInvoice.productName}</td></tr>
               <tr><th>고객사</th><td><span className="text-green font-bold">{customer}</span></td></tr>
               <tr><th>운송사</th><td>{currentInvoice.carrierName}</td></tr>
@@ -426,6 +426,7 @@ const Packing = () => {
           .then((r) => {
             setInvoicePreviews(r.payload?.data?.packingDetail ?? []);
           });
+        fetchPackingData(page);
       }
     });
 
