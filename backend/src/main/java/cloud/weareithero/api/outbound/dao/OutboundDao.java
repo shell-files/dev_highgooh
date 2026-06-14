@@ -4,7 +4,6 @@ import java.util.List;
 
 import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
-import cloud.weareithero.api.outbound.dto.OutboundInvoiceDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
 import cloud.weareithero.api.outbound.dto.OutboundProductDTO;
@@ -43,10 +42,10 @@ public interface OutboundDao {
     public int addTransportation(OutboundVehicleAssignDTO outboundVehicleAssignDTO);
 
     /** OUTBOUND_PACKING에 transportationId 연결 UPDATE */
-    public int updatePackingTransportation(int packingId, int transportationId, int stateCode);
+    public int updatePackingTransportation(int packingId, int transportationId, int shippingReadyCode);
 
     /** OUTBOUND_PACKING invoice_number + state_code UPDATE */
-    public int updateInvoiceNumber(OutboundInvoiceDTO outboundInvoiceDTO);
+    public int updateInvoiceNumber(int packingId, String invoiceNumber, int invoiceStateCode);
 
     /** OUTBOUND_TRANSPORTATION 출고확정 UPDATE (state_code + atd) */
     public int updateTransportationConfirm(int transportationId, int stateCode);
