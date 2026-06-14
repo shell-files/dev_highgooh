@@ -184,9 +184,8 @@ public class OutboundServiceImp implements OutboundService {
                 List<Integer> packingIds = outboundVehicleAssignDTO.getPackingIds();
                 int updatedCount = 0;
 
-                // 🟢 [수정 1] COMMON_CODE 테이블에 정의된 '차량배정완료' 상태 코드 번호를 변수에 담습니다.
-                // (만약 디비에 등록된 실제 출고대기/차량배정완료 id 코드가 21번이 아니라 다른 숫자라면 그 숫자를 적어주세요!)
-                int shippingReadyCode = outboundVehicleAssignDTO.getStateCode();
+                // 🟢 [수정 1] DTO 대신 서비스단에서 '차량배정완료(21)' 상태 코드를 상수로 직접 지정합니다.
+                final int shippingReadyCode = 21;
 
                 // 2. 선택된 OUTBOUND_PACKING 각각 UPDATE
                 for (Integer packingId : packingIds) {
@@ -238,20 +237,22 @@ public class OutboundServiceImp implements OutboundService {
             List<Integer> packingIds = outboundInvoiceDTO.getPackingIds();
             int updatedCount = 0;
 
+            // 날짜 기반 채번을 위한 접두사 생성 (예: INV-20260614-)
+            String datePrefix = "INV-" + java.time.LocalDate.now().toString().replace("-", "") + "-";
+
             for (Integer packingId : packingIds) {
                 // 상태 가드: 개별 OUTBOUND_PACKING의 state_code 확인
                 OutboundPackingDTO current = outboundDao.findByPackingId(packingId);
 
-                // 🟢 [수정] COMMON_CODE 테이블의 실제 id 값으로 교체합니다.
                 final int STATE_VEHICLE_ASSIGNED = 21; // 차량배정 (21)
-                final int STATE_OUTBOUND_WAITING = 22; // 출고대기 (22)
+                final int STATE_OUTBOUND_WAITING = 22; // 出고대기 (22)
 
                 if (current == null) {
                     log.info("OutboundServiceImp issueInvoice - packingId {} not found", packingId);
                     continue;
                 }
 
-                // 🟢 [수정] 현재 패킹 상태가 '차량배정(21)'도 아니고 '출고대기(22)'도 아닐 때만 튕겨내도록 조건을 변경합니다.
+                // 현재 패킹 상태가 '차량배정(21)'도 아니고 '출고대기(22)'도 아닐 때만 거름
                 if (current.getStateCode() != STATE_VEHICLE_ASSIGNED
                         && current.getStateCode() != STATE_OUTBOUND_WAITING) {
                     log.info("OutboundServiceImp issueInvoice - packingId {} state not valid: {}", packingId,
@@ -259,12 +260,11 @@ public class OutboundServiceImp implements OutboundService {
                     continue;
                 }
 
-                // invoice_number를 DTO에 주입 (채번 로직 팀 결정 후 교체)
-                // 현재: packingId 기반 임시 채번 - 실제 운영 전 동시성 안전한 방식으로 변경 필요
-                // TODO: 채번 방식 결정 필요 (예: DB 시퀀스 테이블, UUID, 날짜+AUTO_INCREMENT 등)
-                outboundInvoiceDTO.setPackingId(packingId);
-                outboundInvoiceDTO.setStateCode(current.getStateCode());
-                updatedCount += outboundDao.updateInvoiceNumber(outboundInvoiceDTO);
+                // 💡 [유지보수 개선] 서비스단에서 안전하게 고유 송장 번호 채번
+                String uniqueInvoiceNumber = datePrefix + packingId;
+
+                // 💡 [컴파일 에러 해결] DTO의 setter 호출을 제거하고, Dao/Mapper에 필요한 값들을 개별 파라미터로 명확히 전달
+                updatedCount += outboundDao.updateInvoiceNumber(packingId, uniqueInvoiceNumber, STATE_OUTBOUND_WAITING);
             }
 
             if (updatedCount == packingIds.size()) {
@@ -308,7 +308,7 @@ public class OutboundServiceImp implements OutboundService {
             List<Integer> transportationIds = outboundConfirmDTO.getTransportationIds();
 
             // TODO: COMMON_CODE에서 "출고완료" state_code 값 확인 후 교체 필요
-            final int STATE_CONFIRMED = 0; // ← COMMON_CODE 확인 필요
+            final int STATE_CONFIRMED = 23; // ← COMMON_CODE 확인 필요
 
             int updatedCount = 0;
             for (Integer transportationId : transportationIds) {

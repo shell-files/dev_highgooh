@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
-import cloud.weareithero.api.outbound.dto.OutboundInvoiceDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
 import cloud.weareithero.api.outbound.dto.OutboundProductDTO;
@@ -73,13 +72,13 @@ public class OutboundDaoImp implements OutboundDao {
     }
 
     @Override
-    public int updatePackingTransportation(int packingId, int transportationId, int stateCode) {
-        return outboundMapper.updatePackingTransportation(packingId, transportationId, stateCode);
+    public int updatePackingTransportation(int packingId, int transportationId, int shippingReadyCode) {
+        return outboundMapper.updatePackingTransportation(packingId, transportationId, shippingReadyCode);
     }
 
     @Override
-    public int updateInvoiceNumber(OutboundInvoiceDTO outboundInvoiceDTO) {
-        return outboundMapper.updateInvoiceNumber(outboundInvoiceDTO);
+    public int updateInvoiceNumber(int packingId, String invoiceNumber, int invoiceStateCode) {
+        return outboundMapper.updateInvoiceNumber(packingId, invoiceNumber, invoiceStateCode);
     }
 
     @Override

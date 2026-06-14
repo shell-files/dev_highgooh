@@ -11,7 +11,6 @@ import org.apache.ibatis.annotations.Update;
 
 import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
-import cloud.weareithero.api.outbound.dto.OutboundInvoiceDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
 import cloud.weareithero.api.outbound.dto.OutboundProductDTO;
@@ -423,13 +422,13 @@ public interface OutboundMapper {
       UPDATE `OUTBOUND_PACKING`
       SET
         `outbound_transportation_id` = #{transportationId},
-        `state_code`                 = #{stateCode},
+        `state_code`                 = #{shippingReadyCode},
         `updated_at`                 = NOW()
       WHERE `id` = #{packingId}
       """)
   public int updatePackingTransportation(@Param("packingId") int packingId,
                                          @Param("transportationId") int transportationId,
-                                         @Param("stateCode") int stateCode);
+                                         @Param("shippingReadyCode") int shippingReadyCode);
 
   /**
    * 11. 송장 발급 - OUTBOUND_PACKING UPDATE
@@ -448,11 +447,13 @@ public interface OutboundMapper {
       UPDATE `OUTBOUND_PACKING`
       SET
         `invoice_number` = #{invoiceNumber},
-        `state_code`     = #{stateCode},
+        `state_code`     = #{invoiceStateCode},
         `updated_at`     = NOW()
       WHERE `id` = #{packingId}
       """)
-  public int updateInvoiceNumber(OutboundInvoiceDTO outboundInvoiceDTO);
+  public int updateInvoiceNumber(@Param("packingId") int packingId,
+                                 @Param("invoiceNumber") String invoiceNumber,
+                                 @Param("invoiceStateCode") int invoiceStateCode); // 💡 DTO 대신 명확하게 파라미터 분리
 
   /**
    * 12. 출고 확정 - OUTBOUND_TRANSPORTATION UPDATE
