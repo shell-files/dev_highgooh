@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloud.weareithero.api.packing.dto.PackingInvoiceDTO;
+import cloud.weareithero.api.packing.dto.PackingAddDTO;
 import cloud.weareithero.api.packing.dto.PackingRequestDTO;
 import cloud.weareithero.api.packing.service.PackingService;
 import cloud.weareithero.dto.ResponseDTO;
@@ -34,8 +34,8 @@ public class PackingController implements PackingControllerDocs {
     
     @PutMapping
     @Override
-    public ResponseDTO InsertPacking(@RequestBody PackingInvoiceDTO packingInvoiceDTO) {
-        return packingService.InsertPacking(packingInvoiceDTO);
+    public ResponseDTO InsertPacking(@RequestBody PackingAddDTO packingAddDTO) {
+        return packingService.addPacking(packingAddDTO);
     }
 
 }
