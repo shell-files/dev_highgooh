@@ -1,192 +1,142 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    getOutboundHistory,
+    getOutboundHistoryDetail,
+    setPage,
+    closeModal,
+    getPartnerList
+} from '@stores/outboundHistorySlice';
+import { getFirstDay, getLastDayOfMonth, getToday, addOneDay } from '@stores/date';
 import '@styles/outhistory.css';
 
-// ==========================================
-// [백엔드 DB 대용] 전체 원본 마스터 더미 데이터
-// ==========================================
-const MASTER_HISTORY_DATA = [
-    { id: 1, date: '2026-05-28', orderNo: 'ORD-20260602-001', customer: '현대모빌리티', company: '대한택배', boxQty: 3, status: '기한 달성' },
-    { id: 2, date: '2026-05-26', orderNo: 'ORD-20260602-002', customer: '기아테크', company: '경동화물', boxQty: 2, status: '기한 달성' },
-    { id: 3, date: '2026-05-26', orderNo: 'ORD-20260602-003', customer: '르노솔루션', company: '대신정기화물', boxQty: 1, status: '기한 초과' },
-    { id: 4, date: '2026-06-11', orderNo: 'ORD-20260611-001', customer: '현대모빌리티', company: '대한택배', boxQty: 5, status: '기한 달성' },
-    { id: 5, date: '2026-06-15', orderNo: 'ORD-20260615-002', customer: '기아테크', company: '경동화물', boxQty: 4, status: '기한 초과' },
-    // { id: 6, date: '2026-05-10', orderNo: 'ORD-20260510-001', customer: '르노솔루션', company: '대한택배', boxQty: 2, status: '기한 달성' },
-    // { id: 7, date: '2026-05-01', orderNo: 'ORD-20260501-001', customer: '현대모빌리티', company: '대신정기화물', boxQty: 1, status: '기한 초과' },
-];
-
-const MASTER_DETAIL_DATA = {
-    'ORD-20260602-001': [
-        { boxNo: 'BOX-001-01', productName: 'Al 시트레일 압출재 (6063-T5)', trackingNo: 'TRK-402910293' },
-        { boxNo: 'BOX-001-02', productName: '조립용 고정 볼트 (M6)', trackingNo: 'TRK-402910294' },
-        { boxNo: 'BOX-001-03', productName: '알루미늄 플레이트 (5052)', trackingNo: 'TRK-402910295' }
-    ],
-    'ORD-20260602-002': [
-        { boxNo: 'BOX-002-01', productName: '고강도 알루미늄 배론 (7075)', trackingNo: 'TRK-773019203' },
-        { boxNo: 'BOX-002-02', productName: 'Al 시트레일 압출재 (6063-T5)', trackingNo: 'TRK-773019204' }
-    ],
-    'ORD-20260602-003': [
-        { boxNo: 'BOX-003-01', productName: '고강도 알루미늄 배론 (7075)', trackingNo: 'TRK-882910392' }
-    ],
-    'ORD-20260611-001': [
-        { boxNo: 'BOX-004-01', productName: '배터리 케이스 프레임', trackingNo: '양하 준비중' }
-    ],
-    'ORD-20260615-002': [
-        { boxNo: 'BOX-005-01', productName: '범퍼 가드 레일', trackingNo: '양하 준비중' }
-    ]
-};
-
 const OutHistory = () => {
-    // ------------------------------------------
-    // 상태 관리 (State)
-    // ------------------------------------------
-    const [historyList, setHistoryList] = useState([]); 
-    const [transportList, setTransportList] = useState([]); 
-    const [customerList, setCustomerList] = useState([]); 
-    
-    // 현황판 통계 데이터 상태
-    const [summaryData, setSummaryData] = useState({ total: 0, scheduled: 0, achieved: 0, overdue: 0 });
-    const [summaryBadge, setSummaryBadge] = useState('당월'); // '당월' 또는 '선택'
+    const dispatch = useDispatch();
+    const { customers, transports } = useSelector((state) => state.outboundHistory.filters);
 
-    // 실제 검색에 적용된 필터 조건 상태 (조회하기 버튼 클릭 시 업데이트)
-    const [appliedFilters, setAppliedFilters] = useState({ startDate: '', endDate: '', orderNo: '', customer: '', transport: '' });
-    // 입력 폼 제어용 임시 상태
-    const [formFilters, setFormFilters] = useState({ startDate: '', endDate: '', orderNo: '', customer: '', transport: '' });
+    // 1. Redux Store에서 백엔드 데이터 상태 구독
+    const { list: historyList, summary, page, totalCount, totalPages, size } = useSelector((state) => state.outboundHistory.view);
+    const detailData = useSelector((state) => state.outboundHistory.detailData);
+    const isModalOpen = useSelector((state) => state.outboundHistory.isModal);
+    const loading = useSelector((state) => state.outboundHistory.loading);
+    const detailLoading = useSelector((state) => state.outboundHistory.detailLoading);
+    const [searchTrigger, setSearchTrigger] = useState(0);
 
-    // 페이지네이션
-    const [page, setPage] = useState(1); 
-    const [totalCount, setTotalCount] = useState(0); 
-    const [totalPages, setTotalPages] = useState(0); 
-    const [size] = useState(20);
+    const [partnerName, setPartnerName] = useState("");
+    const [transName, setTransName] = useState("");
+    const [startDay, setStartDay] = useState("");
+    const [endDay, setEndDay] = useState("");
 
-    // 모달 관련 상태
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedOrderNo, setSelectedOrderNo] = useState('');
-    const [modalData, setModalData] = useState({ customer: '', transportCompany: '', status: '', boxes: [] });
 
-    // ------------------------------------------
-    // 최초 1회 실행: 필터 옵션(고객사/운송사) 리스트업
-    // ------------------------------------------
-    useEffect(() => {
-        const dummyTransports = [
-            { id: 'TRA01', value: '대한택배', label: '대한택배' },
-            { id: 'TRA02', value: '경동화물', label: '경동화물' },
-            { id: 'TRA03', value: '대신정기화물', label: '대신정기화물' }
-        ];
-        const uniqueCustomers = Array.from(new Set(MASTER_HISTORY_DATA.map(item => item.customer)));
-        
-        setTransportList(dummyTransports);
-        setCustomerList(uniqueCustomers);
-    }, []);
+    // 2. 가짜 데이터 필드 구조 호환을 위한 맵 변환 가공
+    const summaryData = {
+        total: summary.total || 0,
+        achieved: summary.achieved || 0,
+        overdue: summary.overdue || 0
+    };
 
-    // ------------------------------------------
-    // 핵심 비즈니스 로직: API 호출 함수 모의화 (Fetch Data)
-    // ------------------------------------------
+
+
+
+    // 3. 필터 폼 컴포넌트 내부 로컬 상태 관리
+    const [formFilters, setFormFilters] = useState({
+        startDate: getFirstDay(),
+        endDate: getToday(),
+        orderNo: '',
+        customer: '',
+        transport: ''
+    });
+
+
+    // 4. 백엔드 연동 API 액션 디스패치 함수
     const fetchHistoryData = useCallback(() => {
-        // 백엔드 API에 appliedFilters와 page, size를 보냈다고 가정하는 시뮬레이션입니다.
-        let filtered = [...MASTER_HISTORY_DATA];
+        const credentials = {
+            page: page,
+            size: size,
+            orderStart: formFilters.startDate,  // ← 혹시 "" 아닌지 확인
+            orderEnd: addOneDay(formFilters.endDate),
+            outboundId: Number(formFilters.orderNo) || 0,
+            partnerCompanyId: Number(formFilters.customer) || 0,
+            transportCompanyId: Number(formFilters.transport) || 0
+        };
+        // console.log('📤 credentials:', credentials);
+        dispatch(getOutboundHistory(credentials));
+        setStartDay(formFilters.startDate)
+        setEndDay(formFilters.endDate)
+    }, [dispatch, page, size, formFilters]);
 
-        // 1. 필터링 조건 적용
-        if (appliedFilters.startDate) {
-            filtered = filtered.filter(item => item.date >= appliedFilters.startDate);
-        }
-        if (appliedFilters.endDate) {
-            filtered = filtered.filter(item => item.date <= appliedFilters.endDate);
-        }
-        if (appliedFilters.orderNo) {
-            filtered = filtered.filter(item => item.orderNo.toLowerCase().includes(appliedFilters.orderNo.toLowerCase()));
-        }
-        if (appliedFilters.customer) {
-            filtered = filtered.filter(item => item.customer === appliedFilters.customer);
-        }
-        if (appliedFilters.transport) {
-            filtered = filtered.filter(item => item.company === appliedFilters.transport);
-        }
-
-        // 2. 통계 데이터(현황판) 계산 로직 (API에서 테이블 데이터와 함께 내려주는 구조 구현)
-        const total = filtered.length;
-        const scheduled = filtered.filter(item => item.status === '출고 예정').length;
-        const achieved = filtered.filter(item => item.status === '기한 달성').length;
-        const overdue = filtered.filter(item => item.status === '기한 초과').length;
-
-        setSummaryData({ total, scheduled, achieved, overdue });
-
-        // 출고 기간 필터 유무에 따른 현황판 뱃지 텍스트 변경 적용
-        if (appliedFilters.startDate || appliedFilters.endDate) {
-            setSummaryBadge('선택');
-        } else {
-            setSummaryBadge('당월');
-        }
-
-        // 3. 페이징 연산 후 데이터 세팅
-        const calculatedTotalCount = filtered.length;
-        const calculatedTotalPages = Math.ceil(calculatedTotalCount / size) || 1;
-
-        const indexOfLastItem = page * size;
-        const indexOfFirstItem = indexOfLastItem - size;
-        const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
-
-        setTotalCount(calculatedTotalCount);
-        setTotalPages(calculatedTotalPages);
-        setHistoryList(currentItems);
-    }, [appliedFilters, page, size]);
-
-    // 필터 조건이나 페이지가 바뀔 때마다 테이블 및 대시보드 리로드 수행
+    console.log(startDay)
+    console.log(endDay)
+    // 페이지 번호 및 리로드 트리거 감지
     useEffect(() => {
         fetchHistoryData();
-    }, [fetchHistoryData]);
+    }, [page, searchTrigger]);
 
-    // ------------------------------------------
-    // 이벤트 핸들러 (Event Handlers)
-    // ------------------------------------------
+    useEffect(() => {
+        dispatch(getPartnerList());
+    }, [dispatch]);
+
+    // 5. 컴포넌트 핸들러 함수들 정의 (기존 마크업 id 분기 매핑)
     const handleInputChange = (e) => {
         const { id, value } = e.target;
-        // input 요소들의 id에 맞춰 formFilters 상태 매핑 업데이트
-        const keyMap = {
-            search_start_date: 'startDate',
-            search_end_date: 'endDate',
-            search_order_number: 'orderNo',
-            search_customer: 'customer',
-            search_transport: 'transport'
-        };
-        setFormFilters(prev => ({ ...prev, [keyMap[id]]: value }));
+        setFormFilters(prev => {
+            if (id === 'search_start_date') return { ...prev, startDate: value };
+            if (id === 'search_end_date') return { ...prev, endDate: value };
+            if (id === 'search_order_number') return { ...prev, orderNo: value };
+            if (id === 'search_customer') return { ...prev, customer: value };
+            if (id === 'search_transport') return { ...prev, transport: value };
+            return prev;
+        });
     };
+
+
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        setPage(1); // 검색 시 첫 페이지로 리셋
-        setAppliedFilters({ ...formFilters }); // 현재 폼 입력값을 실 적용 필터 상태로 전송 -> useEffect 트리거
+        dispatch(setPage(1));
+        setSearchTrigger(prev => prev + 1);
+        // fetchHistoryData() 제거
     };
-
     const handleReset = () => {
-        const clearedFilters = { startDate: '', endDate: '', orderNo: '', customer: '', transport: '' };
-        setFormFilters(clearedFilters);
-        setAppliedFilters(clearedFilters);
-        setPage(1);
+        setFormFilters({
+            startDate: getFirstDay(),
+            endDate: getToday(),
+            orderNo: '',
+            customer: '',
+            transport: ''
+        });
+        setStartDay(getFirstDay())
+        setEndDay(getToday())
+        dispatch(setPage(1));
+
     };
 
-    // [주문번호 클릭] 특정 주문의 상세 박스 정보를 가져오는 단일 API 호출 모의 기능
-    const openDetailModal = async (item) => {
-        setSelectedOrderNo(item.orderNo);
-        
-        try {
-            // 가상의 API 통신 구조 (상세 정보 Lazy Loading 요청)
-            // const response = await axios.get(`/api/out-history/${item.orderNo}`);
-            const responseBoxes = MASTER_DETAIL_DATA[item.orderNo] || [];
-
-            setModalData({
-                customer: item.customer, 
-                transportCompany: item.company, 
-                status: item.status, 
-                boxes: responseBoxes          
-            });
-            setIsModalOpen(true);
-        } catch (error) {
-            alert('상세 정보를 가져오는 중 오류가 발생했습니다.');
-        }
+    const openDetailModal = (item) => {
+        const outboundId = item.outbound_id || item.id;
+        dispatch(getOutboundHistoryDetail(outboundId));
+        setPartnerName(item.partner);
+        setTransName(item.trans);
     };
 
     const closeAsnDetailModal = () => {
-        setIsModalOpen(false);
+        dispatch(closeModal());
+        setPartnerName("");
+        setTransName("");
+    };
+
+    // 모달 상단 헤더 렌더링용 변수 가공
+    const selectedOrderNo = detailData && detailData.length > 0 ? (detailData[0].outbound_id) : '';
+
+
+    const modalData = {
+        customer: detailData && detailData.length > 0 ? detailData[0].partner_company_name : '-',
+        transportCompany: detailData && detailData.length > 0 ? detailData[0].transport_company_name : '-',
+        status: detailData && detailData.length > 0 ? (detailData[0].delivery_status === '기한달성' ? '기한 달성' : '기한 초과') : '확인불가',
+        boxes: detailData ? detailData.map(box => ({
+            boxNo: box.packing_invoice_number || '-',
+            productName: box.name || '상품 정보 없음',
+            trackingNo: box.invoice_number || '-'
+        })) : []
     };
 
     return (
@@ -203,41 +153,32 @@ const OutHistory = () => {
                         <span className="summary-value">{summaryData.total}<small>건</small></span>
                     </div>
                     <div className="card-trend-right">
-                        <span className={`status-badge bg-all-light text-muted`}>
-                            {summaryBadge}
+                        <span className="status-badge bg-all-light text-muted">
+                            {getFirstDay() === startDay && getToday() === endDay ? "당월" : "선택"}
                         </span>
                     </div>
                 </div>
-                {/* <div className="summary-card-item">
-                    <div className="card-info-left">
-                        <span className="summary-label">출고 예정</span>
-                        <span className="summary-value text-green">{summaryData.scheduled}<small>건</small></span>
-                    </div>
-                    <div className="card-trend-right">
-                        <span className={`status-badge ${summaryBadge === '당월' ? 'bg-green-light text-green' : 'bg-blue-light text-blue'}`}>
-                            {summaryBadge}
-                        </span>
-                    </div>
-                </div> */}
+
                 <div className="summary-card-item">
                     <div className="card-info-left">
                         <span className="summary-label">기한 달성</span>
                         <span className="summary-value text-green">{summaryData.achieved}<small>건</small></span>
                     </div>
                     <div className="card-trend-right">
-                        <span className={`status-badge bg-green-light text-green`}>
-                            {summaryBadge}
+                        <span className="status-badge bg-green-light text-green">
+                            {getFirstDay() === startDay && getToday() === endDay ? "당월" : "선택"}
                         </span>
                     </div>
                 </div>
+
                 <div className="summary-card-item">
                     <div className="card-info-left">
                         <span className="summary-label">기한 초과</span>
                         <span className="summary-value text-red">{summaryData.overdue}<small>건</small></span>
                     </div>
                     <div className="card-trend-right">
-                        <span className={`status-badge bg-red-light text-red`}>
-                            {summaryBadge}
+                        <span className="status-badge bg-red-light text-red">
+                            {getFirstDay() === startDay && getToday() === endDay ? "당월" : "선택"}
                         </span>
                     </div>
                 </div>
@@ -266,20 +207,22 @@ const OutHistory = () => {
                         <div className="date-range-container">
                             <select id="search_customer" className="filter-control select-control" value={formFilters.customer} onChange={handleInputChange}>
                                 <option value="">전체 고객사</option>
-                                {customerList.map((customer, index) => (
-                                    <option key={index} value={customer}>{customer}</option>
+                                {customers.map((c) => (
+                                    <option key={c.id} value={c.id}>{c.name}</option>
                                 ))}
+
+
                             </select>
                         </div>
                     </div>
-                    
+
                     <div className="filter-group">
                         <label>운송사 선택</label>
                         <div className="date-range-container">
                             <select id="search_transport" className="filter-control select-control" value={formFilters.transport} onChange={handleInputChange}>
                                 <option value="">전체 운송사</option>
-                                {transportList.map((transport) => (
-                                    <option key={transport.id} value={transport.value}>{transport.label}</option>
+                                {transports.map((t) => (
+                                    <option key={t.id} value={t.id}>{t.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -311,22 +254,27 @@ const OutHistory = () => {
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
-                            {historyList.length > 0 ? (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center" style={{ padding: '2rem', color: '#64748b' }}>
+                                        데이터를 로딩 중입니다...
+                                    </td>
+                                </tr>
+                            ) : historyList && historyList.length > 0 ? (
                                 historyList.map((item) => (
-                                    <tr key={item.id}>
-                                        <td className="text-center">{item.date}</td>
+                                    <tr key={item.outbound_id || item.id}>
+                                        <td className="text-center">{item.updated_at || item.date || '-'}</td>
                                         <td className="font-bold text-link" style={{ cursor: 'pointer' }} onClick={() => openDetailModal(item)}>
-                                            {item.orderNo}
+                                            {item.outbound_id || item.id}
                                         </td>
-                                        <td className="text-center">{item.customer}</td>
-                                        <td className="text-center">{item.company}</td>
-                                        <td className="text-center">{item.boxQty} EA</td>
+                                        <td className="text-center">{item.partner || item.customer || '-'}</td>
+                                        <td className="text-center">{item.trans || item.company || '-'}</td>
+                                        <td className="text-center">{item.cnt || item.boxQty || 0} EA</td>
                                         <td className="text-center">
-                                            <span className={`status-badge ${
-                                                item.status === '기한 달성' ? 'bg-green-light text-green' : 
-                                                item.status === '기한 초과' ? 'bg-red-light text-red' : 'bg-blue-light text-blue'
-                                            }`}>
-                                                {item.status}
+                                            <span className={`status-badge ${(item.delivery_status === '기한달성' || item.status === '기한 달성') ? 'bg-green-light text-green' :
+                                                (item.delivery_status === '기한초과' || item.status === '기한 초과') ? 'bg-red-light text-red' : 'bg-blue-light text-blue'
+                                                }`}>
+                                                {item.delivery_status || item.status}
                                             </span>
                                         </td>
                                     </tr>
@@ -346,21 +294,21 @@ const OutHistory = () => {
                 <div className="pagination-container">
                     <div className="pagination-info">전체 <span>{totalCount}</span>건</div>
                     <div className="pagination-buttons">
-                        <button className="btn-page first" onClick={() => setPage(1)} disabled={page <= 1}>&laquo;</button>
-                        <button className="btn-page prev" onClick={() => setPage(p => p - 1)} disabled={page <= 1}>&lsaquo;</button>
-                        
+                        <button className="btn-page first" onClick={() => dispatch(setPage(1))} disabled={page <= 1}>&laquo;</button>
+                        <button className="btn-page prev" onClick={() => dispatch(setPage(page - 1))} disabled={page <= 1}>&lsaquo;</button>
+
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map(index => (
                             <button
                                 key={index}
                                 className={page === index ? 'btn-page-num active' : 'btn-page-num'}
-                                onClick={() => setPage(index)}
+                                onClick={() => dispatch(setPage(index))}
                             >
                                 {index}
                             </button>
                         ))}
-                        
-                        <button className="btn-page next" onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>&rsaquo;</button>
-                        <button className="btn-page last" onClick={() => setPage(totalPages)} disabled={page === totalPages}>&raquo;</button>
+
+                        <button className="btn-page next" onClick={() => dispatch(setPage(page + 1))} disabled={page === totalPages}>&rsaquo;</button>
+                        <button className="btn-page last" onClick={() => dispatch(setPage(totalPages))} disabled={page === totalPages}>&raquo;</button>
                     </div>
                     <div className="pagination-size-selector" />
                 </div>
@@ -382,11 +330,11 @@ const OutHistory = () => {
                             </div>
                             <div className="form-group-item">
                                 <label className="modal-form-label">고객사</label>
-                                <input type="text" className="table-inner-input disabled-input" readOnly value={modalData.customer} />
+                                <input type="text" className="table-inner-input disabled-input" readOnly value={partnerName} />
                             </div>
                             <div className="form-group-item">
                                 <label className="modal-form-label">운송사</label>
-                                <input type="text" className="table-inner-input disabled-input" readOnly value={modalData.transportCompany} />
+                                <input type="text" className="table-inner-input disabled-input" readOnly value={transName} />
                             </div>
                         </div>
 
@@ -412,10 +360,9 @@ const OutHistory = () => {
                                                     <td className="td-name">{box.productName}</td>
                                                     <td className="td-qty text-center">{box.trackingNo}</td>
                                                     <td className="text-center">
-                                                        <span className={`status-badge ${
-                                                            modalData.status === '기한 달성' ? 'bg-green-light text-green' : 
+                                                        <span className={`status-badge ${modalData.status === '기한 달성' ? 'bg-green-light text-green' :
                                                             modalData.status === '기한 초과' ? 'bg-red-light text-red' : 'bg-blue-light text-blue'
-                                                        }`}>
+                                                            }`}>
                                                             {modalData.status}
                                                         </span>
                                                     </td>
