@@ -45,6 +45,6 @@ public interface PackingControllerDocs {
     @Operation(summary = "Packing 완료 처리", description = "Packing API")
     @ApiCommonSuccess
     @ApiCommonErrors
-    public ResponseDTO completePacking(int invoiceId);
+    public ResponseDTO completePacking(String invoiceId);
     
 }

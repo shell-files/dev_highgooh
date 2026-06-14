@@ -126,7 +126,7 @@ public class PackingServiceImp implements PackingService {
 
     @Transactional
     @Override
-    public ResponseDTO completePacking(int invoiceId) {
+    public ResponseDTO completePacking(String invoiceId) {
         boolean isSuccess = false;
         String message = null;
         try {
@@ -152,7 +152,7 @@ public class PackingServiceImp implements PackingService {
                 packingDao.updateOrderStateCode(orderId);
             }
             isSuccess = true;
-            message = notCompletedCount == 0 ? "송장번호 %d 패킹 완료 및 주문번호 %d 도 완료 처리되었습니다.".formatted(invoiceId, orderId) : "송장번호 %d 패킹 완료 처리되었습니다.".formatted(invoiceId);
+            message = notCompletedCount == 0 ? "송장 %s 패킹 완료 및 주문번호 %d 도 완료 처리되었습니다.".formatted(invoiceId, orderId) : "송장 %s 패킹 완료 처리되었습니다.".formatted(invoiceId);
 
         } catch (Exception e) {
             log.info("PackingServiceImp completePacking error : {}", e.getMessage());
