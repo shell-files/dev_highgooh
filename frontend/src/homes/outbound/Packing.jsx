@@ -8,24 +8,25 @@ import { getFirstDay, getLastDayOfMonth, addOneDay } from '@stores/date';
 // ==========================================
 // 1. 하위 컴포넌트: 대시보드 요약 (PackingSummary)
 // ==========================================
-const PackingSummary = ({ summary }) => {
+const PackingSummary = ({ summary, isCurrentMonth }) => {
+  const trendText = isCurrentMonth ? "당월" : "선택";
   return (
     <div className="order-summary-grid">
       <div className="summary-card-item">
         <div className="card-info-left"><span className="summary-label">당월</span><span className="summary-value">{summary.total}<small>건</small></span></div>
-        <div className="card-trend-right"><span className="status-badge bg-all-light text-muted">당월</span></div>
+        <div className="card-trend-right"><span className="status-badge bg-all-light text-muted">{trendText}</span></div>
       </div>
       <div className="summary-card-item">
         <div className="card-info-left"><span className="summary-label">패킹완료</span><span className="summary-value text-green">{summary.completed}<small>건</small></span></div>
-        <div className="card-trend-right"><span className="status-badge bg-green-light text-green">당월</span></div>
+        <div className="card-trend-right"><span className="status-badge bg-green-light text-green">{trendText}</span></div>
       </div>
       <div className="summary-card-item">
         <div className="card-info-left"><span className="summary-label">신규</span><span className="summary-value text-blue">{summary.newpacking}<small>건</small></span></div>
-        <div className="card-trend-right"><span className="status-badge bg-blue-light text-blue">당월</span></div>
+        <div className="card-trend-right"><span className="status-badge bg-blue-light text-blue">{trendText}</span></div>
       </div>
       <div className="summary-card-item">
         <div className="card-info-left"><span className="summary-label">패킹중</span><span className="summary-value text-orange">{summary.onpacking}<small>건</small></span></div>
-        <div className="card-trend-right"><span className="status-badge bg-orange-light text-orange">당월</span></div>
+        <div className="card-trend-right"><span className="status-badge bg-orange-light text-orange">{trendText}</span></div>
       </div>
     </div>
   );
@@ -76,17 +77,24 @@ const PackingFilter = ({ filters, setFilters, onSearch, onReset }) => {
   );
 }
 
+
 // ==========================================
 // 3. 하위 컴포넌트: 메인 테이블 리스트 (PackingTable)
 // ==========================================
 const PackingTable = ({ orders, onRowClick, view }) => {
   const dispatch = useDispatch();
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case '주문완료': return 'text-blue bg-blue-light';
-      case '패킹중': return 'text-red bg-red-light';
-      case '패킹완료': return 'text-green bg-green-light';
-      default: return 'text-muted bg-all-light';
+
+  const getStepStatus = (stepCode, originalStep) => {
+    switch (stepCode) {
+      case 9:
+        return { text: '신규', badgeClass: 'text-blue bg-blue-light' };
+      case 19:
+        return { text: '패킹중', badgeClass: 'text-red bg-red-light' };
+      case 20:
+        return { text: '패킹완료', badgeClass: 'text-green bg-green-light' };
+      default:
+        // 혹시 정의되지 않은 다른 코드가 올 경우를 대비한 예외 처리
+        return { text: originalStep, badgeClass: 'text-muted bg-all-light' };
     }
   };
 
@@ -100,19 +108,30 @@ const PackingTable = ({ orders, onRowClick, view }) => {
             </tr>
           </thead>
           <tbody>
-            {orders.length === 0 ? (
-              <tr><td colSpan="7" className="text-center" style={{ padding: '2rem', color: 'var(--text-muted)' }}>조회된 패킹 내역이 없습니다.</td></tr>
-            ) : (
-              orders.map((order, index) => (
-                <tr key={index} onClick={() => onRowClick(order.orderId)} style={{ cursor: 'pointer' }}>
-                  <td className="text-center font-bold text-link">{order.orderId}</td>
-                  <td>{order.partnerName}</td>
-                  <td className="text-center text-green font-bold">{order.totalSets} 개</td>
-                  <td className="text-center">{order.orderDate}</td>
-                  <td className="text-center"><span className={`table-badge ${getStatusBadgeClass(order.step)}`}>{order.step}</span></td>
-                </tr>
-              ))
-            )}
+            {
+              orders.length === 0 ? (
+                <tr><td colSpan="5" className="text-center" style={{ padding: '2rem', color: 'var(--text-muted)' }}>조회된 패킹 내역이 없습니다.</td></tr>
+              ) : (
+                orders.map((order, index) => {
+                  const currentStatus = getStepStatus(order.stepCode, order.step);
+
+                  return (
+                    <tr key={index} onClick={() => onRowClick(order.orderId)} style={{ cursor: 'pointer' }}>
+                      <td className="text-center font-bold text-link">{order.orderId}</td>
+                      <td>{order.partnerName}</td>
+                      <td className="text-center text-green font-bold">{order.totalSets} 개</td>
+                      <td className="text-center">{order.orderDate}</td>
+                      {/* 3. 변환된 텍스트와 클래스 적용 */}
+                      <td className="text-center">
+                        <span className={`table-badge ${currentStatus.badgeClass}`}>
+                          {currentStatus.text}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )
+            }
           </tbody>
         </table>
       </div>
@@ -158,7 +177,7 @@ const ProductTable = ({ products }) => {
           {products.map((product, id) => (
             <tr key={id}>
               <td className="text-left" style={{ padding: '0.75rem 0.5rem', textAlign: 'left', color: 'var(--text-dark)' }}>{product.productName}</td>
-              <td className="text-right text-green" style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>{product.quantity} 개</td>
+              <td className="text-green" style={{ padding: '0.75rem 0.5rem', fontWeight: 600 }}>{product.quantity} 개</td>
             </tr>
           ))}
         </tbody>
@@ -297,7 +316,6 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
             </div>
           </div>
         </div>
-
         {/* 모달 푸터 영역 */}
         <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
           {invoicePreviews.length > 0 && (
@@ -317,7 +335,8 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
 // 메인 페이지 컴포넌트 (기본 내보내기)
 // ==========================================
 const Packing = () => {
-  const [filters, setFilters] = useState({ start: '', end: '', orderId: '', customer: '', status: '' });
+  const [filters, setFilters] = useState({ start: getFirstDay(), end: getLastDayOfMonth(), orderId: '', customer: '', status: '' });
+  const [appliedDates, setAppliedDates] = useState({ start: getFirstDay(), end: getLastDayOfMonth() });
   const [carrier, setCarrier] = useState('');
   const [invoicePreviews, setInvoicePreviews] = useState([]);
   const [currentSlipIdx, setCurrentSlipIdx] = useState(0);
@@ -326,9 +345,38 @@ const Packing = () => {
   const { view, isModal, detailData, loading } = useSelector(state => state.packing);
   const { page, size } = view;
 
+  // useEffect(() => {
+  //   dispatch(getPacking({ orderId: filters.orderId ? Number(filters.orderId) : 0, orderStart: filters.start, orderEnd: filters.end, partnerName: filters.customer, page, size }));
+  // }, [page]);
+
+  const fetchPackingData = (targetPage = page) => {
+    const processedEnd = filters.end ? addOneDay(filters.end) : '';
+
+    dispatch(getPacking({
+      orderId: filters.orderId ? Number(filters.orderId) : 0,
+      orderStart: filters.start,
+      orderEnd: processedEnd,
+      partnerName: filters.customer,
+      // status: filters.status, // 백엔드 스펙에 맞춰 주석 해제
+      page: targetPage,
+      size
+    }));
+
+    setAppliedDates({
+      start: filters.start,
+      end: filters.end
+    });
+  };
+
+  // 페이지 변경 시 데이터 호출
   useEffect(() => {
-    dispatch(getPacking({ orderId: filters.orderId ? Number(filters.orderId) : 0, orderStart: filters.start, orderEnd: filters.end, partnerName: filters.customer, page, size }));
+    fetchPackingData(page);
   }, [page]);
+
+  // 첫 로드 시 당월 데이터 자동 호출
+  useEffect(() => {
+    fetchPackingData(1);
+  }, []);
 
   const openOrderDetailModal = (orderId) => {
     setCarrier('');
@@ -390,25 +438,25 @@ const Packing = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    dispatch(getPacking({
-      orderId: filters.orderId ? Number(filters.orderId) : 0,
-      orderStart: filters.start,
-      orderEnd: filters.end,
-      partnerName: filters.customer,
-      page: 1,
-      size: 20
-    }));
+    fetchPackingData(1);
   };
 
   const handleResetFilter = () => {
-    setFilters({ start: '', end: '', orderId: '', customer: '', status: '' });
-    dispatch(getPacking({ orderId: 0, orderStart: '', orderEnd: '', partnerName: '', page: 1, size: 20 }));
+    const defaultStart = getFirstDay();
+    const defaultEnd = getLastDayOfMonth();
+
+    setFilters({ start: defaultStart, end: defaultEnd, orderId: '', customer: '', status: '' });
+    dispatch(getPacking({ orderId: 0, orderStart: defaultStart, orderEnd: addOneDay(defaultEnd), partnerName: '', page: 1, size: 20 }));
+
+    setAppliedDates({ start: defaultStart, end: defaultEnd });
   };
+
+  const isCurrentMonth = appliedDates.start === getFirstDay() && appliedDates.end === getLastDayOfMonth();
 
   return (
     <div id="packing-page">
       <div className="page-header-flex"><h2 className="page-title">패킹</h2></div>
-      <PackingSummary summary={view.summary} />
+      <PackingSummary summary={view.summary} isCurrentMonth={isCurrentMonth} />
       <PackingFilter filters={filters} setFilters={setFilters} onSearch={handleSearchSubmit} onReset={handleResetFilter} />
       <PackingTable orders={view.list} onRowClick={openOrderDetailModal} view={view} />
       <PackingDetailModal
@@ -416,7 +464,7 @@ const Packing = () => {
         orderId={detailData?.order?.orderId}
         orderData={detailData ? {
           customer: detailData.order?.partnerName,
-          status: detailData.order?.step,
+          status: detailData.order?.stepCode === 9 ? '신규' : (detailData.order?.step ?? ''),
           products: detailData.items ?? []
         } : null}
         carrierList={detailData?.carrier ?? []}
