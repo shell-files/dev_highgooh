@@ -130,32 +130,32 @@ public interface OutboundMapper {
   @Select("<script>" +
       """
             SELECT
-            `op`.`id`                           AS `packingId`,
-            `op`.`packing_invoice_number`        AS `packingInvoiceNumber`,
-            `op`.`outbound_id`                   AS `outboundId`,
-            `pcm`.`name`                         AS `customerName`,
-            `carrier`.`name`                     AS `carrierName`,
-            `op`.`invoice_number`                AS `invoiceNumber`,
-            `op`.`state_code`                    AS `stateCode`,
-            CASE WHEN `op`.`state_code` = 20 THEN '차량미배정' ELSE `cc`.`name` END AS `stateName`,
-            `ob`.`deadline`                      AS `deadline`,
-            `ob`.`etd`                           AS `etd`,
-            `op`.`outbound_transportation_id`    AS `transportationId`
-          FROM `OUTBOUND_PACKING` `op`
-          JOIN `OUTBOUND` `ob`
-            ON `op`.`outbound_id` = `ob`.`id`
-          JOIN `PARTNER_COMPANY_MASTER` `pcm`
-            ON `ob`.`partner_company_id` = `pcm`.`id`
-          LEFT JOIN `OUTBOUND_TRANSPORTATION` `ot`
-            ON `op`.`outbound_transportation_id` = `ot`.`id`
-          LEFT JOIN `PARTNER_COMPANY_MASTER` `carrier`
-            ON `ot`.`partner_company_id` = `carrier`.`id`
-          JOIN `COMMON_CODE` `cc`
-            ON `op`.`state_code` = `cc`.`id`
-                    """
+              `op`.`id`                           AS `packingId`,
+              `op`.`packing_invoice_number`        AS `packingInvoiceNumber`,
+              `op`.`outbound_id`                   AS `outboundId`,
+              `pcm`.`name`                         AS `customerName`,
+              `carrier`.`id`                       AS `carrierId`,
+              `carrier`.`name`                     AS `carrierName`,
+              `op`.`invoice_number`                AS `invoiceNumber`,
+              `op`.`state_code`                    AS `stateCode`,
+              CASE WHEN `op`.`state_code` = 20 THEN '차량미배정' ELSE `cc`.`name` END AS `stateName`,
+              `ob`.`deadline`                      AS `deadline`,
+              `ob`.`etd`                           AS `etd`,
+              `op`.`outbound_transportation_id`    AS `transportationId`
+            FROM `OUTBOUND_PACKING` `op`
+            JOIN `OUTBOUND` `ob`
+              ON `op`.`outbound_id` = `ob`.`id`
+            JOIN `PARTNER_COMPANY_MASTER` `pcm`
+              ON `ob`.`partner_company_id` = `pcm`.`id`
+            LEFT JOIN `OUTBOUND_TRANSPORTATION` `ot`
+              ON `op`.`outbound_transportation_id` = `ot`.`id`
+            LEFT JOIN `PARTNER_COMPANY_MASTER` `carrier`
+              ON `ot`.`partner_company_id` = `carrier`.`id`
+            JOIN `COMMON_CODE` `cc`
+              ON `op`.`state_code` = `cc`.`id`
+          """
       +
       "<where>" +
-      // 💡 기존 BETWEEN 20 AND 23 조건을 지우고 아래와 같이 20번(미배정)만 조회하도록 수정합니다.
       " AND `op`.`state_code` = 20 " +
       "<if test='customerName != null and customerName != \"\"'>" +
       " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
@@ -296,28 +296,27 @@ public interface OutboundMapper {
   // OutboundMapper.java - 6. 매니페스트 뷰 목록 조회 수정
   @Select("<script>" +
       """
-          SELECT
-            `ot`.`id`                                                       AS `transportationId`,
-            -- 💡 프론트 필드명(mnfNo)과 정확히 매핑되도록 Alias를 수정합니다.
-            CONCAT('MAN-', DATE_FORMAT(NOW(), '%y%m%d'), '-', LPAD(`ot`.`id`, 3, '0')) AS `mnfNo`,
-            `carrier`.`name`                                                AS `carrierName`,
-            CONCAT(`ot`.`lpn`, ' (', `tvm`.`vehicle_type`, ')')            AS `vehicleInfo`,
-            COUNT(`op`.`id`)                                                AS `boxes`, -- 💡 프론트 item.boxes 개수 매핑
-            `ot`.`state_code`                                               AS `stateCode`,
-            `cc`.`name`                                                     AS `stateName`,
-            `ot`.`etd`                                                      AS `etd`,
-            `ot`.`atd`                                                      AS `atd`,
-            `ot`.`driver`                                                   AS `driver`
-          FROM `OUTBOUND_TRANSPORTATION` `ot`
-          JOIN `PARTNER_COMPANY_MASTER` `carrier` ON `ot`.`partner_company_id` = `carrier`.`id`
-          JOIN `TRANSPORTATION_VEHICLE_MASTER` `tvm` ON `ot`.`transportation_vehicle_id` = `tvm`.`id`
-          LEFT JOIN `OUTBOUND_PACKING` `op` ON `op`.`outbound_transportation_id` = `ot`.`id`
-          LEFT JOIN `OUTBOUND` `ob` ON `op`.`outbound_id` = `ob`.`id`
-          LEFT JOIN `PARTNER_COMPANY_MASTER` `pcm` ON `ob`.`partner_company_id` = `pcm`.`id`
-          JOIN `COMMON_CODE` `cc` ON `ot`.`state_code` = `cc`.`id`
+            SELECT
+              `ot`.`id`                                                          AS `transportationId`,
+              CONCAT('MNF-', LPAD(`ot`.`id`, 6, '0'))                           AS `manifestNo`,
+              `carrier`.`name`                                                   AS `carrierName`,
+              CONCAT(`ot`.`lpn`, ' (', `tvm`.`vehicle_type`, ')')               AS `vehicleInfo`,
+              COUNT(`op`.`id`)                                                   AS `boxCount`,
+              `ot`.`state_code`                                                  AS `stateCode`,
+              `cc`.`name`                                                        AS `stateName`,
+              `ot`.`etd`                                                         AS `etd`,
+              `ot`.`atd`                                                         AS `atd`,
+              `ot`.`driver`                                                      AS `driver`
+            FROM `OUTBOUND_TRANSPORTATION` `ot`
+            JOIN `PARTNER_COMPANY_MASTER` `carrier` ON `ot`.`partner_company_id` = `carrier`.`id`
+            JOIN `TRANSPORTATION_VEHICLE_MASTER` `tvm` ON `ot`.`transportation_vehicle_id` = `tvm`.`id`
+            LEFT JOIN `OUTBOUND_PACKING` `op` ON `op`.`outbound_transportation_id` = `ot`.`id`
+            LEFT JOIN `OUTBOUND` `ob` ON `op`.`outbound_id` = `ob`.`id`
+            LEFT JOIN `PARTNER_COMPANY_MASTER` `pcm` ON `ob`.`partner_company_id` = `pcm`.`id`
+            JOIN `COMMON_CODE` `cc` ON `ot`.`state_code` = `cc`.`id`
           """ +
       "<where>" +
-      "   `ot`.`state_code` != 20 " + // 💡 미배정 데이터 원천 차단 가드 조건
+      "   `ot`.`state_code` IS NOT NULL " +
       "<if test='stateCode != null and stateCode != 0'>" +
       " AND `ot`.`state_code` = #{stateCode} " +
       "</if>" +
@@ -395,7 +394,7 @@ public interface OutboundMapper {
         #{lpn},
         #{driver},
         #{etd},
-        #{stateCode},
+        21,
         NOW()
       )
       """)
