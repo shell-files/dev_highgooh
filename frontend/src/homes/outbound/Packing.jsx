@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import '@styles/packing.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { openPackingModal, closePackingModal, setPage } from '@stores/packingSlice';
 
 // ==========================================
 // [MOCK DB] 서버 역할을 대행할 가상 데이터베이스
