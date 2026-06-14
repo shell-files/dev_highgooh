@@ -189,7 +189,7 @@ const ProductTable = ({ products }) => {
 // ==========================================
 // 5. 하위 컴포넌트: 모달 내부 송장 슬라이더 + QR 시각화 (InvoiceSlider)
 // ==========================================
-const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip }) => {
+const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip, customer }) => {
   if (invoicePreviews.length === 0) {
     return (
       <div className="invoice-preview-card">
@@ -201,7 +201,7 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip }) 
   }
 
   const currentInvoice = invoicePreviews[currentSlipIdx];
-  const qrUrl = `https://aigo.weareithero.cloud/${currentInvoice.id}`;
+  const qrUrl = `http://aigo.weareithero.cloud/packing/${currentInvoice.id}`;
 
   return (
     <div className="invoice-preview-card">
@@ -215,7 +215,7 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip }) 
               <tr><th>패킹 송장번호</th><td>{currentInvoice.packingInvoiceNumber}</td></tr>
               <tr><th>출고 번호</th><td>{currentInvoice.orderId}</td></tr>
               <tr><th>품목명</th><td style={{ fontSize: '0.82rem', fontWeight: 600, color: '#2d3748' }}>{currentInvoice.productName}</td></tr>
-              <tr><th>고객사</th><td><span className="text-green font-bold">{currentInvoice.partnerName}</span></td></tr>
+              <tr><th>고객사</th><td><span className="text-green font-bold">{customer}</span></td></tr>
               <tr><th>운송사</th><td>{currentInvoice.carrierName}</td></tr>
             </tbody>
           </table>
@@ -312,7 +312,7 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
               <div className="modal-section-title" style={{ marginTop: 0 }}>
                 <h4>3. 제품별 출고 송장 발행 결과 {invoicePreviews.length > 0 && `(${currentSlipIdx + 1} / ${invoicePreviews.length})`}</h4>
               </div>
-              <InvoiceSlider invoicePreviews={invoicePreviews} currentSlipIdx={currentSlipIdx} prevSlip={prevSlip} nextSlip={nextSlip} />
+              <InvoiceSlider invoicePreviews={invoicePreviews} currentSlipIdx={currentSlipIdx} prevSlip={prevSlip} nextSlip={nextSlip} customer={orderData.customer} />
             </div>
           </div>
         </div>
@@ -345,10 +345,6 @@ const Packing = () => {
   const { view, isModal, detailData, loading } = useSelector(state => state.packing);
   const { page, size } = view;
 
-  // useEffect(() => {
-  //   dispatch(getPacking({ orderId: filters.orderId ? Number(filters.orderId) : 0, orderStart: filters.start, orderEnd: filters.end, partnerName: filters.customer, page, size }));
-  // }, [page]);
-
   const fetchPackingData = (targetPage = page) => {
     const processedEnd = filters.end ? addOneDay(filters.end) : '';
     const stepCode = filters.status ? Number(filters.status) : '';
@@ -378,6 +374,16 @@ const Packing = () => {
   useEffect(() => {
     fetchPackingData(1);
   }, []);
+
+  useEffect(() => {
+    if (detailData) {
+      // 신규(9)일 때는 빈 배열, 패킹중(19)/완료(20)일 때는 백엔드에서 온 packingDetail 주입
+      setInvoicePreviews(detailData.packingDetail ?? []);
+      setCurrentSlipIdx(0); // 슬라이더 인덱스 첫 장으로 초기화
+    } else {
+      setInvoicePreviews([]);
+    }
+  }, [detailData]);
 
   const openOrderDetailModal = (orderId) => {
     setCarrier('');
@@ -418,7 +424,7 @@ const Packing = () => {
       if (res.payload?.status === true) {
         dispatch(getPackingDetail({ orderId: detailData.order.orderId }))
           .then((r) => {
-            setInvoicePreviews(r.payload?.data?.packingInvoice ?? []);
+            setInvoicePreviews(r.payload?.data?.packingDetail ?? []);
           });
       }
     });
@@ -466,6 +472,7 @@ const Packing = () => {
         orderData={detailData ? {
           customer: detailData.order?.partnerName,
           status: detailData.order?.stepCode === 9 ? '신규' : (detailData.order?.step ?? ''),
+          stepCode: detailData.order?.stepCode,
           products: detailData.items ?? []
         } : null}
         carrierList={detailData?.carrier ?? []}
