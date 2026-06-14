@@ -18,5 +18,10 @@ public interface PackingDao {
     List<PackingInvoiceDTO> findInvoice(int orderId);
     public int updateStateCode(int orderId);
     public int addInvoice(PackingInvoiceDTO packingInvoiceDTO);
+    public int findPackingInvoiceStateCode(int invoiceId);
+    public int updatePackingInvoiceStateCode(int invoiceId);
+    public int countNotCompleted(int orderId);
+    public int updateOrderStateCode(int orderId);
+    public int findOrderIdByInvoiceId(int invoiceId);
 
 }
