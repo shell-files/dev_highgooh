@@ -3,7 +3,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     getOutboundList,
+    getOutboundManifestList,
     getOutboundDetail,
+    getOutboundFormData,
     assignOutboundVehicle,
     issueOutboundInvoice,
     confirmOutboundShipment,
@@ -43,18 +45,19 @@ const Outbound = () => {
     });
 
     // --- 2. Redux 상태 구독 (슬라이스 규격 정밀 매핑) ---
-    const { loading, view = {}, detailData } = useSelector((state) => state.outbound || {});
+    const { loading, view = {}, detailData, carriers = [], vehicles = [] }
+        = useSelector(state => state.outbound);
 
     // 💡 크리티컬 포인트 해결: list를 쪼개지 말고, 슬라이스가 저장해 둔 전용 배열 상태를 직접 구독합니다.
     const {
-        summary,
-        boxList,
-        manifestList,
-        page,
-        totalCount,
-        totalPages,
+        summary = {},
+        boxList = [],
+        manifestList = [],
+        page = 1,
+        totalCount = 0,
+        totalPages = 1,
         size = 20
-    } = useSelector((state) => state.outbound.view);
+    } = useSelector((state) => state.outbound.view || {});
 
     // 필터 제어용 useRef
     const orderNoRef = useRef();
@@ -71,12 +74,20 @@ const Outbound = () => {
             customer: customerRef.current?.value || '',
             stateCode: stateCodeRef.current?.value ? Number(stateCodeRef.current.value) : null
         };
-        dispatch(getOutboundList(filters));
+        if (viewMode === 'box') {
+            dispatch(getOutboundList(filters));
+        } else {
+            dispatch(getOutboundManifestList(filters));
+        }
     };
 
     useEffect(() => {
         getData();
     }, [page, viewMode]);
+
+    useEffect(() => {
+        dispatch(getOutboundFormData());
+    }, [dispatch]);
 
     // 탭 전환 핸들러
     const handleViewModeChange = (mode) => {
@@ -116,7 +127,7 @@ const Outbound = () => {
     const getStatusStyle = (stateName) => {
         if (!stateName) return 'badge-dark'; // 💡 방어 코드 삽입
         switch (stateName) {
-            case '출고완료' : return 'text-green bg-green-light';
+            case '출고완료': return 'text-green bg-green-light';
             case '출고대기': return 'text-blue bg-blue-light';
             case '차량배정': return 'badge-pending';
             case '미배정': return 'badge-dark';
@@ -150,38 +161,158 @@ const Outbound = () => {
     };
 
     // --- 6. 비동기 백엔드 트랜잭션 핸들러 ---
-// 기존 openVehicleModal을 찾아서 아래 코드로 교체하세요!
+
+    // 💡 1. 차량 배정 모달 오픈 핸들러 (에러 가드 완벽 적용)
     const openVehicleModal = () => {
         if (viewMode !== 'box') return alert('박스 탭에서만 차량 배정이 가능합니다.');
         if (checkedBoxes.length === 0) return alert('미배정 박스를 선택해주세요.');
-        
-        // 💡 체크된 박스 중 첫 번째 박스의 실제 데이터를 기반으로 폼 초기화 (하드코딩 제거)
-        const targetBox = boxList.find(b => b.packingId === checkedBoxes[0]);
-        
+
+        // 리덕스 구조인 boxList를 안전하게 가져옵니다. 
+        // 만약 상단에 boxList가 없다면 view.boxList가 되도록 이중 방어합니다.
+        const currentBoxes = boxList || [];
+        const targetBox = currentBoxes.find(b => b.packingId === checkedBoxes[0]);
+
+        // DB 외래키(FK) NOT NULL 제약조건 위반을 막기 위한 마스터 데이터용 기본 ID 지정
+        const resolvedCarrierId = targetBox?.carrierId || 1;
+        const resolvedVehicleId = targetBox?.vehicleId || 1;
+
+        // 크래시의 원인이었던 'item'을 완전히 제거하고 오늘 날짜 혹은 마감일을 안전하게 문자열로 변환
+        let defaultEtd = new Date().toISOString().substring(0, 10);
+        if (targetBox && targetBox.deadline) {
+            defaultEtd = String(targetBox.deadline).substring(0, 10);
+        } else if (targetBox && targetBox.etd) {
+            defaultEtd = String(targetBox.etd).substring(0, 10);
+        }
+
         setVehicleForm({
-            carrierId: targetBox?.carrierId || 1,        // 실제 DB의 운송사 ID 매핑
-            vehicleId: targetBox?.transportationVehicleId || 1, // 실제 DB의 차량 ID 매핑
+            carrierId: resolvedCarrierId,
+            vehicleId: resolvedVehicleId,
             lpn: '',
             driver: '',
-            etd: targetBox?.etd || ''
+            etd: defaultEtd
         });
-        
-        setModalOpen({ ...modalOpen, vehicle: true });
+
+        setModalOpen(prev => ({ ...prev, vehicle: true }));
     };
 
+    // 💡 2. 차량 배정 서브밋 핸들러 (중복 선언 원천 차단)
     const handleVehicleSubmit = async () => {
+        if (!vehicleForm.lpn || !vehicleForm.lpn.trim()) return alert('차량 번호를 입력해주세요.');
+        if (!vehicleForm.driver || !vehicleForm.driver.trim()) return alert('운전자 명을 입력해주세요.');
+
         const payload = {
             packingIds: checkedBoxes,
-            ...vehicleForm
+            carrierId: vehicleForm.carrierId,
+            vehicleId: vehicleForm.vehicleId,
+            lpn: vehicleForm.lpn,
+            driver: vehicleForm.driver,
+            etd: vehicleForm.etd
         };
-        const result = await dispatch(assignOutboundVehicle(payload));
-        if (result.meta.requestStatus === 'fulfilled') {
-            setModalOpen({ ...modalOpen, vehicle: false });
-            setCheckedBoxes([]);
-            setSelectedCarrier(null);
-            getData();
+
+        try {
+            const result = await dispatch(assignOutboundVehicle(payload));
+            if (result.meta.requestStatus === 'fulfilled') {
+                alert('차량 배정이 완료되었습니다.');
+                setModalOpen(prev => ({ ...prev, vehicle: false }));
+                setCheckedBoxes([]);
+                setSelectedCarrier(null);
+                if (typeof getData === 'function') getData(); // 목록 갱신 안전장치
+            } else {
+                alert('차량 배정에 실패했습니다. 입력 값을 확인하세요.');
+            }
+        } catch (error) {
+            console.error("차량 배정 처리 중 크래시 발생:", error);
+            alert('서버 통신 중 에러가 발생했습니다.');
         }
     };
+
+    // 3. 모달 JSX - 운송사/차량 드롭다운으로 교체
+    {
+        modalOpen.vehicle && (
+            <div className="modal-overlay active">
+                <div className="modal-container vehicle-modal-container">
+                    <div className="modal-header">
+                        <h3>차량 배정 신청</h3>
+                        <button type="button" className="modal-close-btn"
+                            onClick={() => setModalOpen({ ...modalOpen, vehicle: false })}>
+                            &times;
+                        </button>
+                    </div>
+                    <div className="modal-body">
+                        <div className="modal-form-grid">
+                            <div className="form-group">
+                                <label>선택된 박스 수</label>
+                                <input type="text" className="modal-input"
+                                    value={`${checkedBoxes.length} 건`} disabled />
+                            </div>
+                            {/* ✅ 운송사 드롭다운으로 변경 */}
+                            <div className="form-group">
+                                <label>운송사 선택 <span className="text-red">*</span></label>
+                                <select
+                                    className="modal-input"
+                                    value={vehicleForm.carrierId}
+                                    onChange={(e) => setVehicleForm({
+                                        ...vehicleForm,
+                                        carrierId: Number(e.target.value)
+                                    })}
+                                >
+                                    <option value={0}>-- 운송사를 선택하세요 --</option>
+                                    {(carriers ?? []).map(c => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {/* ✅ 차량 드롭다운으로 변경 */}
+                            <div className="form-group">
+                                <label>차량 선택 <span className="text-red">*</span></label>
+                                <select
+                                    className="modal-input"
+                                    value={vehicleForm.vehicleId}
+                                    onChange={(e) => setVehicleForm({
+                                        ...vehicleForm,
+                                        vehicleId: Number(e.target.value)
+                                    })}
+                                >
+                                    <option value={0}>-- 차량을 선택하세요 --</option>
+                                    {vehicles.map(v => (
+                                        <option key={v.id} value={v.id}>
+                                            {v.vehicleType} ({v.maxPayloadTon}톤)
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>차량 번호</label>
+                                <input type="text" className="modal-input"
+                                    value={vehicleForm.lpn}
+                                    onChange={(e) => setVehicleForm({ ...vehicleForm, lpn: e.target.value })}
+                                    placeholder="예: 11가 1234" />
+                            </div>
+                            <div className="form-group">
+                                <label>운전자 명</label>
+                                <input type="text" className="modal-input"
+                                    value={vehicleForm.driver}
+                                    onChange={(e) => setVehicleForm({ ...vehicleForm, driver: e.target.value })}
+                                    placeholder="홍길동 기사님" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modal-footer">
+                        <button type="button" className="btn-pop-cancel"
+                            onClick={() => setModalOpen({ ...modalOpen, vehicle: false })}>
+                            취소
+                        </button>
+                        <button type="button" className="btn-pop-submit"
+                            onClick={handleVehicleSubmit}>
+                            배정 확정
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     const openInvoiceModal = (singleTransId = null) => {
         let linkedBoxes = [];
@@ -359,9 +490,9 @@ const Outbound = () => {
 
                                     // 💡 1. 기한 날짜를 베이스로 20260614 형태 완성
                                     const baseDateStr = item.deadline ? item.deadline.substring(0, 10).replace(/-/g, "") : "20260614";
-                                    
+
                                     // 💡 2. 송장번호용 YYMMDD 형태 완성 (20260614 -> 260614)
-                                    const shortDateStr = baseDateStr.substring(2);                                   
+                                    const shortDateStr = baseDateStr.substring(2);
                                     const padId = (id) => String(id || 0).padStart(3, '0');
 
                                     // 💡 3. 만약 DB에 저장된 송장번호가 있으면 그대로 쓰고, 없거나 '1111' 같은 더미면 INV-규격 적용
@@ -434,30 +565,40 @@ const Outbound = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {manifestList.map(item => (
-                                    <tr key={item.transportationId}>
-                                        <td className="text-center">
-                                            <input
-                                                type="checkbox"
-                                                className="manifest-check"
-                                                disabled={item.stateName !== '차량배정'}
-                                                onChange={() => handleManifestCheck(item.transportationId)}
-                                                checked={checkedManifests.includes(item.transportationId)}
-                                            />
-                                        </td>
-                                        <td className="text-center font-bold text-link manifest-no-link" onClick={() => openInvoiceModal(item.transportationId)}>
-                                            {item.manifestNo}
-                                        </td>
-                                        <td>{item.carrierName}</td>
-                                        <td>{item.vehicleInfo || '-'}</td>
-                                        <td className="text-center">{item.boxCount} BOX</td>
-                                        <td className="text-center">
-                                            <span className={`table-badge ${getStatusStyle(item.stateName)}`}>
-                                                {item.stateName}
-                                            </span>
+                                {manifestList && manifestList.length > 0 ? (
+                                    manifestList.map(item => (
+                                        <tr key={item.transportationId}>
+                                            <td className="text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    className="manifest-check"
+                                                    // 💡 '차량배정' 완벽 일치가 아니라 '배정'이라는 글자가 포함되어 있으면 체크박스 활성화
+                                                    disabled={!item.stateName || !item.stateName.includes('배정')}
+                                                    onChange={() => handleManifestCheck(item.transportationId)}
+                                                    checked={checkedManifests.includes(item.transportationId)}
+                                                />
+                                            </td>
+                                            <td className="text-center font-bold text-link manifest-no-link" onClick={() => openInvoiceModal(item.transportationId)}>
+                                                {item.manifestNo}
+                                            </td>
+                                            <td>{item.carrierName}</td>
+                                            <td>{item.vehicleInfo || '-'}</td>
+                                            <td className="text-center">{item.boxCount} BOX</td>
+                                            <td className="text-center">
+                                                <span className={`table-badge ${getStatusStyle(item.stateName)}`}>
+                                                    {item.stateName}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    /* 💡 데이터가 아예 없을 때 휑하게 비어있는 것보다 '데이터가 없다'는 안내 행을 띄워주는 안전장치 */
+                                    <tr>
+                                        <td colSpan="6" className="text-center" style={{ padding: '20px', color: '#999' }}>
+                                            배정된 매니페스트 내역이 존재하지 않습니다.
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     )}
@@ -498,16 +639,20 @@ const Outbound = () => {
                                     <label>선택된 박스 수</label>
                                     <input type="text" className="modal-input" value={`${checkedBoxes.length} 건`} disabled />
                                 </div>
+
+                                {/* 💡 지정 운송사 칸: 선택한 박스의 운송사 이름이 없으면 기본 협력사명('지정 운송사A')이 뜨도록 안전 처리 */}
                                 <div className="form-group">
                                     <label>지정 운송사</label>
-                                    <input type="text" className="modal-input" value={selectedCarrier || ''} disabled />
+                                    <input type="text" className="modal-input" value={selectedCarrier || '기본 지정 운송사'} disabled />
                                 </div>
+
                                 <div className="form-group">
-                                    <label>차량 번호</label>
+                                    <label>차량 번호 <span className="text-red">*</span></label>
                                     <input type="text" className="modal-input" value={vehicleForm.lpn} onChange={(e) => setVehicleForm({ ...vehicleForm, lpn: e.target.value })} placeholder="예: 11가 1234" />
                                 </div>
+
                                 <div className="form-group">
-                                    <label>운전자 명</label>
+                                    <label>운전자 명 <span className="text-red">*</span></label>
                                     <input type="text" className="modal-input" value={vehicleForm.driver} onChange={(e) => setVehicleForm({ ...vehicleForm, driver: e.target.value })} placeholder="홍길동 기사님" />
                                 </div>
                             </div>

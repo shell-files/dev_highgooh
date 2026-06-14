@@ -170,30 +170,52 @@ public class OutboundServiceImp implements OutboundService {
      * ※ 박스 탭에서 체크박스로 선택한 packing_id 목록을 수신
      * ※ 선택된 박스들은 동일 운송사 소속이어야 함 (프론트 selectedCarrier 가드로 제어 중)
      */
+    // OutboundServiceImp.java - assignVehicle() 메서드
+    // ✅ carrierId가 0이거나 없으면 즉시 실패 반환하는 가드 추가
+
     @Override
     public ResponseDTO assignVehicle(OutboundVehicleAssignDTO outboundVehicleAssignDTO) {
         boolean isSuccess = false;
         String message = null;
         Map<String, Object> request = new HashMap<>();
         try {
-            // 1. OUTBOUND_TRANSPORTATION INSERT (lpn, driver, carrier, vehicle, etd)
+            // ✅ 필수값 검증 가드 (FK NOT NULL 위반 사전 차단)
+            if (outboundVehicleAssignDTO.getCarrierId() <= 0) {
+                return ResponseDTO.builder()
+                        .status(false)
+                        .data(request)
+                        .message("운송사가 선택되지 않았습니다. 박스 선택 후 다시 시도해주세요.")
+                        .build();
+            }
+            if (outboundVehicleAssignDTO.getVehicleId() <= 0) {
+                return ResponseDTO.builder()
+                        .status(false)
+                        .data(request)
+                        .message("차량이 선택되지 않았습니다.")
+                        .build();
+            }
+            if (outboundVehicleAssignDTO.getPackingIds() == null
+                    || outboundVehicleAssignDTO.getPackingIds().isEmpty()) {
+                return ResponseDTO.builder()
+                        .status(false)
+                        .data(request)
+                        .message("배정할 박스를 선택해주세요.")
+                        .build();
+            }
+
             outboundDao.addTransportation(outboundVehicleAssignDTO);
             int transportationId = outboundVehicleAssignDTO.getTransportationId();
 
             if (transportationId > 0) {
                 List<Integer> packingIds = outboundVehicleAssignDTO.getPackingIds();
                 int updatedCount = 0;
-
-                // 🟢 [수정 1] DTO 대신 서비스단에서 '차량배정완료(21)' 상태 코드를 상수로 직접 지정합니다.
                 final int shippingReadyCode = 21;
 
-                // 2. 선택된 OUTBOUND_PACKING 각각 UPDATE
                 for (Integer packingId : packingIds) {
-                    updatedCount += outboundDao.updatePackingTransportation(packingId, transportationId,
-                            shippingReadyCode);
+                    updatedCount += outboundDao.updatePackingTransportation(
+                            packingId, transportationId, shippingReadyCode);
                 }
 
-                // 3. 부분 실패 감지 (Inbound 패턴 동일)
                 if (updatedCount == packingIds.size()) {
                     isSuccess = true;
                     message = "차량 배정이 완료되었습니다.";
@@ -205,7 +227,7 @@ public class OutboundServiceImp implements OutboundService {
             }
         } catch (Exception e) {
             log.info("OutboundServiceImp assignVehicle error : {}", e.getMessage());
-            message = "차량 배정에 실패했습니다.";
+            message = "차량 배정에 실패했습니다. (" + e.getMessage() + ")";
         }
         return ResponseDTO.builder()
                 .status(isSuccess)

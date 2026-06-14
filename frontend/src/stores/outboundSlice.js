@@ -8,6 +8,9 @@ const initialState = {
   modalMode: 'detail',
   detailData: null,
 
+  carriers: [],
+  vehicles: [],
+
   view: {
     summary: {
       expectedToday: 0,
@@ -28,6 +31,17 @@ const initialState = {
 // ─────────────────────────────────────
 // 1. 비동기 Thunk 액션 정의
 // ─────────────────────────────────────
+
+export const getOutboundFormData = createAsyncThunk(
+  'outbound/formData',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await GET('/outbound');
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
 
 // 박스 및 매니페스트 데이터 목록 동적 획득
 export const getOutboundList = createAsyncThunk(
@@ -89,8 +103,21 @@ export const confirmOutboundShipment = createAsyncThunk(
   }
 );
 
+export const getOutboundManifestList = createAsyncThunk(
+  'outbound/manifestList',
+  async (filters, { rejectWithValue }) => {
+    try {
+      return await POST('/outbound/manifest', filters);
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
 const outboundAsyncActions = [
+  getOutboundFormData,
   getOutboundList,
+  getOutboundManifestList,
   getOutboundDetail,
   assignOutboundVehicle,
   issueOutboundInvoice,
@@ -110,12 +137,44 @@ const outboundSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getOutboundFormData.fulfilled, (state, action) => {
+        console.log("폼 데이터", action.payload);
+
+        const res = action.payload;
+
+        if (res && res.status === true) {
+          state.carriers = res.data?.carriers || [];
+          state.vehicles = res.data?.vehicles || [];
+        } else {
+          state.error = res?.message || "폼 데이터 조회 실패";
+        }
+
+        state.loading = false;
+      })
+
+      .addCase(getOutboundManifestList.fulfilled, (state, action) => {
+        const res = action.payload;
+
+        if (res?.status) {
+          state.view.manifestList = res.data?.list || [];
+
+          state.view.page =
+            res.data?.pagination?.page || 1;
+
+          state.view.totalCount =
+            res.data?.pagination?.totalCount || 0;
+
+          state.view.totalPages =
+            res.data?.pagination?.totalPages || 1;
+        }
+
+        state.loading = false;
+      })
+
       // 1) 박스 / 매니페스트 목록 조회 성공 시
       .addCase(getOutboundList.fulfilled, (state, action) => {
         // 💡 F12 콘솔창에서 백엔드가 준 진짜 데이터의 형태를 확인하는 로그입니다.
-        console.log("=========================================");
-        console.log("★ 백엔드가 프론트에 준 실시간 데이터(action.payload) ★ :", action.payload);
-        console.log("=========================================");
+        console.log("폼 데이터", action.payload);
 
         const res = action.payload;
 
@@ -124,6 +183,7 @@ const outboundSlice = createSlice({
           state.view.list = res.data?.list || [];
           state.view.boxList = res.data?.list || [];
           state.view.manifestList = res.data?.list || [];
+
 
           // 페이지네이션 규격 연동
           state.view.page = res.data?.pagination?.page || 1;
