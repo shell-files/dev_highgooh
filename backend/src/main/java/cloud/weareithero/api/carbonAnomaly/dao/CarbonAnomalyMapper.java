@@ -45,7 +45,39 @@ public interface CarbonAnomalyMapper {
                     """)
     List<CarbonAnomalyYesterdayDTO> getYesterdayPipeline(@Param("yesterdayStr") String yesterdayStr);
 
+    // @Select("""
+    //     <script>
+    //         SELECT
+    //             al.id,
+    //             pm.process,
+    //             al.anomaly_score AS anomaly_score,
+    //             cc.name AS state,
+    //             al.create_at AS create_at,
+    //             pce.direct_emission AS direct_emission,
+    //             pm.proper_direct_emission AS proper_direct_emission,
+    //             pce.electricity_used AS electricity_used,
+    //             pm.proper_electricity_used AS proper_electricity_used,
+    //             pce.indirect_emission AS indirect_emission,
+    //             pm.proper_indirect_emission AS proper_indirect_emission
+    //         FROM ANOMALY_LOG al
+    //         JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
+    //         JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
+    //         JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
+    //         JOIN COMMON_CODE cc ON cc.id = al.state_code
+    //         <where>
+    //         <if test="calculatedStartDate != null and calculatedEndDate != null">
+    //             AND pd.process_start <![CDATA[ >= ]]> #{calculatedStartDate}
+    //             AND pd.process_start <![CDATA[ < ]]> #{calculatedEndDate}
+    //         </if>
+    //         </where>
+    //         ORDER BY al.create_at DESC
+    //         LIMIT #{limit} OFFSET #{offset}
+    //     </script>
+    //     """)
+    // List<CarbonAnomalyDTO> selectAnomalyList(CarbonAnomalyRequestDTO dto);
+
     @Select("""
+    <script>
         <![CDATA[
             SELECT
                 al.id, pm.process, al.anomaly_score AS anomaly_score,
@@ -62,37 +94,6 @@ public interface CarbonAnomalyMapper {
             JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
             JOIN COMMON_CODE cc ON cc.id = al.state_code
             WHERE 1 = 1
-                <script>
-                    SELECT
-                        al.id,
-                        pm.process,
-                        al.anomaly_score AS anomaly_score,
-                        cc.name AS state,
-                        al.create_at AS create_at,
-                        pce.direct_emission AS direct_emission,
-                        pm.proper_direct_emission AS proper_direct_emission,
-                        pce.electricity_used AS electricity_used,
-                        pm.proper_electricity_used AS proper_electricity_used,
-                        pce.indirect_emission AS indirect_emission,
-                        pm.proper_indirect_emission AS proper_indirect_emission
-                    FROM ANOMALY_LOG al
-                    JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
-                    JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
-                    JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
-                    JOIN COMMON_CODE cc ON cc.id = al.state_code
-                    WHERE 1 = 1
-                    <if test="dto.calculatedStartDate != null and dto.calculatedEndDate != null">
-                        AND pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
-                        AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
-                    </if>
-                    ORDER BY al.create_at DESC
-                    LIMIT #{dto.limit} OFFSET #{dto.offset}
-                </script>
-            """)
-
-    List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
-
-    @Select("""
         ]]>
         <if test="dto.year != null and dto.year != ''">
             AND YEAR(pd.process_start) = #{dto.year}
@@ -108,8 +109,8 @@ public interface CarbonAnomalyMapper {
             LIMIT #{dto.limit} OFFSET #{dto.offset}
         ]]>
     </script>
-""")
-List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
+    """)
+    List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
 
     @Select("""
             <script>
