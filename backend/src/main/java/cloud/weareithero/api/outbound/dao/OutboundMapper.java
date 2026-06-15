@@ -134,7 +134,7 @@ public interface OutboundMapper {
               `op`.`packing_invoice_number`        AS `packingInvoiceNumber`,
               `op`.`outbound_id`                   AS `outboundId`,
               `pcm`.`name`                         AS `customerName`,
-              `carrier`.`id`                       AS `carrierId`,
+              `op`.`partner_company_id`            AS `carrierId`,
               `carrier`.`name`                     AS `carrierName`,
               `op`.`invoice_number`                AS `invoiceNumber`,
               `op`.`state_code`                    AS `stateCode`,
@@ -150,7 +150,7 @@ public interface OutboundMapper {
             LEFT JOIN `OUTBOUND_TRANSPORTATION` `ot`
               ON `op`.`outbound_transportation_id` = `ot`.`id`
             LEFT JOIN `PARTNER_COMPANY_MASTER` `carrier`
-              ON `ot`.`partner_company_id` = `carrier`.`id`
+              ON `op`.`partner_company_id` = `carrier`.`id`
             JOIN `COMMON_CODE` `cc`
               ON `op`.`state_code` = `cc`.`id`
           """
@@ -317,6 +317,7 @@ public interface OutboundMapper {
           """ +
       "<where>" +
       "   `ot`.`state_code` IS NOT NULL " +
+      " AND `ot`.`state_code` &lt; 23 " +
       "<if test='stateCode != null and stateCode != 0'>" +
       " AND `ot`.`state_code` = #{stateCode} " +
       "</if>" +
