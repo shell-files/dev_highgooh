@@ -26,8 +26,8 @@ const processAnomalyData = (backendList) => {
       icon = "⚠";
     } else if (item.anomaly_score >= 10) {
       level = "저위험";
-      levelColor = "#F9A825";
-      bgColor = "#FFFDE7";
+      levelColor = "#c2a216";
+      bgColor = "#FFFBEB";
       icon = "-";
     } else {
       // 10 미만인 경우 (정상)
