@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import '@styles/packing.css';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,33 +36,29 @@ const PackingSummary = ({ summary, isCurrentMonth }) => {
 // ==========================================
 // 2. 하위 컴포넌트: 검색 필터 바 (PackingFilter)
 // ==========================================
-const PackingFilter = ({ filters, setFilters, onSearch, onReset }) => {
-  const handleChange = (field, value) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
-  };
-
+const PackingFilter = ({ onSearch, onReset, orderStartRef, orderEndRef, orderIdRef, customerRef, statusRef }) => {
   return (
     <div className="filter-wrapper-card">
       <form className="search-filter-grid" onSubmit={onSearch}>
         <div className="filter-group group-date-range">
           <label>주문 기간</label>
           <div className="date-range-container">
-            <input type="date" className="filter-control" value={filters.start} onChange={(e) => handleChange('start', e.target.value)} />
+            <input type="date" className="filter-control" ref={orderStartRef} defaultValue={getFirstDay()} />
             <span className="date-separator">~</span>
-            <input type="date" className="filter-control" value={filters.end} onChange={(e) => handleChange('end', e.target.value)} />
+            <input type="date" className="filter-control" ref={orderEndRef} defaultValue={getLastDayOfMonth()} />
           </div>
         </div>
         <div className="filter-group">
           <label>주문번호 검색</label>
-          <input type="text" className="filter-control" value={filters.orderId} onChange={(e) => handleChange('orderId', e.target.value)} />
+          <input type="text" className="filter-control" ref={orderIdRef} />
         </div>
         <div className="filter-group">
           <label>고객사 검색</label>
-          <input type="text" className="filter-control" value={filters.customer} onChange={(e) => handleChange('customer', e.target.value)} />
+          <input type="text" className="filter-control" ref={customerRef} />
         </div>
         <div className="filter-group">
           <label htmlFor="search_status">진행 상태</label>
-          <select id="search_status" className="filter-control" value={filters.status} onChange={(e) => handleChange('status', e.target.value)}>
+          <select id="search_status" className="filter-control" ref={statusRef} defaultValue="">
             <option value="">전체 상태</option>
             <option value="9">신규</option>
             <option value="19">패킹중</option>
@@ -77,7 +73,6 @@ const PackingFilter = ({ filters, setFilters, onSearch, onReset }) => {
     </div>
   );
 }
-
 
 // ==========================================
 // 3. 하위 컴포넌트: 메인 테이블 리스트 (PackingTable)
@@ -99,7 +94,7 @@ const PackingTable = ({ orders, onRowClick, view }) => {
   };
 
   return (
-    <div className="content-card">
+    <div className="content-card" style={{ marginTop: '1rem' }}>
       <div className="table-responsive">
         <table className="order-data-table">
           <thead>
@@ -219,7 +214,6 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip, cu
             </tbody>
           </table>
 
-          {/* QR 코드 시각화 영역 */}
           <div className="qr-visualization-zone" style={{ textAlign: 'center', margin: '12px 0', padding: '8px', background: '#f8fafc', borderRadius: '6px' }}>
             <div style={{ background: 'white', padding: '10px', display: 'inline-block', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
               <QRCodeSVG
@@ -230,9 +224,6 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip, cu
                 level={"H"}
                 includeMargin={false}
               />
-            </div>
-            <div style={{ fontSize: '0.7rem', marginTop: '6px', color: '#4a5568', wordBreak: 'break-all' }}>
-              {/* QR 링크: <span style={{ color: '#007bff' }}>{qrUrl}</span> */}
             </div>
           </div>
           <div style={{ height: '5px' }}></div>
@@ -251,7 +242,7 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
   if (!isOpen || !orderData) return null;
   const isInvoiceGenerationDisabled = orderData.status === '패킹중' || orderData.status === '패킹완료';
   return (
-    <div className={`modal-overlay ${isOpen ? 'active' : ''}`}>
+    <div className={`modal-overlay ${isOpen ? 'active' : ''}`} id="packingDetailModal" onClick={(e) => { if (e.target.id === 'packingDetailModal') onClose(); }}>
       <div className="modal-container" style={{ width: '980px', maxWidth: '95%' }}>
         <div className="modal-header">
           <h3>주문 계약 상세 내역</h3>
@@ -315,7 +306,6 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
             </div>
           </div>
         </div>
-        {/* 모달 푸터 영역 */}
         <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
           {invoicePreviews.length > 0 && (
             <button type="button" className="btn-filter-search"
@@ -334,51 +324,68 @@ const PackingDetailModal = ({ isOpen, orderId, orderData, carrierList, carrier, 
 // 메인 페이지 컴포넌트 (기본 내보내기)
 // ==========================================
 const Packing = () => {
-  const [filters, setFilters] = useState({ start: getFirstDay(), end: getLastDayOfMonth(), orderId: '', customer: '', status: '' });
-  const [appliedDates, setAppliedDates] = useState({ start: getFirstDay(), end: getLastDayOfMonth() });
+  const dispatch = useDispatch();
+
+  // 검색 제어를 위한 useRef 선언
+  const orderStartRef = useRef(null);
+  const orderEndRef = useRef(null);
+  const orderIdRef = useRef(null);
+  const customerRef = useRef(null);
+  const statusRef = useRef(null);
+
+  // 요약 카드 뱃지 판별용 상태변수
+  const [firstDate, setFirstDate] = useState(getFirstDay());
+  const [endDate, setEndDate] = useState(getLastDayOfMonth());
+
+  // 모달 내부 상태 관리 변수들
   const [carrier, setCarrier] = useState('');
   const [invoicePreviews, setInvoicePreviews] = useState([]);
   const [currentSlipIdx, setCurrentSlipIdx] = useState(0);
 
-  const dispatch = useDispatch();
-  const { view, isModal, detailData, loading } = useSelector(state => state.packing);
+  const { view, isModal, detailData } = useSelector(state => state.packing);
   const { page, size } = view;
 
-  const fetchPackingData = (targetPage = page) => {
-    const processedEnd = filters.end ? addOneDay(filters.end) : '';
-    const stepCode = filters.status ? Number(filters.status) : '';
+  // 단일 진입 데이터 조회 로직 (getData)
+  const getData = () => {
+    const startVal = orderStartRef.current?.value || "";
+    const endVal = orderEndRef.current?.value || "";
 
-    dispatch(getPacking({
-      orderId: filters.orderId ? Number(filters.orderId) : 0,
-      orderStart: filters.start,
-      orderEnd: processedEnd,
-      partnerName: filters.customer,
-      stepCode: stepCode,
-      page: targetPage,
-      size
-    }));
+    // 시작일/종료일 검증 문맥 교차 필터링
+    if ((startVal !== "" && endVal === "") || (startVal === "" && endVal !== "")) {
+      showDefaultAlert("오류", "주문 기간 검색을 완성하거나 초기화 후 검색해주세요.", "error");
+      return;
+    }
 
-    setAppliedDates({
-      start: filters.start,
-      end: filters.end
-    });
+    const params = { page, size };
+
+    if (orderIdRef.current?.value) params.orderId = Number(orderIdRef.current.value);
+    if (customerRef.current?.value) params.partnerName = customerRef.current.value;
+    if (statusRef.current?.value) params.stepCode = Number(statusRef.current.value);
+
+    if (startVal !== "") {
+      params.orderStart = startVal;
+      setFirstDate(startVal);
+    }
+    if (endVal !== "") {
+      params.orderEnd = addOneDay(endVal);
+      setEndDate(endVal);
+    }
+
+    dispatch(getPacking(params));
   };
 
-  // 페이지 변경 시 데이터 호출
+  // 선언적 생명주기 관리: page, isModal 상태 변화에 연동
   useEffect(() => {
-    fetchPackingData(page);
-  }, [page]);
+    if (!isModal) {
+      getData();
+    }
+  }, [page, isModal]);
 
-  // 첫 로드 시 당월 데이터 자동 호출
-  useEffect(() => {
-    fetchPackingData(1);
-  }, []);
-
+  // 상세 모달 데이터 동기화
   useEffect(() => {
     if (detailData) {
-      // 신규(9)일 때는 빈 배열, 패킹중(19)/완료(20)일 때는 백엔드에서 온 packingDetail 주입
       setInvoicePreviews(detailData.packingDetail ?? []);
-      setCurrentSlipIdx(0); // 슬라이더 인덱스 첫 장으로 초기화
+      setCurrentSlipIdx(0);
     } else {
       setInvoicePreviews([]);
     }
@@ -396,7 +403,6 @@ const Packing = () => {
     setCarrier('');
     setInvoicePreviews([]);
     setCurrentSlipIdx(0);
-    fetchPackingData(page);
   };
 
   const handleGenerateInvoice = () => {
@@ -426,16 +432,12 @@ const Packing = () => {
           .then((r) => {
             setInvoicePreviews(r.payload?.data?.packingDetail ?? []);
           });
-        fetchPackingData(page);
       }
     });
   };
 
-  // 전체 송장 일괄 출력 핸들러 함수
   const handlePrintAllInvoices = () => {
     const totalCount = invoicePreviews.length;
-    const keyListStr = invoicePreviews.map(inv => inv.id).join('\n - ');
-
     showDefaultAlert("[바코드 스풀러 인쇄 명령 수신]", `총 ${totalCount}개의 낱개 송장라벨 출력을 시작합니다.`, "success");
   };
 
@@ -444,26 +446,34 @@ const Packing = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchPackingData(1);
+    if (page === 1) getData(); else dispatch(setPage(1));
   };
 
   const handleResetFilter = () => {
-    const defaultStart = getFirstDay();
-    const defaultEnd = getLastDayOfMonth();
+    if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
+    if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
+    if (orderIdRef.current) orderIdRef.current.value = "";
+    if (customerRef.current) customerRef.current.value = "";
+    if (statusRef.current) statusRef.current.value = "";
 
-    setFilters({ start: defaultStart, end: defaultEnd, orderId: '', customer: '', status: '' });
-    dispatch(getPacking({ orderId: 0, orderStart: defaultStart, orderEnd: addOneDay(defaultEnd), partnerName: '', stepCode: '', page: 1, size: 20 }));
-
-    setAppliedDates({ start: defaultStart, end: defaultEnd });
+    if (page === 1) getData(); else dispatch(setPage(1));
   };
 
-  const isCurrentMonth = appliedDates.start === getFirstDay() && appliedDates.end === getLastDayOfMonth();
+  const isCurrentMonth = getFirstDay() === firstDate && getLastDayOfMonth() === endDate;
 
   return (
     <div id="packing-page">
-      <div className="page-header-flex"><h2 className="page-title">패킹</h2></div>
+      <div className="page-header-flex"><h2 className="page-title">패킹 관리</h2></div>
       <PackingSummary summary={view.summary} isCurrentMonth={isCurrentMonth} />
-      <PackingFilter filters={filters} setFilters={setFilters} onSearch={handleSearchSubmit} onReset={handleResetFilter} />
+      <PackingFilter
+        onSearch={handleSearchSubmit}
+        onReset={handleResetFilter}
+        orderStartRef={orderStartRef}
+        orderEndRef={orderEndRef}
+        orderIdRef={orderIdRef}
+        customerRef={customerRef}
+        statusRef={statusRef}
+      />
       <PackingTable orders={view.list} onRowClick={openOrderDetailModal} view={view} />
       <PackingDetailModal
         isOpen={isModal}
