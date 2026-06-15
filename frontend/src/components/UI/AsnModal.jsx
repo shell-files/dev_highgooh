@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { GET, POST, PUT } from "@utils/Network";
 import '@styles/asn.css';
 import { useDispatch, useSelector } from "react-redux";
-import { closeAsnModal, addAsnModal } from '@stores/asnSlice';
+import { closeAsnModal, addAsnModal, completeAsn } from '@stores/asnSlice';
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
+import { getNow } from '@stores/date';
 
 /**
  * AsnModal
@@ -28,13 +29,11 @@ const AsnModal = () => {
   const warehouses = useSelector((state) => state.asn.modal.warehouses);
   const materials = useSelector((state) => state.asn.modal.materials);
 
-  const [asn, setAsn] = useState({
-    partnerCompany: 0,
-    eta: '',
-    warehouse: 0,
-    vehicleNumber: ''
-  });
+  const [asn, setAsn] = useState({ partnerCompany: 0, eta: '', warehouse: 0, vehicleNumber: '' });
   const [asnMaterials, setAsnMaterials] = useState([]);
+
+  const [isAtaModal, setIsAtaModal] = useState(false);
+  const [ata, setAta] = useState('');
 
   /* ── 상세 모드: initialData 로 폼 채우기 ── */
   useEffect(() => {
@@ -205,11 +204,58 @@ const AsnModal = () => {
             <button className="btn-pop-cancel" onClick={setModal}>
               {isDetail ? '닫기' : '취소'}
             </button>
+            {/* 입고예정일 때만 버튼 노출 */}
+            {isDetail && initialData?.asn?.step === '입고예정' && (
+              <button className="btn-pop-submit" onClick={() => {
+                setAta(getNow());
+                setIsAtaModal(true);
+              }}>
+                입고 완료 처리
+              </button>
+            )}
             {!isDetail && (
-              <button className="btn-pop-submit" onClick={addAsn}>ASN 등록</button>)}
+              <button className="btn-pop-submit" onClick={addAsn}>ASN 등록</button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* ATA 입력 모달 */}
+      {isAtaModal && (
+        <div className="modal-overlay2 active" onClick={() => setIsAtaModal(false)}>
+          <div className="modal-window" style={{ width: '400px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>실제 입고 시각 입력</h3>
+              <button className="modal-close-btn" onClick={() => setIsAtaModal(false)}>&times;</button>
+            </div>
+            <div className="modal-body">
+              <div className="input-box">
+                <label>실제 입고 시각 (ATA)</label>
+                <input
+                  type="datetime-local"
+                  className="filter-date-input"
+                  value={ata}
+                  onChange={(e) => setAta(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-pop-cancel" onClick={() => setIsAtaModal(false)}>취소</button>
+              <button className="btn-pop-submit" onClick={() => {
+                if (!ata) {
+                  showDefaultAlert("오류", "입고 시각을 입력해주세요.", "error");
+                  return;
+                }
+                dispatch(completeAsn({
+                  asnId: initialData.asn.asnId,
+                  ata: ata + ':00' // "2026-06-15T14:30:00" 형식
+                }));
+                setIsAtaModal(false);
+              }}>확인</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
