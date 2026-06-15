@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
-import { POST, PUT } from "@utils/Network";
+import { POST, PUT, PATCH } from "@utils/Network";
 
 const initialState = {
   loading: false,
@@ -49,7 +49,18 @@ export const addPackingInvoice = createAsyncThunk(
   }
 );
 
-const packingAsyncActions = [getPacking, getPackingDetail, addPackingInvoice];
+export const completePacking = createAsyncThunk(
+  'packing/complete',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      return await PATCH(`/packing/${credentials.packingInvoiceNumber}`);
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+const packingAsyncActions = [getPacking, getPackingDetail, addPackingInvoice, completePacking];
 
 const packingSlice = createSlice({
   name: 'packing',
