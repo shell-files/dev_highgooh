@@ -46,6 +46,22 @@ public interface CarbonAnomalyMapper {
     List<CarbonAnomalyYesterdayDTO> getYesterdayPipeline(@Param("yesterdayStr") String yesterdayStr);
 
     @Select("""
+        <![CDATA[
+            SELECT
+                al.id, pm.process, al.anomaly_score AS anomaly_score,
+                cc.name AS state, al.create_at AS create_at,
+                pce.direct_emission AS direct_emission,
+                pm.proper_direct_emission AS proper_direct_emission,
+                pce.electricity_used AS electricity_used,
+                pm.proper_electricity_used AS proper_electricity_used,
+                pce.indirect_emission AS indirect_emission,
+                pm.proper_indirect_emission AS proper_indirect_emission
+            FROM ANOMALY_LOG al
+            JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
+            JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
+            JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
+            JOIN COMMON_CODE cc ON cc.id = al.state_code
+            WHERE 1 = 1
                 <script>
                     SELECT
                         al.id,
@@ -77,6 +93,27 @@ public interface CarbonAnomalyMapper {
     List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
 
     @Select("""
+        ]]>
+        <if test="dto.year != null and dto.year != ''">
+            AND YEAR(pd.process_start) = #{dto.year}
+        </if>
+        <if test="dto.month != null and dto.month != ''">
+            AND MONTH(pd.process_start) = #{dto.month}
+        </if>
+        <if test="dto.quarter != null and dto.quarter != ''">
+            AND QUARTER(pd.process_start) = #{dto.quarter}
+        </if>
+        <![CDATA[
+            ORDER BY al.create_at DESC
+            LIMIT #{dto.limit} OFFSET #{dto.offset}
+        ]]>
+    </script>
+""")
+List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
+
+    @Select("""
+            <script>
+                <![CDATA[
                 <script>
                     SELECT
                         pm.process AS process,
@@ -92,14 +129,24 @@ public interface CarbonAnomalyMapper {
                     JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
                     JOIN COMMON_CODE cc ON al.state_code = cc.id
                     WHERE 1 = 1
-                    <if test="dto.calculatedStartDate != null and dto.calculatedEndDate != null">
-                        AND pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
-                        AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
-                    </if>
+
+                ]]>
+                <if test="dto.year != null and dto.year != ''">
+                    AND YEAR(pd.process_start) = #{dto.year}
+                </if>
+                <if test="dto.month != null and dto.month != ''">
+                    AND MONTH(pd.process_start) = #{dto.month}
+                </if>
+                <if test="dto.quarter != null and dto.quarter != ''">
+                    AND QUARTER(pd.process_start) = #{dto.quarter}
+                </if>
+                <![CDATA[
                     GROUP BY pm.id, pm.process
                     ORDER BY pm.id ASC
-                </script>
+                ]]>
+            </script>
             """)
+
     List<CarbonAnomalyCountDTO> selectAnomalyCount(@Param("dto") CarbonAnomalyRequestDTO dto);
 
     @Update("""

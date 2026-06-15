@@ -21,12 +21,9 @@ public class CarbonAnomalyRequestDTO {
     private String month;
 
     // 페이징 파라미터 추가
-    private Integer page = 1;     // 프론트에서 수신 (디폴트: 1페이지)
+    private Integer page = 1; 
     
     // MyBatis SQL에서 사용할 계산된 변수들
-    private Integer limit = 10;   // 한 페이지에 보여줄 개수 (10개 고정)
+    private Integer limit = 10;
     private Integer offset;       // DB에서 건너뛸 행의 개수
-    
-    private LocalDateTime calculatedStartDate;
-    private LocalDateTime calculatedEndDate;
 }
