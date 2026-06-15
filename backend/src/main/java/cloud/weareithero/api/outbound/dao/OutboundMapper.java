@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
+import cloud.weareithero.api.outbound.dto.OutboundClientDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
@@ -49,46 +50,28 @@ public interface OutboundMapper {
   @Select("<script>" +
       """
           SELECT
-            COUNT(DISTINCT `ob`.`id`) AS `total`,
-            SUM(CASE WHEN DATE(`ob`.`etd`) = CURDATE()
-                          AND `ob`.`state_code` != 9
-                     THEN 1 ELSE 0 END) AS `expectedToday`,
-            SUM(CASE WHEN EXISTS (
-                       SELECT 1
-                       FROM `OUTBOUND_PACKING` `op2`
-                       JOIN `OUTBOUND_TRANSPORTATION` `ot2`
-                         ON `op2`.`outbound_transportation_id` = `ot2`.`id`
-                       WHERE `op2`.`outbound_id` = `ob`.`id`
-                         AND DATE(`ot2`.`atd`) = CURDATE()
-                     ) THEN 1 ELSE 0 END) AS `confirmedToday`,
+            SUM(CASE WHEN `op`.`state_code` = 20 THEN 1 ELSE 0 END) AS `unassigned`,
+            SUM(CASE WHEN `op`.`state_code` = 21 THEN 1 ELSE 0 END) AS `vehicleReady`,
+            SUM(CASE WHEN `op`.`state_code` = 22 THEN 1 ELSE 0 END) AS `waitingOut`,
             SUM(CASE WHEN DATEDIFF(`ob`.`deadline`, CURDATE()) BETWEEN 0 AND 3
-                          AND `ob`.`state_code` != 9
-                     THEN 1 ELSE 0 END) AS `nearDeadline`,
+                          AND `op`.`state_code` != 22
+                    THEN 1 ELSE 0 END) AS `nearDeadline`,
             SUM(CASE WHEN `ob`.`deadline` &lt; CURDATE()
-                          AND `ob`.`state_code` != 9
-                     THEN 1 ELSE 0 END) AS `overdue`,
-            SUM(CASE WHEN EXISTS (
-                       SELECT 1
-                       FROM `OUTBOUND_PACKING` `op3`
-                       WHERE `op3`.`outbound_id` = `ob`.`id`
-                         AND `op3`.`outbound_transportation_id` IS NULL
-                     ) THEN 1 ELSE 0 END) AS `unassigned`
-          FROM `OUTBOUND` `ob`
-          JOIN `PARTNER_COMPANY_MASTER` `pcm`
-            ON `ob`.`partner_company_id` = `pcm`.`id`
+                          AND `op`.`state_code` != 22
+                    THEN 1 ELSE 0 END) AS `overdue`
+          FROM `OUTBOUND_PACKING` `op`
+          JOIN `OUTBOUND` `ob` ON `op`.`outbound_id` = `ob`.`id`
+          JOIN `PARTNER_COMPANY_MASTER` `pcm` ON `ob`.`partner_company_id` = `pcm`.`id`
           """ +
       "<where>" +
-      "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
-      " AND `ob`.`order_date` BETWEEN #{orderStart} AND #{orderEnd} " +
+      "<if test='clientId != null and clientId != 0'>" +
+      " AND `ob`.`partner_company_id` = #{clientId} " +
       "</if>" +
       "<if test='outboundId != null and outboundId != 0'>" +
-      " AND `ob`.`id` LIKE CONCAT('%', #{outboundId}, '%') " +
+      " AND `ob`.`id` = #{outboundId} " +
       "</if>" +
       "<if test='customerName != null and customerName != \"\"'>" +
       " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
-      "</if>" +
-      "<if test='stateCode != null and stateCode != 0'>" +
-      " AND `ob`.`state_code` = #{stateCode} " +
       "</if>" +
       "</where>" +
       "</script>")
@@ -157,9 +140,24 @@ public interface OutboundMapper {
       +
       "<where>" +
       " AND `op`.`state_code` = 20 " +
+      "<if test='stateCode != null and stateCode != 0'>" +
+      " AND `op`.`state_code` = #{stateCode} " +      // ← state_code 동적화
+      "</if>" +
       "<if test='customerName != null and customerName != \"\"'>" +
       " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
       "</if>" +
+      "<if test='carrierId != null and carrierId != 0'>" +
+      " AND `op`.`partner_company_id` = #{carrierId} " + // ← 운송사 필터
+      "</if>" +
+      "<if test='packingId != null and packingId != 0'>" +
+      " AND `op`.`id` = #{packingId} " +                 // ← 박스번호 필터
+      "</if>" +
+      "<if test='clientId != null and clientId != 0'>" +    // ← 추가
+      " AND `ob`.`partner_company_id` = #{clientId} " +     // ← 추가
+      "</if>" + 
+      "<if test='outboundId != null and outboundId != 0'>" +  // ← 추가
+      " AND `ob`.`id` = #{outboundId} " +                     // ← 추가
+      "</if>" +                                                  // ← 추가
       "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
       " AND `ob`.`order_date` BETWEEN #{orderStart} AND #{orderEnd} " +
       "</if>" +
@@ -321,6 +319,12 @@ public interface OutboundMapper {
       "<if test='stateCode != null and stateCode != 0'>" +
       " AND `ot`.`state_code` = #{stateCode} " +
       "</if>" +
+      "<if test='carrierId != null and carrierId != 0'>" +
+      " AND `ot`.`partner_company_id` = #{carrierId} " +     // ← 운송사 필터
+      "</if>" +
+      "<if test='transportationId != null and transportationId != 0'>" +
+      " AND `ot`.`id` = #{transportationId} " +              // ← 매니페스트번호 필터
+      "</if>" +
       "<if test='customerName != null and customerName != \"\"'>" +
       " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
       "</if>" +
@@ -474,4 +478,67 @@ public interface OutboundMapper {
   public int updateTransportationConfirm(@Param("transportationId") int transportationId,
       @Param("stateCode") int stateCode);
 
+  @Select("""
+    SELECT
+      `op`.`id`                        AS `packingId`,
+      `op`.`packing_invoice_number`    AS `packingInvoiceNumber`,
+      `op`.`invoice_number`            AS `invoiceNumber`,
+      `op`.`state_code`                AS `stateCode`,
+      `cc`.`name`                      AS `stateName`
+    FROM `OUTBOUND_PACKING` `op`
+    JOIN `COMMON_CODE` `cc` ON `op`.`state_code` = `cc`.`id`
+    WHERE `op`.`outbound_transportation_id` = #{transportationId}
+    ORDER BY `op`.`id` ASC
+    """)
+  public List<OutboundPackingDTO> findPackingsByTransportationId(int transportationId);
+
+  @Select("""
+      SELECT
+        `id`    AS `clientId`,
+        `name`  AS `clientName`
+      FROM `PARTNER_COMPANY_MASTER`
+      WHERE `customer_yn_code` = 1
+      ORDER BY `name` ASC
+      """)
+  public List<OutboundClientDTO> findByClient();
+
+  @Select("<script>" +
+    """
+        SELECT COUNT(*)
+        FROM `OUTBOUND_PACKING` `op`
+        JOIN `OUTBOUND` `ob` ON `op`.`outbound_id` = `ob`.`id`
+        JOIN `PARTNER_COMPANY_MASTER` `pcm` ON `ob`.`partner_company_id` = `pcm`.`id`
+        """ +
+        "<where>" +
+        " AND `op`.`state_code` = 20 " +
+        "<if test='outboundId != null and outboundId != 0'>" +
+        " AND `ob`.`id` = #{outboundId} " +
+        "</if>" +
+        "<if test='customerName != null and customerName != \"\"'>" +
+        " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
+        "</if>" +
+        "<if test='clientId != null and clientId != 0'>" +
+        " AND `ob`.`partner_company_id` = #{clientId} " +
+        "</if>" +
+        "</where>" +
+        "</script>")
+  public int countAll(OutboundRequestDTO outboundRequestDTO);
+
+
+  @Update("""
+      UPDATE `OUTBOUND_TRANSPORTATION`
+      SET `state_code` = 22, `updated_at` = NOW()
+      WHERE `id` = #{transportationId}
+      """)
+  public int updateTransportationStateTo22(@Param("transportationId") int transportationId);
+
+  @Update("""
+    UPDATE `OUTBOUND_PACKING`
+    SET `state_code` = #{stateCode}, `updated_at` = NOW()
+    WHERE `outbound_transportation_id` = #{transportationId}
+    """)
+  public int updatePackingStateByTransportationId(
+      @Param("transportationId") int transportationId,
+      @Param("stateCode") int stateCode
+  );
 }

@@ -29,4 +29,15 @@ public class OutboundRequestDTO extends PageRequestDTO {
     @Schema(description = "주문 종료일 (OUTBOUND.order_date 기준)", defaultValue = "", example = "")
     private String orderEnd;
 
+    @Schema(description = "고객사 ID (PARTNER_COMPANY_MASTER.id, 0이면 전체)", defaultValue = "0", example = "0")
+    private int clientId;
+    
+    @Schema(description = "운송사 ID (PARTNER_COMPANY_MASTER.id, 0이면 전체)", defaultValue = "0", example = "0")
+    private int carrierId;
+
+    @Schema(description = "박스 ID (OUTBOUND_PACKING.id, 0이면 전체)", defaultValue = "0", example = "0")
+    private int packingId;
+
+    @Schema(description = "매니페스트 ID (OUTBOUND_TRANSPORTATION.id, 0이면 전체)", defaultValue = "0", example = "0")
+    private int transportationId;
 }
