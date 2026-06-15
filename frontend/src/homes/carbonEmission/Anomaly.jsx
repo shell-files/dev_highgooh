@@ -36,7 +36,7 @@ const Anomaly = () => {
     const matchedOption = actionOptions.find(opt => opt.label === log.state?.trim());
     setModalStatus(matchedOption ? matchedOption.value : "15");
     setIsModalOpen(true);
-    
+
   };
   // 상태 변경 모달 닫기 함수
   const closeStatusModal = () => {
@@ -60,17 +60,20 @@ const Anomaly = () => {
   const fetchData = (page = 1) => {
     const offset = (page - 1) * 10;
     const param = {
-      selectedYear,
-      selectedQuarter,
-      selectedMonth,
+      selectedYear: (selectedYear === "all" || selectedYear === "") ? '' : selectedYear,
+      selectedQuarter: (selectedQuarter === "" || selectedQuarter === "all") ? '' : selectedQuarter,
+      selectedMonth: (selectedMonth === "" || selectedMonth === "all") ? '' : selectedMonth,
       page: page,
       limit: 10,
       offset: offset
     };
 
+
+
     POST("/anomaly", param).then(res => {
       if (res && res.status === true) {
         setLogs(processAnomalyData(res.data.list));
+        console.log(processAnomalyData(res.data.list));
 
         //차트데이터
         const stats = res.data.stats;
@@ -396,7 +399,7 @@ const Anomaly = () => {
                   setSelectedMonth("");
                 }}
               >
-                <option value="all">전체</option>
+                <option value="">전체</option>
                 <option value="2026">2026년</option>
                 <option value="2025">2025년</option>
                 <option value="2024">2024년</option>
@@ -405,14 +408,14 @@ const Anomaly = () => {
             </div>
           </div>
 
-          {selectedYear !== "all" && (
+          {selectedYear !== "" && (
             <>
               {/* 분기 선택 영역 */}
               <div className="toggle-group-item id_quarter">
                 <div className="select_label"><label>분기 선택</label></div>
                 <div className="toggle-content">
                   {[
-                    { code: "all", name: "전체" },
+                    { code: "", name: "전체" },
                     { code: "1", name: "1분기" },
                     { code: "2", name: "2분기" },
                     { code: "3", name: "3분기" },
@@ -499,7 +502,19 @@ const Anomaly = () => {
                   <td className="text-center">{log.metrics}</td>
                   <td className="text-center">{log.score}</td>
                   <td className="text-center">
-                    <span style={{ color: log.levelColor, fontWeight: 600 }}>{log.level}</span>
+                    <span style={{
+                      backgroundColor: log.bgColor,
+                      color: log.levelColor,
+                      fontWeight: 600,
+                      padding: '4px 10px', 
+                      borderRadius: '12px', 
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px', 
+                      fontSize: '0.9em'
+                    }}>
+                      {log.icon} {log.level}
+                    </span>
                   </td>
                   <td className="text-center">
                     <button
