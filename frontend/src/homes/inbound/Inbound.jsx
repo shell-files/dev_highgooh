@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { POST } from "@utils/Network";
 import '@styles/inbound.css';
 import { getFirstDay, getLastDayOfMonth, addOneDay } from '@stores/date';
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 const InboundModal = ({ detailData, isModal, setModal }) => {
     const inbound = detailData?.inbound;
@@ -143,7 +144,7 @@ const Inbound = () => {
         }
 
         if (params?.orderStart !== "" && params?.orderEnd === "") {
-            alert("입고일자 검색을 완성하거나 초기화 후 검색해주세요.");
+            showDefaultAlert("오류", "입고일자 검색을 완성하거나 초기화 후 검색해주세요.", "error");
             return;
         }
 
