@@ -74,9 +74,9 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
+          showDefaultAlert("로그인 완료", "회원 인증이 완료되었습니다.", "success");
           state.isAuthReady = true;
           state.redirectUrl = "/";
-          // showDefaultAlert("로그인 완료", "회원 인증이 완료되었습니다.", "success");
         } else {
           state.isAuthReady = false;
           state.redirectUrl = "/";
