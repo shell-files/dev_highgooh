@@ -25,16 +25,15 @@ const Asn = () => {
   const totalPages = useSelector((state) => state.asn.view.totalPages);
   const size = useSelector((state) => state.asn.view.size);
 
-  const [firstDate, setFirstDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [firstDate, setFirstDate] = useState(getFirstDay());
+  const [endDate, setEndDate] = useState(getLastDayOfMonth());
 
 
   const resetResearch = () => {
     if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
     if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
-    if (asnRef.current) asnRef.current.value = null;
-    // 초기 데이터 로드 호출
-    getData();
+    if (asnRef.current) asnRef.current.value = "";
+    if (page === 1) getData(); else dispatch(setPage(1));
   }
 
   const openAsnDetailModal = async (id) => {
@@ -42,57 +41,44 @@ const Asn = () => {
     dispatch(getAsnDetail(params));
   };
 
-  /* ── 검색 / 목록 조회 ── */
   const searchEvent = (e) => {
     e.preventDefault();
-    getData();
+    if (page === 1) getData(); else dispatch(setPage(1));
   };
 
   const getData = () => {
+    const startVal = orderStartRef.current?.value || "";
+    const endVal = orderEndRef.current?.value || "";
+
+    if ((startVal !== "" && endVal === "") || (startVal === "" && endVal !== "")) {
+      showDefaultAlert("오류", "입고일자 검색을 완성하거나 초기화 후 검색해주세요.", "error");
+      return;
+    }
+
     const params = { page, size };
 
-    if (asnRef.current?.value) params.asnId = asnRef.current.value;
+    if (asnRef.current !== null) params.asnId = asnRef.current.value;
 
-    if (orderStartRef.current?.value) {
-      params.orderStart = orderStartRef.current.value;
-      setFirstDate(params.orderStart)
+    if (startVal !== "") {
+      params.orderStart = startVal;
+      setFirstDate(startVal);
     }
 
-    if (orderEndRef.current?.value) {
-      params.orderEnd = addOneDay(orderEndRef.current.value);
-      setEndDate(orderEndRef.current.value)
-    }
-
-    if (params.orderStart && !params.orderEnd) {
-      showDefaultAlert("오류", "주문 기간이 필요합니다.", "error");
-      return;
+    if (endVal !== "") {
+      params.orderEnd = addOneDay(endVal);
+      setEndDate(endVal);
     }
 
     dispatch(getAsn(params));
   };
 
   useEffect(() => {
-    if (!isModal) {
-      getData();
-    }
+    if (!isModal) getData();
   }, [page, isModal]);
-
-
-  useEffect(() => {
-
-    // input 엘리먼트에 초기값 주입
-    if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
-    if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
-
-    // 초기 데이터 로드 호출
-    getData();
-  }, []);
-
 
   // 팬딩
   // if (loading) return <></>;
 
-  /* ── 렌더링 ── */
   return (
     <div id="asn-page">
       <div id="asn-management-page" className="page-content active">
@@ -149,9 +135,9 @@ const Asn = () => {
             <div className="filter-group group-date-range">
               <label>주문 기간</label>
               <div className="date-range-container">
-                <input type="date" className="filter-control" ref={orderStartRef} />
+                <input type="date" className="filter-control" ref={orderStartRef} defaultValue={getFirstDay()} />
                 <span className="date-separator">~</span>
-                <input type="date" className="filter-control" ref={orderEndRef} />
+                <input type="date" className="filter-control" ref={orderEndRef} defaultValue={getLastDayOfMonth()} />
               </div>
             </div>
             <div className="filter-group">
@@ -185,8 +171,7 @@ const Asn = () => {
                 </tr>
               </thead>
               <tbody>
-                {list.length === 0 ? (<tr>
-                  <td colSpan={7} className="text-center" style={{ padding: '2rem', color: 'gray' }}>조회된 데이터가 없습니다.</td></tr>) :
+                {list.length === 0 ? (<tr><td colSpan={7} className="text-center" style={{ padding: '2rem', color: 'gray' }}>조회된 데이터가 없습니다.</td></tr>) :
                   list?.map(v => (
                     <tr key={v.asnId}>
                       <td>{v.orderDate}</td>
