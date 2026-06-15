@@ -24,7 +24,7 @@ const initialState = {
     page: 1,
     totalCount: 0,
     totalPages: 0,
-    size: 20           // 기본 페이징 스펙 규격 동기화
+    size: 10           // 기본 페이징 스펙 규격 동기화
   }
 };
 
@@ -107,6 +107,7 @@ export const getOutboundManifestList = createAsyncThunk(
   'outbound/manifestList',
   async (filters, { rejectWithValue }) => {
     try {
+      console.log(await POST('/outbound/manifest', filters))
       return await POST('/outbound/manifest', filters);
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -138,7 +139,7 @@ const outboundSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getOutboundFormData.fulfilled, (state, action) => {
-        console.log("폼 데이터", action.payload);
+        // console.log("폼 데이터", action.payload);
 
         const res = action.payload;
 
@@ -174,7 +175,7 @@ const outboundSlice = createSlice({
       // 1) 박스 / 매니페스트 목록 조회 성공 시
       .addCase(getOutboundList.fulfilled, (state, action) => {
         // 💡 F12 콘솔창에서 백엔드가 준 진짜 데이터의 형태를 확인하는 로그입니다.
-        console.log("폼 데이터", action.payload);
+        // console.log("폼 데이터", action.payload);
 
         const res = action.payload;
 

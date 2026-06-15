@@ -74,6 +74,7 @@ const Outbound = () => {
             customer: customerRef.current?.value || '',
             stateCode: stateCodeRef.current?.value ? Number(stateCodeRef.current.value) : null
         };
+        console.log(filters)
         if (viewMode === 'box') {
             dispatch(getOutboundList(filters));
         } else {
@@ -89,13 +90,13 @@ const Outbound = () => {
         dispatch(getOutboundFormData());
     }, [dispatch]);
 
-    useEffect(() => {
-        console.log("boxList", boxList);
-    }, [boxList]);
+    // useEffect(() => {
+    //     console.log("boxList", boxList);
+    // }, [boxList]);
 
-    useEffect(() => {
-        console.log("manifestList", manifestList);
-    }, [manifestList]);
+    // useEffect(() => {
+    //     console.log("manifestList", manifestList);
+    // }, [manifestList]);
 
     // 탭 전환 핸들러
     const handleViewModeChange = (mode) => {
@@ -124,11 +125,11 @@ const Outbound = () => {
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays < 0) {
-            return <span className="text-red font-bold">{datePart} (납기지연)</span>;
+            return <span className="text-red">D+{Math.abs(diffDays)} (지연)</span>;
         } else if (diffDays === 0) {
-            return <span className="text-orange font-bold">{datePart} (오늘마감)</span>;
+            return <span className="text-orange">D-{diffDays} (금일)</span>;
         } else {
-            return <span>{datePart} (D-{diffDays})</span>;
+            return <span>D-{diffDays}</span>;
         }
     };
 
@@ -203,6 +204,7 @@ const Outbound = () => {
         setModalOpen(prev => ({ ...prev, vehicle: true }));
     };
 
+    console.log(modalOpen.invoice)
     // 💡 2. 차량 배정 서브밋 핸들러 (중복 선언 원천 차단)
     const handleVehicleSubmit = async () => {
         if (!vehicleForm.lpn || !vehicleForm.lpn.trim()) return alert('차량 번호를 입력해주세요.');
@@ -337,20 +339,26 @@ const Outbound = () => {
                 targetManifests = checkedManifests;
             }
 
-            // 💡 boxList 상태를 안전하게 순회하여 연결된 상자를 추적합니다.
-            linkedBoxes = boxList
-                .filter(box => targetManifests.includes(box.transportationId))
-                .map(box => box.packingId);
+            // ✅ manifestList에서 packingIds를 직접 꺼내도록 수정
+            targetManifests.forEach(transId => {
+                const manifest = manifestList.find(m => m.transportationId === transId);
+                if (manifest?.packingIds) {
+                    linkedBoxes.push(...manifest.packingIds);
+                } else {
+                    // packingIds가 없으면 transportationId 자체를 임시 식별자로 사용
+                    linkedBoxes.push(transId);
+                }
+            });
 
             if (linkedBoxes.length === 0) {
-                return alert('선택한 매니페스트에 배정된 리얼 박스 데이터 매핑 정보를 찾을 수 없습니다.');
+                return alert('선택한 매니페스트에 연결된 박스 정보를 찾을 수 없습니다.');
             }
         }
 
         setActiveInvoiceBoxes(linkedBoxes);
         setSelectedInvoiceBox(linkedBoxes[0]);
         setCurrentSlide(0);
-        setModalOpen({ ...modalOpen, invoice: true });
+        setModalOpen(prev => ({ ...prev, invoice: true })); // ✅ 버그 2도 같이 수정
     };
 
     const handleInvoiceSubmit = async () => {
@@ -488,13 +496,20 @@ const Outbound = () => {
                                     <th>고객사</th>
                                     <th>운송사</th>
                                     <th>상태</th>
-                                    <th>송장번호</th>
+                                    {/* <th>송장번호</th> */}
                                 </tr>
                             </thead>
                             <tbody>
                                 {boxList.map((item) => {
                                     const isCarrierDisabled = selectedCarrier !== null && selectedCarrier !== item.carrierName;
-                                    const isDisabled = item.transportationId !== null || isCarrierDisabled;
+
+                                    const isAlreadyAssigned = item.transportationId !== null;
+
+                                    // 다른 운송사가 선택된 상태인지 확인
+                                    const isCarrierMismatch = selectedCarrier !== null && selectedCarrier !== item.carrierName;
+
+                                    // 최종 활성화/비활성화 결정
+                                    const isDisabled = isAlreadyAssigned || isCarrierMismatch;
 
                                     // 💡 1. 기한 날짜를 베이스로 20260614 형태 완성
                                     const baseDateStr = item.deadline ? item.deadline.substring(0, 10).replace(/-/g, "") : "20260614";
@@ -525,13 +540,15 @@ const Outbound = () => {
                                             <td className="text-center">{formatDeadline(item.deadline)}</td>
 
                                             {/* 2. 주문번호 (이제 기한 날짜를 베이스로 에러 없이 실시간 렌더링) */}
-                                            <td className="text-center text-link font-bold" onClick={() => handleOrderDetailView(item.outboundId)}>
-                                                {`PO-${baseDateStr}-${padId(item.outboundId)}`}
+                                            <td className="text-center text-green font-bold"
+                                            // onClick={() => handleOrderDetailView(item.outboundId)}
+                                            >
+                                                {item.outboundId}
                                             </td>
 
                                             {/* 3. 박스번호 (더미 데이터 무시하고 무조건 BOX-YYYYMMDD-XXX 강제 적용) */}
                                             <td className="text-center font-bold text-green">
-                                                {`BOX-${baseDateStr}-${padId(item.packingId)}`}
+                                                {item.packingId}
                                             </td>
 
                                             {/* 4. 고객사 */}
@@ -548,13 +565,13 @@ const Outbound = () => {
                                             </td>
 
                                             {/* 7. 송장번호 (발행 전 '차량배정' 상태면 발행대기, 그 외엔 INV-YYMMDD-XXX 강제 적용) */}
-                                            <td className="text-center font-bold text-blue">
+                                            {/* <td className="text-center font-bold text-blue">
                                                 {item.stateName === '차량배정' ? (
                                                     <span className="text-gray-light">발행대기</span>
                                                 ) : (
                                                     displayInvoice
                                                 )}
-                                            </td>
+                                            </td> */}
                                         </tr>
                                     );
                                 })}
@@ -590,7 +607,7 @@ const Outbound = () => {
                                                 />
                                             </td>
                                             <td className="text-center font-bold text-link manifest-no-link" onClick={() => openInvoiceModal(item.transportationId)}>
-                                                {item.manifestNo}
+                                                {item.transportationId}
                                             </td>
                                             <td>{item.carrierName}</td>
                                             <td>{item.vehicleInfo || '-'}</td>
