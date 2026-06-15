@@ -12,6 +12,7 @@ import cloud.weareithero.api.carbonAnomaly.dao.CarbonAnomalyDao;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyCountDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyRequestDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyStateUpdateDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyYesterdayDTO;
 import cloud.weareithero.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -90,5 +91,11 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
                 .data(resultMap) 
                 .message(message)
                 .build();
+    }
+
+    @Override
+    public ResponseDTO updateAnomalyStatus(CarbonAnomalyStateUpdateDTO dto) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateAnomalyStatus'");
     }
 }
