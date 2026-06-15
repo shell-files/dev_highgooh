@@ -401,13 +401,11 @@ const Packing = () => {
 
   const handleGenerateInvoice = () => {
     if (!carrier) {
-      // alert('배송을 담당할 택배사/물류업체를 선택해 주세요.');
       showDefaultAlert("선택 오류", "배송을 담당할 택배사/물류업체를 선택해 주세요.", "error");
       return;
     }
     const items = detailData?.items ?? [];
     if (!items.length) {
-      // alert('출고 처리를 진행할 제품 정보가 존재하지 않습니다.');
       showDefaultAlert("오류", "출고 처리를 진행할 제품 정보가 존재하지 않습니다.", "error");
       return;
     }
