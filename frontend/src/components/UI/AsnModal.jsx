@@ -3,6 +3,7 @@ import { GET, POST, PUT } from "@utils/Network";
 import '@styles/asn.css';
 import { useDispatch, useSelector } from "react-redux";
 import { closeAsnModal, addAsnModal } from '@stores/asnSlice';
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
  
 /**
  * AsnModal
@@ -81,15 +82,17 @@ const AsnModal = () => {
  
   /* ── 등록 제출 ── */
   const addAsn = () => {
-    if (asn.partnerCompany === 0)  { alert("공급사명 선택하세요.");       return; }
-    if (asn.eta === '')            { alert("입고 예정 날짜를 선택하세요."); return; }
-    if (asn.warehouse === 0)       { alert("입고 창고를 선택하세요.");      return; }
+    if (asn.partnerCompany === 0)  { showDefaultAlert("오류", "공급사명을 선택하세요.", "error"); return; }
+    if (asn.eta === '')            { showDefaultAlert("오류", "입고 예정 날짜을 선택해주세요.", "error"); return; }
+    if (asn.warehouse === 0)       { showDefaultAlert("오류", "입고 창고을 선택해주세요.", "error"); return; }
  
     for (const material of asnMaterials) {
-      if (material.itemNo   === 0) { alert("품목 등록이 되어 있지 않습니다.");    return; }
-      if (material.weight   === 0) { alert("품목 무게가 등록되어 있지 않습니다."); return; }
-      if (material.diameter === 0) { alert("지름이 등록되어 있지 않습니다.");      return; }
+      if (material.itemNo   === 0) { showdefaultAlert("오류", "품목을 선택해주세요.", "error"); return; }
+      if (material.weight   === 0) { showDefaultAlert("오류", "품목 무게을 입력해주세요.", "error"); return; }
+      if (material.diameter === 0) { showDefaultAlert("오류", "지름을 입력해주세요.", "error"); return; }
     }
+
+    if (asnMaterials.length === 0) { showDefaultAlert("오류", "입고 품목을 추가해주세요.", "error"); return; }
  
     const params = {
       partnerCompanyId: asn.partnerCompany,

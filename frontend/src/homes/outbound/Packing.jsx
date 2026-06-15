@@ -14,7 +14,7 @@ const PackingSummary = ({ summary, isCurrentMonth }) => {
   return (
     <div className="order-summary-grid">
       <div className="summary-card-item">
-        <div className="card-info-left"><span className="summary-label">당월</span><span className="summary-value">{summary.total}<small>건</small></span></div>
+        <div className="card-info-left"><span className="summary-label">전체</span><span className="summary-value">{summary.total}<small>건</small></span></div>
         <div className="card-trend-right"><span className="status-badge bg-all-light text-muted">{trendText}</span></div>
       </div>
       <div className="summary-card-item">
