@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
 import { POST, PUT, PATCH } from "@utils/Network";
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 const initialState = {
   loading: false,
@@ -106,8 +107,7 @@ const packingSlice = createSlice({
       .addCase(addPackingInvoice.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
-          alert(res.message);
-          // state.isModal = false;
+          showDefaultAlert("송장 생성 완료", res.message, "success");
         } else {
           state.error = res.message;
         }
