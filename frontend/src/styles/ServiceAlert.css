@@ -3,6 +3,10 @@
   border-radius: 20px !important;
   padding: 2rem 1rem !important;
   font-family: 'Pretendard', sans-serif !important;
+  position: absolute !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 3000 !important;
 }
 
 /* 알럿 시 배경 밀림 방지 */
