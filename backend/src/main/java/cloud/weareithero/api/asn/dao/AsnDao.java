@@ -1,5 +1,6 @@
 package cloud.weareithero.api.asn.dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import cloud.weareithero.api.asn.dto.AsnDTO;
@@ -29,5 +30,9 @@ public interface AsnDao {
   public List<AsnWarehouseDTO> findByWarehouse();
 
   public List<AsnMaterialDTO> findByMaterial();
+
+  public int completeInbound(int asnId, LocalDateTime ata);
+
+  public int findStateCode(int asnId);
 
 }

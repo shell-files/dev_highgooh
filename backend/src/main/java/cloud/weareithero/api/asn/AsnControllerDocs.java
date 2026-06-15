@@ -1,6 +1,7 @@
 package cloud.weareithero.api.asn;
 
 import cloud.weareithero.api.asn.dto.AsnAddDTO;
+import cloud.weareithero.api.asn.dto.AsnCompleteDTO;
 import cloud.weareithero.api.asn.dto.AsnRequestDTO;
 import cloud.weareithero.docs.ApiCommonErrors;
 import cloud.weareithero.docs.ApiCommonSuccess;
@@ -12,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "ASN 관리", description = "ASN 목록 조회 · ASN 생성 · ASN 상세 조회 API")
+@Tag(name = "ASN 관리", description = "ASN 목록 조회 · ASN 생성 · ASN 상세 조회 · 입고 완료 처리 API")
 public interface AsnControllerDocs {
 
   @Operation(summary = "입고 내역 조회", description = "ASN API")
@@ -40,5 +41,13 @@ public interface AsnControllerDocs {
   @ApiCommonSuccess
   @ApiCommonErrors
   public ResponseDTO findAllAsn();
+
+  @Operation(summary = "입고 완료 처리", description = "ASN API")
+  @ApiCommonSuccess
+  @ApiCommonErrors
+  public ResponseDTO completeInbound(
+      @RequestBody(content = @Content(schema = @Schema(implementation = AsnCompleteDTO.class), examples={
+          @ExampleObject(name = "입고 완료 예시", value = AsnResponseExamples.COMPLETE_ASN_DEFAULT, description = "입고번호와 실제 입고 시각을 입력합니다."),
+      })) AsnCompleteDTO asnCompleteDTO);
 
 }

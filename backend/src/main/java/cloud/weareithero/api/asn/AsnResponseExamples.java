@@ -38,5 +38,11 @@ public interface AsnResponseExamples {
         "size": 20
       }
       """;
+  final String COMPLETE_ASN_DEFAULT = """
+      {
+        "asnId": 1,
+        "ata": "2026-06-15T14:30:00"
+      }
+      """;
 
 }
