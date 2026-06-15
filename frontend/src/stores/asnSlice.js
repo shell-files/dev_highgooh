@@ -15,7 +15,7 @@ const initialState = {
     page: 1,
     totalCount: 0,
     totalPages: 0,
-    size: 10
+    size: 20
   },
   modal: {
     partnerCompany: [],
@@ -130,7 +130,8 @@ const asnSlice = createSlice({
       .addCase(addAsnModal.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
-          alert("사전입고 통지(ASN)가 등록되었습니다.");
+          // alert("사전입고 통지(ASN)가 등록되었습니다.");
+          showDefaultAlert("등록 완료", "사전입고 통지(ASN)가 등록되었습니다.", "success");
           state.isModal = false;
         }else {
           state.error = res.message;

@@ -4,6 +4,7 @@ import AsnModal from '@components/UI/AsnModal';
 import { useDispatch, useSelector } from "react-redux";
 import { getAsn, getAsnDetail, getAsnModal, openAsnModal, setPage } from '@stores/asnSlice';
 import { getFirstDay, getLastDayOfMonth, addOneDay } from '@stores/date';
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 const Asn = () => {
   const dispatch = useDispatch();
@@ -63,7 +64,7 @@ const Asn = () => {
     }
 
     if (params.orderStart && !params.orderEnd) {
-      alert("주문 기간이 필요합니다.");
+      showDefaultAlert("오류", "주문 기간이 필요합니다.", "error");
       return;
     }
 
@@ -184,25 +185,27 @@ const Asn = () => {
                 </tr>
               </thead>
               <tbody>
-                {list?.map(v => (
-                  <tr key={v.asnId}>
-                    <td>{v.orderDate}</td>
-                    <td>
-                      <a className="text-link" style={{ cursor: 'pointer' }} onClick={() => openAsnDetailModal(v.asnId)}>
-                        {v.asnId}
-                      </a>
-                    </td>
-                    <td>{v.partnerName}</td>
-                    <td>{v.warehouseName}</td>
-                    <td>{v.eta}</td>
-                    <td>{v.itemCount}건</td>
-                    <td>
-                      <span className={v.step === '입고예정' ? 'status-badge ready' : 'status-badge complete'}>
-                        {v.step}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {list.length === 0 ? (<tr>
+                  <td colSpan={7} className="text-center" style={{ padding: '2rem', color: 'gray' }}>조회된 데이터가 없습니다.</td></tr>) :
+                  list?.map(v => (
+                    <tr key={v.asnId}>
+                      <td>{v.orderDate}</td>
+                      <td>
+                        <a className="text-link" style={{ cursor: 'pointer' }} onClick={() => openAsnDetailModal(v.asnId)}>
+                          {v.asnId}
+                        </a>
+                      </td>
+                      <td>{v.partnerName}</td>
+                      <td>{v.warehouseName}</td>
+                      <td>{v.eta}</td>
+                      <td>{v.itemCount}건</td>
+                      <td>
+                        <span className={v.step === '입고예정' ? 'status-badge ready' : 'status-badge complete'}>
+                          {v.step}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
