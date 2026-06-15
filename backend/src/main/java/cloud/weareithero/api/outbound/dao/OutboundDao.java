@@ -3,6 +3,7 @@ package cloud.weareithero.api.outbound.dao;
 import java.util.List;
 
 import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
+import cloud.weareithero.api.outbound.dto.OutboundClientDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
@@ -50,4 +51,16 @@ public interface OutboundDao {
     /** OUTBOUND_TRANSPORTATION 출고확정 UPDATE (state_code + atd) */
     public int updateTransportationConfirm(int transportationId, int stateCode);
 
+    /** 매니페스트에 속한 박스 목록 (transportationId 기준) */
+    public List<OutboundPackingDTO> findPackingsByTransportationId(int transportationId);
+
+    // 클라이언트 조회
+    public List<OutboundClientDTO> findByClient();
+
+    // 페이지네이션 토탈페이지
+    public int countAll(OutboundRequestDTO outboundRequestDTO);
+
+    public int updatePackingStateByTransportationId(int transportationId, int stateCode);
+
+    public int updateTransportationStateTo22(int transportationId);
 }

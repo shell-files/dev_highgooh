@@ -1301,10 +1301,18 @@
 
 #outbound-page .search-filter-grid {
     display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
+    gap: 1.5rem;
+    align-items: flex-end;
+}
+
+#outbound-page .search-filter-grid2 {
+    display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr auto;
     gap: 1.5rem;
     align-items: flex-end;
 }
+
 
 #outbound-page .filter-group {
     display: flex;

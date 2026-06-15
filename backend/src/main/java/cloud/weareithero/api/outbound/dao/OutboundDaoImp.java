@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
+import cloud.weareithero.api.outbound.dto.OutboundClientDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
 import cloud.weareithero.api.outbound.dto.OutboundManifestDTO;
 import cloud.weareithero.api.outbound.dto.OutboundPackingDTO;
@@ -86,4 +87,27 @@ public class OutboundDaoImp implements OutboundDao {
         return outboundMapper.updateTransportationConfirm(transportationId, stateCode);
     }
 
+    @Override
+    public List<OutboundPackingDTO> findPackingsByTransportationId(int transportationId) {
+        return outboundMapper.findPackingsByTransportationId(transportationId);
+    }
+    @Override
+    public List<OutboundClientDTO> findByClient() {
+        return outboundMapper.findByClient();
+    }
+
+    @Override
+    public int countAll(OutboundRequestDTO outboundRequestDTO) {
+        return outboundMapper.countAll(outboundRequestDTO);
+    }
+
+    @Override
+    public int updateTransportationStateTo22(int transportationId) {
+        return outboundMapper.updateTransportationStateTo22(transportationId);
+    }
+
+    @Override
+    public int updatePackingStateByTransportationId(int transportationId, int stateCode) {
+        return outboundMapper.updatePackingStateByTransportationId(transportationId, stateCode);
+    }
 }

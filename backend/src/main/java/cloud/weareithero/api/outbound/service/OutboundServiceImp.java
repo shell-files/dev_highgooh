@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import cloud.weareithero.api.outbound.dao.OutboundDao;
 import cloud.weareithero.api.outbound.dto.OutboundCarrierDTO;
+import cloud.weareithero.api.outbound.dto.OutboundClientDTO;
 import cloud.weareithero.api.outbound.dto.OutboundConfirmDTO;
 import cloud.weareithero.api.outbound.dto.OutboundDTO;
 import cloud.weareithero.api.outbound.dto.OutboundInvoiceDTO;
@@ -42,14 +43,16 @@ public class OutboundServiceImp implements OutboundService {
         boolean isSuccess = false;
         String message = null;
         Map<String, Object> request = new HashMap<>();
+        
         try {
             OutboundSummaryDTO summary = outboundDao.findSummary(outboundRequestDTO);
             List<OutboundPackingDTO> packingList = outboundDao.findAll(outboundRequestDTO);
+            int totalCount = outboundDao.countAll(outboundRequestDTO);  // ← 추가
             PaginationDTO pagination = PaginationDTO.builder()
-                    .page(outboundRequestDTO.getPage())
-                    .totalCount(summary.getTotal())
-                    .totalPages((int) Math.ceil((double) summary.getTotal() / outboundRequestDTO.getSize()))
-                    .build();
+                .page(outboundRequestDTO.getPage())
+                .totalCount(totalCount)                                                        // ← 수정
+                .totalPages((int) Math.ceil((double) totalCount / outboundRequestDTO.getSize())) // ← 수정
+                .build();
             request.put("summary", summary);
             request.put("list", packingList);
             request.put("pagination", pagination);
@@ -66,6 +69,7 @@ public class OutboundServiceImp implements OutboundService {
                 .build();
     }
 
+    
     /**
      * 주문 상세 조회
      * - OUTBOUND 헤더 (고객사, 주문일, 마감일, 상태)
@@ -140,8 +144,10 @@ public class OutboundServiceImp implements OutboundService {
         try {
             List<OutboundCarrierDTO> carriers = outboundDao.findByCarrier();
             List<OutboundTransportationVehicleDTO> vehicles = outboundDao.findByVehicle();
+            List<OutboundClientDTO> clients = outboundDao.findByClient();
             request.put("carriers", carriers);
             request.put("vehicles", vehicles);
+            request.put("clients", clients);
             isSuccess = true;
             message = "출고 폼 데이터 조회가 완료되었습니다.";
         } catch (Exception e) {
@@ -308,6 +314,27 @@ public class OutboundServiceImp implements OutboundService {
                 .build();
     }
 
+    @Override
+    public ResponseDTO findPackingsByTransportationId(int transportationId) {
+        boolean isSuccess = false;
+        String message = null;
+        Map<String, Object> request = new HashMap<>();
+        try {
+            List<OutboundPackingDTO> packings = outboundDao.findPackingsByTransportationId(transportationId);
+            request.put("list", packings);
+            isSuccess = true;
+            message = "박스 목록 조회가 완료되었습니다.";
+        } catch (Exception e) {
+            log.info("OutboundServiceImp findPackingsByTransportationId error : {}", e.getMessage());
+            message = "박스 목록 조회에 실패했습니다.";
+        }
+        return ResponseDTO.builder()
+                .status(isSuccess)
+                .data(request)
+                .message(message)
+                .build();
+    }
+
     /**
      * 출고 확정
      *
@@ -335,6 +362,7 @@ public class OutboundServiceImp implements OutboundService {
             int updatedCount = 0;
             for (Integer transportationId : transportationIds) {
                 updatedCount += outboundDao.updateTransportationConfirm(transportationId, STATE_CONFIRMED);
+                outboundDao.updatePackingStateByTransportationId(transportationId, STATE_CONFIRMED); // ← 이 줄 추가
             }
 
             if (updatedCount == transportationIds.size()) {
@@ -355,5 +383,32 @@ public class OutboundServiceImp implements OutboundService {
                 .message(message)
                 .build();
     }
+
+    @Override
+    public ResponseDTO issueInvoiceByTransportation(int transportationId) {
+        boolean isSuccess = false;
+        String message = null;
+        Map<String, Object> request = new HashMap<>();
+        try {
+            int packingResult = outboundDao.updatePackingStateByTransportationId(transportationId, 22);
+            int transResult = outboundDao.updateTransportationStateTo22(transportationId);
+
+            if (transResult > 0 && packingResult > 0) {
+                isSuccess = true;
+                message = "출고 대기 처리가 완료되었습니다.";
+            } else {
+                message = "처리에 실패했습니다. 상태를 확인해주세요.";
+            }
+        } catch (Exception e) {
+            log.info("OutboundServiceImp issueInvoiceByTransportation error : {}", e.getMessage());
+            message = "출고 대기 처리 중 오류가 발생했습니다.";
+        }
+        return ResponseDTO.builder()
+                .status(isSuccess)
+                .data(request)
+                .message(message)
+                .build();
+    }
+
 
 }

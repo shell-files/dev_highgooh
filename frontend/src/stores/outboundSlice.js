@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
-import { GET, POST, PUT } from "@utils/Network"; // 기존 작성 인프라 사용
+import { GET, POST, PUT, PATCH } from "@utils/Network";
 
 const initialState = {
   loading: false,
@@ -10,17 +10,19 @@ const initialState = {
 
   carriers: [],
   vehicles: [],
+  clients: [],
 
   view: {
     summary: {
-      expectedToday: 0,
-      confirmedToday: 0,
+      unassigned: 0,
+      vehicleReady: 0,
+      waitingOut: 0,
       nearDeadline: 0,
-      overdue: 0,
-      unassigned: 0
+      overdue: 0
     },
     boxList: [],       // 박스 탭 목록 데이터
     manifestList: [],  // 매니페스트 탭 목록 데이터
+    manifestPackings: [],
     page: 1,
     totalCount: 0,
     totalPages: 0,
@@ -36,6 +38,7 @@ export const getOutboundFormData = createAsyncThunk(
   'outbound/formData',
   async (_, { rejectWithValue }) => {
     try {
+      console.log(await GET('/outbound'));
       return await GET('/outbound');
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -48,6 +51,8 @@ export const getOutboundList = createAsyncThunk(
   'outbound/list',
   async (filters, { rejectWithValue }) => {
     try {
+
+      // console.log(await POST('/outbound', filters));
       return await POST('/outbound', filters);
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -80,11 +85,11 @@ export const assignOutboundVehicle = createAsyncThunk(
 );
 
 // 22번 고유 송장 발급 및 출력 마감 승인 공정
-export const issueOutboundInvoice = createAsyncThunk(
-  'outbound/issueInvoice',
-  async (payload, { rejectWithValue }) => {
+export const issueInvoiceByTransportation = createAsyncThunk(
+  'outbound/issueInvoiceByTransportation',
+  async (transportationId, { rejectWithValue }) => {
     try {
-      return await PUT('/outbound/invoice', payload);
+      return await PATCH(`/outbound/manifest/${transportationId}/issue`);
     } catch (error) {
       return rejectWithValue(error.response?.data);
     }
@@ -115,14 +120,28 @@ export const getOutboundManifestList = createAsyncThunk(
   }
 );
 
+export const getManifestPackings = createAsyncThunk(
+  'outbound/manifestPackings',
+  async (transportationId, { rejectWithValue }) => {
+    try {
+      return await GET(`/outbound/manifest/${transportationId}/packings`);
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+
+
 const outboundAsyncActions = [
   getOutboundFormData,
   getOutboundList,
   getOutboundManifestList,
+  getManifestPackings,
   getOutboundDetail,
   assignOutboundVehicle,
-  issueOutboundInvoice,
-  confirmOutboundShipment
+  confirmOutboundShipment,
+  issueInvoiceByTransportation
 ];
 
 // ─────────────────────────────────────
@@ -146,6 +165,7 @@ const outboundSlice = createSlice({
         if (res && res.status === true) {
           state.carriers = res.data?.carriers || [];
           state.vehicles = res.data?.vehicles || [];
+          state.clients = res.data?.clients || [];
         } else {
           state.error = res?.message || "폼 데이터 조회 실패";
         }
@@ -172,6 +192,14 @@ const outboundSlice = createSlice({
         state.loading = false;
       })
 
+      .addCase(getManifestPackings.fulfilled, (state, action) => {
+        const res = action.payload;
+        if (res?.status) {
+          state.view.manifestPackings = res.data?.list || [];
+        }
+        state.loading = false;
+      })
+
       // 1) 박스 / 매니페스트 목록 조회 성공 시
       .addCase(getOutboundList.fulfilled, (state, action) => {
         // 💡 F12 콘솔창에서 백엔드가 준 진짜 데이터의 형태를 확인하는 로그입니다.
@@ -183,7 +211,7 @@ const outboundSlice = createSlice({
           // 백엔드의 res.data.list 데이터를 boxList와 manifestList에 유연하게 매핑합니다.
           state.view.list = res.data?.list || [];
           state.view.boxList = res.data?.list || [];
-          state.view.manifestList = res.data?.list || [];
+          // state.view.manifestList = res.data?.list || [];
 
 
           // 페이지네이션 규격 연동
@@ -223,17 +251,6 @@ const outboundSlice = createSlice({
         state.loading = false;
       })
 
-      // 4) 송장 인쇄 공정 피드백 알림
-      .addCase(issueOutboundInvoice.fulfilled, (state, action) => {
-        const res = action.payload;
-        if (res && res.status === true) {
-          alert('선택된 박스들의 송장 마감 및 공정 채번이 완료되었습니다.');
-        } else {
-          alert(res?.message || '송장 처리 중 문제가 발생했습니다.');
-        }
-        state.loading = false;
-      })
-
       // 5) 최종 출고 확정 피드백 알림
       .addCase(confirmOutboundShipment.fulfilled, (state, action) => {
         const res = action.payload;
@@ -241,6 +258,17 @@ const outboundSlice = createSlice({
           alert('선택한 매니페스트 단위 출고가 최종 확정 마감되었습니다.');
         } else {
           alert(res?.message || '출고 확정 공정 처리 실패');
+        }
+        state.loading = false;
+      })
+
+      // 4) 송장 발급 피드백 알림
+      .addCase(issueInvoiceByTransportation.fulfilled, (state, action) => {
+        const res = action.payload;
+        if (res && res.status === true) {
+          alert('송장 발급이 완료되었습니다.');
+        } else {
+          alert(res?.message || '송장 발급 처리 실패');
         }
         state.loading = false;
       });
