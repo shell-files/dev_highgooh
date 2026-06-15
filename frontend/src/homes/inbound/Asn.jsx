@@ -25,16 +25,15 @@ const Asn = () => {
   const totalPages = useSelector((state) => state.asn.view.totalPages);
   const size = useSelector((state) => state.asn.view.size);
 
-  const [firstDate, setFirstDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [firstDate, setFirstDate] = useState(getFirstDay());
+  const [endDate, setEndDate] = useState(getLastDayOfMonth());
 
 
   const resetResearch = () => {
     if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
     if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
-    if (asnRef.current) asnRef.current.value = null;
-    // 초기 데이터 로드 호출
-    getData();
+    if (asnRef.current) asnRef.current.value = "";
+    if (page === 1) getData(); else dispatch(setPage(1));
   }
 
   const openAsnDetailModal = async (id) => {
@@ -45,7 +44,7 @@ const Asn = () => {
   /* ── 검색 / 목록 조회 ── */
   const searchEvent = (e) => {
     e.preventDefault();
-    getData();
+    if (page === 1) getData(); else dispatch(setPage(1));
   };
 
   const getData = () => {
@@ -78,15 +77,15 @@ const Asn = () => {
   }, [page, isModal]);
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    // input 엘리먼트에 초기값 주입
-    if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
-    if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
+  //   // input 엘리먼트에 초기값 주입
+  //   if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
+  //   if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
 
-    // 초기 데이터 로드 호출
-    getData();
-  }, []);
+  //   // 초기 데이터 로드 호출
+  //   getData();
+  // }, []);
 
 
   // 팬딩
@@ -149,9 +148,9 @@ const Asn = () => {
             <div className="filter-group group-date-range">
               <label>주문 기간</label>
               <div className="date-range-container">
-                <input type="date" className="filter-control" ref={orderStartRef} />
+                <input type="date" className="filter-control" ref={orderStartRef} defaultValue={getFirstDay()} />
                 <span className="date-separator">~</span>
-                <input type="date" className="filter-control" ref={orderEndRef} />
+                <input type="date" className="filter-control" ref={orderEndRef} defaultValue={getLastDayOfMonth()} />
               </div>
             </div>
             <div className="filter-group">
