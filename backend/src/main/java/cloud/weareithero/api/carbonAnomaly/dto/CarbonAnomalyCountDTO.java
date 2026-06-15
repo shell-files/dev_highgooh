@@ -9,4 +9,8 @@ import lombok.AllArgsConstructor;
 public class CarbonAnomalyCountDTO {
     private String process;
     private long anomaly_count;
+    private long actioned_count;
+    private long actioning_count;
+    private long waiting_count;
+
 }

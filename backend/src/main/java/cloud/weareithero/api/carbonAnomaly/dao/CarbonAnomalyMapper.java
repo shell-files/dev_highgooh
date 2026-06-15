@@ -4,8 +4,11 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyRequestDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyStateUpdateDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyYesterdayDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyCountDTO;
 
@@ -65,19 +68,34 @@ public interface CarbonAnomalyMapper {
     List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
 
     @Select("""
-        <script>
-            SELECT pm.process AS process, COUNT(al.id) AS anomaly_count
-            FROM ANOMALY_LOG al
-            JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
-            JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
-            JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
-            WHERE pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
-              AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
-            GROUP BY pm.process
-            ORDER BY pm.id ASC
-        </script>
-    """)
+    <script>
+        SELECT 
+            pm.process AS process, 
+            (SUM(CASE WHEN cc.name = '조치완료' THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN cc.name = '조치중' THEN 1 ELSE 0 END) +
+            SUM(CASE WHEN cc.name = '조치대기' THEN 1 ELSE 0 END)) AS anomaly_count,
+            SUM(CASE WHEN cc.name = '조치완료' THEN 1 ELSE 0 END) AS actioned_count,
+            SUM(CASE WHEN cc.name = '조치중' THEN 1 ELSE 0 END) AS actioning_count,
+            SUM(CASE WHEN cc.name = '조치대기' THEN 1 ELSE 0 END) AS waiting_count
+        FROM ANOMALY_LOG al
+        JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
+        JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
+        JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
+        JOIN COMMON_CODE cc ON al.state_code = cc.id
+        WHERE pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
+          AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
+        GROUP BY pm.id, pm.process
+        ORDER BY pm.id ASC
+    </script>
+""")
     List<CarbonAnomalyCountDTO> selectAnomalyCount(@Param("dto") CarbonAnomalyRequestDTO dto);
+
+    @Update("""
+        UPDATE ANOMALY_LOG
+        SET state_code = #{dto.state_code}
+        WHERE id = #{dto.id}
+    """)
+    int updateAnomalyStatus(@Param("dto") CarbonAnomalyStateUpdateDTO dto);
 
     
 }
