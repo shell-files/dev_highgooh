@@ -32,7 +32,7 @@ export const getInboundDetail = createAsyncThunk(
   'inbound/detail',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await POST(`/inbound/${id}`);
+      const response = await POST(`/inbound/${credentials.asnId}`);
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data);
