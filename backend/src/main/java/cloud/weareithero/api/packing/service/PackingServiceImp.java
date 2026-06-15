@@ -126,12 +126,12 @@ public class PackingServiceImp implements PackingService {
 
     @Transactional
     @Override
-    public ResponseDTO completePacking(String invoiceId) {
+    public ResponseDTO completePacking(String packingInvoiceNumber) {
         boolean isSuccess = false;
         String message = null;
         try {
             // 1. 이미 완료된 패킹 송장인지 확인
-            int stateCode = packingDao.findPackingInvoiceStateCode(invoiceId);
+            int stateCode = packingDao.findPackingInvoiceStateCode(packingInvoiceNumber);
             if (stateCode == 20) {
                 message = "이미 패킹완료 처리된 송장입니다.";
                 return ResponseDTO.builder()
@@ -141,10 +141,10 @@ public class PackingServiceImp implements PackingService {
             }
 
             // 2. 패킹 송장 state_code 20(패킹완료)으로 변경
-            packingDao.updatePackingInvoiceStateCode(invoiceId);
+            packingDao.updatePackingInvoiceStateCode(packingInvoiceNumber);
 
             // 3. 해당 주문의 전체 송장이 완료됐는지 확인
-            int orderId = packingDao.findOrderIdByInvoiceId(invoiceId);
+            int orderId = packingDao.findOrderIdByInvoiceId(packingInvoiceNumber);
             int notCompletedCount = packingDao.countNotCompleted(orderId);
 
             // 4. 패킹 완료 메시지 작성, 전체 완료면 OUTBOUND도 20으로 변경 및 완료 메시지 작성
@@ -152,7 +152,7 @@ public class PackingServiceImp implements PackingService {
                 packingDao.updateOrderStateCode(orderId);
             }
             isSuccess = true;
-            message = notCompletedCount == 0 ? "송장 %s 패킹 완료 및 주문번호 %d 도 완료 처리되었습니다.".formatted(invoiceId, orderId) : "송장 %s 패킹 완료 처리되었습니다.".formatted(invoiceId);
+            message = notCompletedCount == 0 ? "송장 %s 및 주문번호 %d 패킹 완료 처리되었습니다.".formatted(packingInvoiceNumber, orderId) : "송장 %s 패킹 완료 처리되었습니다.".formatted(packingInvoiceNumber);
 
         } catch (Exception e) {
             log.info("PackingServiceImp completePacking error : {}", e.getMessage());

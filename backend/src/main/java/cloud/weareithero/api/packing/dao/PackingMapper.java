@@ -163,7 +163,7 @@ public interface PackingMapper {
     public int addInvoice(PackingInvoiceDTO packingInvoiceDTO);
     
     // 패킹 송장 단건 조회 (이미 완료된 건지 확인용)
-    @Select("SELECT `state_code` FROM `OUTBOUND_PACKING` WHERE `packing_invoice_nubmer` = #{packingInvoiceNumber}")
+    @Select("SELECT `state_code` FROM `OUTBOUND_PACKING` WHERE `packing_invoice_number` = #{packingInvoiceNumber}")
     public int findPackingInvoiceStateCode(String packingInvoiceNumber);
     
     // 패킹 송장 state_code 20(패킹완료)으로 업데이트

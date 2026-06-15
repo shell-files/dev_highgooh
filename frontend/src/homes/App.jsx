@@ -39,7 +39,7 @@ function App() {
     <>
       <Routes>
       {/* PackingInvoicePage — 레이아웃 없이 독립 */}
-      <Route path='/packing/:invoiceId' element={<PackingInvoicePage />}/>
+      <Route path='/packing/:packingInvoiceNumber' element={<PackingInvoicePage />}/>
 
       {/* 나머지 — Header/Sidebar 포함 */}
       <Route path='/*' element={
