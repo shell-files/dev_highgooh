@@ -80,7 +80,8 @@ public interface PackingMapper {
         "<if test='stepCode != null and stepCode != \"\" and stepCode != 0'>" +
         " AND `o`.`state_code` = #{stepCode} " +
         "</if>" +
-        "ORDER BY `o`.`id` DESC LIMIT #{offset}, #{size} " +
+        "ORDER BY (CASE WHEN `o`.`state_code` = 20 THEN 1 ELSE 0 END) ASC, `o`.`id` DESC " +
+        "LIMIT #{offset}, #{size} " +
         "</script>")
     public List<PackingDTO> findAll(PackingRequestDTO packingRequestDTO);
 
