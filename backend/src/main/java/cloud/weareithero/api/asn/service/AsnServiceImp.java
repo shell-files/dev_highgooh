@@ -1,14 +1,18 @@
 package cloud.weareithero.api.asn.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import cloud.weareithero.api.asn.dao.AsnDao;
 import cloud.weareithero.api.asn.dto.AsnAddDTO;
+import cloud.weareithero.api.asn.dto.AsnCompleteDTO;
 import cloud.weareithero.api.asn.dto.AsnDTO;
 import cloud.weareithero.api.asn.dto.AsnMaterialDTO;
 import cloud.weareithero.api.asn.dto.AsnOrderMaterialDTO;
@@ -158,6 +162,39 @@ public class AsnServiceImp implements AsnService {
         .data(request)
         .message(message)
         .build();
+  }
+
+  @Transactional
+  @Override
+  public ResponseDTO completeInbound(AsnCompleteDTO asnCompleteDTO) {
+    boolean isSuccess = false;
+    String message = null;
+    try {
+        // 1. state_code 확인
+        int stateCode = asnDao.findStateCode(asnCompleteDTO.getAsnId());
+        if (stateCode != 4) {
+            message = "입고예정 상태의 ASN만 완료 처리할 수 있습니다.";
+            return ResponseDTO.builder().status(false).message(message).build();
+        }
+        // 2. 입고 완료 처리
+        LocalDateTime ata = LocalDateTime.parse(asnCompleteDTO.getAta());
+        int result = asnDao.completeInbound(asnCompleteDTO.getAsnId(), ata);
+        if (result > 0) {
+            isSuccess = true;
+            message = "입고 완료 처리되었습니다.";
+        } else {
+            message = "입고 완료 처리에 실패했습니다.";
+        }
+    } catch (Exception e) {
+        log.info("AsnServiceImp completeInbound error : {}", e.getMessage());
+        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        message = "입고 완료 처리에 실패했습니다.";
+    }
+    return ResponseDTO.builder()
+        .status(isSuccess)
+        .message(message)
+        .build();
+    
   }
 
 }

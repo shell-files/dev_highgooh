@@ -15,7 +15,7 @@ const initialState = {
     page: 1,
     totalCount: 0,
     totalPages: 0,
-    size: 10
+    size: 20
   },
   modal: {
     partnerCompany: [],
@@ -72,7 +72,18 @@ export const addAsnModal = createAsyncThunk(
   }
 );
 
-const asnAsyncActions = [getAsn, getAsnDetail, getAsnModal, addAsnModal];
+export const completeAsn = createAsyncThunk(
+  'asn/complete',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      return await PATCH('/asn', credentials);
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+const asnAsyncActions = [getAsn, getAsnDetail, getAsnModal, addAsnModal, completeAsn];
 
 const asnSlice = createSlice({
   name: 'asn',
@@ -111,7 +122,7 @@ const asnSlice = createSlice({
           state.detailData = res.data;
           state.isModal = true;
           state.modalMode = 'detail';
-        }else {
+        } else {
           state.error = res.message;
         }
         state.loading = false;
@@ -120,9 +131,9 @@ const asnSlice = createSlice({
         const res = action.payload;
         if (res.status === true) {
           state.modal.partnerCompany = res.data.suppliers;
-          state.modal.warehouses= res.data.warehouses;
+          state.modal.warehouses = res.data.warehouses;
           state.modal.materials = res.data.materials;
-        }else {
+        } else {
           state.error = res.message;
         }
         state.loading = false;
@@ -130,30 +141,40 @@ const asnSlice = createSlice({
       .addCase(addAsnModal.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
-          alert("사전입고 통지(ASN)가 등록되었습니다.");
+          showDefaultAlert("등록 완료", "사전입고 통지(ASN)가 등록되었습니다.", "success");
           state.isModal = false;
-        }else {
+        } else {
           state.error = res.message;
+        }
+        state.loading = false;
+      })
+      .addCase(completeAsn.fulfilled, (state, action) => {
+        const res = action.payload;
+        if (res.status === true) {
+          showDefaultAlert("완료", res.message, "success");
+          state.isModal = false;
+        } else {
+          showDefaultAlert("오류", res.message, "error");
         }
         state.loading = false;
       });
 
-    builder
+  builder
       .addMatcher(
-        isPending(...asnAsyncActions), 
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
-      .addMatcher(
-        isRejected(...asnAsyncActions), 
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload || action.error.message || '알 수 없는 에러가 발생했습니다.';
-        }
-      );
-  }
+    isPending(...asnAsyncActions),
+    (state) => {
+      state.loading = true;
+      state.error = null;
+    }
+  )
+    .addMatcher(
+      isRejected(...asnAsyncActions),
+      (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || '알 수 없는 에러가 발생했습니다.';
+      }
+    );
+}
 });
 
 export const { openAsnModal, closeAsnModal, setPage } = asnSlice.actions;

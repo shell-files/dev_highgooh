@@ -20,6 +20,7 @@
     width: 100%;
     margin-bottom: 24px;
     box-sizing: border-box;
+    
 }
 
 /* 상단 헤더 정렬 */
@@ -39,24 +40,30 @@
 /* 파이프라인 가로 배치 플렉스 레이아웃 */
 #anomaly-page .pipeline-flex-container {
     display: flex;
-    align-items: center; /* 카드들을 세로 중앙 정렬 */
-    gap: 12px;           /* 카드와 화살표 사이의 적정 간격 */
+    align-items: center;
+    /* 카드들을 세로 중앙 정렬 */
+    gap: 12px;
+    /* 카드와 화살표 사이의 적정 간격 */
     width: 100%;
-    padding: 12px 4px;   /* 카드 호버 시 그림자가 잘리지 않도록 상하 여백 확보 */
-    
+    padding: 12px 4px;
+    /* 카드 호버 시 그림자가 잘리지 않도록 상하 여백 확보 */
+
     /* 화면이 좁아지면 가로 스크롤을 생성하고, 절대 아래로 떨어지거나 깨지지 않게 설정 */
-    overflow-x: auto;    
-    overflow-y: hidden;  /* 세로 스크롤은 절대 발생하지 않도록 차단 */
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* 세로 스크롤은 절대 발생하지 않도록 차단 */
     box-sizing: border-box;
 }
 
 #anomaly-page .pipeline-flex-container::-webkit-scrollbar {
     height: 6px;
 }
+
 #anomaly-page .pipeline-flex-container::-webkit-scrollbar-track {
     background: #f8fafc;
     border-radius: 4px;
 }
+
 #anomaly-page .pipeline-flex-container::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
@@ -64,19 +71,20 @@
 
 /* 개별 스텝 카드 디자인 (패딩 살짝 추가 및 최소 너비 확보) */
 #anomaly-page .pipeline-step-card {
-    flex: 0 0 290px;     /* 너비를 딱 290px로 고정하여 절대 변형되지 않게 설정 */
-    
+    flex: 0 0 290px;
+    /* 너비를 딱 290px로 고정하여 절대 변형되지 않게 설정 */
+
     background-color: #ffffff;
     border: 1px solid var(--pipe-border);
     border-radius: 12px;
     padding: 18px;
     position: relative;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
     min-height: 200px;
-    
+
 }
 
 #anomaly-page .pipeline-step-card:hover {
@@ -89,6 +97,7 @@
     background-color: var(--pipe-red-bg);
     border-color: var(--pipe-red-border);
 }
+
 #anomaly-page .pipeline-step-card.critical:hover {
     box-shadow: 0 4px 12px rgba(225, 29, 72, 0.12);
 }
@@ -99,7 +108,8 @@
     align-items: center;
     gap: 4px;
     margin-bottom: 8px;
-    font-size: 12px;       /* 8개 정렬을 위해 폰트 크기 살짝 최적화 */
+    font-size: 12px;
+    /* 8개 정렬을 위해 폰트 크기 살짝 최적화 */
     white-space: nowrap;
 }
 
@@ -120,7 +130,8 @@
 #anomaly-page .step-title {
     font-weight: bold;
     overflow: hidden;
-    text-overflow: ellipsis; /* 혹시 화면이 엄청 작아지면 글자가 깨지지 않고 ... 처리 */
+    text-overflow: ellipsis;
+    /* 혹시 화면이 엄청 작아지면 글자가 깨지지 않고 ... 처리 */
     white-space: nowrap;
 }
 
@@ -130,8 +141,14 @@
     border-radius: 50%;
     display: inline-block;
 }
-#anomaly-page .dot.green { background-color: var(--pipe-green); }
-#anomaly-page .dot.red { background-color: var(--pipe-critical); }
+
+#anomaly-page .dot.green {
+    background-color: var(--pipe-green);
+}
+
+#anomaly-page .dot.red {
+    background-color: var(--pipe-critical);
+}
 
 /* 핵심 수정: 데이터 좌우 밀착 정렬 (Key-Value 스위칭) */
 #anomaly-page .step-info-row {
@@ -142,25 +159,26 @@
     font-size: 11px;
 }
 
-#anomaly-page .step-info-row .label { 
-    color: var(--pipe-text-muted); 
+#anomaly-page .step-info-row .label {
+    color: var(--pipe-text-muted);
 }
 
-#anomaly-page .step-info-row .value { 
-    font-weight: 600; 
+#anomaly-page .step-info-row .value {
+    font-weight: 600;
     color: var(--pipe-text-dark);
     text-align: right;
 }
 
-#anomaly-page .step-info-row .value.highlight { 
-    color: var(--pipe-red-text); 
+#anomaly-page .step-info-row .value.highlight {
+    color: var(--pipe-red-text);
 }
 
 #anomaly-page .arrow-icon {
     color: #cbd5e1;
     font-size: 12px;
     font-weight: bold;
-    flex: 0 0 auto;       /* 화살표 너비는 줄어들지 않도록 완벽 고정 */
+    flex: 0 0 auto;
+    /* 화살표 너비는 줄어들지 않도록 완벽 고정 */
     width: 12px;
     text-align: center;
     user-select: none;
@@ -189,7 +207,7 @@
     border: 1px solid var(--pipe-border);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
     width: 100%;
 }
 
@@ -202,8 +220,17 @@
     font-size: 14px;
 }
 
-#anomaly-page .detail-header.text-critical { background-color: var(--pipe-red-bg); color: var(--pipe-red-text); border-bottom: 1px solid var(--pipe-red-border); }
-#anomaly-page .detail-header.text-success { background-color: #f0fdf4; color: var(--pipe-green); border-bottom: 1px solid #bbf7d0; }
+#anomaly-page .detail-header.text-critical {
+    background-color: var(--pipe-red-bg);
+    color: var(--pipe-red-text);
+    border-bottom: 1px solid var(--pipe-red-border);
+}
+
+#anomaly-page .detail-header.text-success {
+    background-color: #f0fdf4;
+    color: var(--pipe-green);
+    border-bottom: 1px solid #bbf7d0;
+}
 
 #anomaly-page .close-btn {
     background: none;
@@ -213,7 +240,9 @@
     cursor: pointer;
 }
 
-#anomaly-page .detail-content { padding: 20px; }
+#anomaly-page .detail-content {
+    padding: 20px;
+}
 
 /* 테이블 스타일 */
 #anomaly-page .status-table {
@@ -235,12 +264,28 @@
     border-bottom: 1px solid var(--pipe-border);
 }
 
-#anomaly-page .row-critical { background-color: var(--pipe-red-bg); }
-#anomaly-page .row-warning { background-color: #fffbeb; }
+#anomaly-page .row-critical {
+    background-color: var(--pipe-red-bg);
+}
 
-#anomaly-page .status-text.critical { color: var(--pipe-red-text); font-weight: 700; }
-#anomaly-page .status-text.warning { color: var(--pipe-orange); font-weight: 700; }
-#anomaly-page .status-text.normal { color: var(--pipe-green); font-weight: 700; }
+#anomaly-page .row-warning {
+    background-color: #fffbeb;
+}
+
+#anomaly-page .status-text.critical {
+    color: var(--pipe-red-text);
+    font-weight: 700;
+}
+
+#anomaly-page .status-text.warning {
+    color: var(--pipe-orange);
+    font-weight: 700;
+}
+
+#anomaly-page .status-text.normal {
+    color: var(--pipe-green);
+    font-weight: 700;
+}
 
 /* ==========================================================================
    대시보드 콘텐츠 영역 제목 스타일
@@ -249,7 +294,8 @@
 #anomaly-page .period-section-title {
     font-size: 20px;
     margin-top: 60px;
-    margin-bottom: 20px; /* 아래쪽 연도/분기 필터 바와의 간격 */
+    margin-bottom: 20px;
+    /* 아래쪽 연도/분기 필터 바와의 간격 */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -331,7 +377,8 @@
    ========================================================================== */
 
 #anomaly-page .dashboard-chart-grid {
-    display: block; /* WeasyPrint 및 레이아웃 안정성을 위해 display:block 처리 */
+    display: block;
+    /* WeasyPrint 및 레이아웃 안정성을 위해 display:block 처리 */
     margin-bottom: 1.25rem;
 }
 
@@ -572,18 +619,4 @@
 #anomaly-page .btn-modal-action:hover {
     opacity: 0.9;
 }
-
-#anomaly-page .pagination-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;  
-    justify-content: center;
-    margin-top: 20px;
-    gap: 10px;         
-}
-
-#anomaly-page .pagination-buttons {
-    display: flex;       
-    align-items: center;
-    gap: 5px;            
-}
+

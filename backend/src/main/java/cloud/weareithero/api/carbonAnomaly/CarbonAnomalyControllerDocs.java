@@ -1,6 +1,7 @@
 package cloud.weareithero.api.carbonAnomaly;
 
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyRequestDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyStateUpdateDTO;
 import cloud.weareithero.docs.ApiCommonErrors;
 import cloud.weareithero.docs.ApiCommonSuccess;
 import cloud.weareithero.dto.ResponseDTO;
@@ -40,4 +41,21 @@ public interface CarbonAnomalyControllerDocs {
         )
         CarbonAnomalyRequestDTO carbonAnomalyRequestDTO
     );
+    @Operation(
+        summary = "이상치 조치 상태 변경",
+        description = "탐지된 이상치 로그의 조치 상태(대기, 진행중, 완료)를 변경합니다."
+    )
+    @ApiCommonSuccess
+    @ApiCommonErrors
+    ResponseDTO updateAnomalyStatus(
+        @RequestBody(
+            content = @Content(
+                schema = @Schema(
+                    implementation = CarbonAnomalyStateUpdateDTO.class
+                )
+            )
+        )
+        CarbonAnomalyStateUpdateDTO carbonAnomalyStateUpdateDTO
+    );
+
 }

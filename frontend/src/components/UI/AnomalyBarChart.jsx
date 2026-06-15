@@ -8,59 +8,51 @@ const AnomalyBarChart = ({ dataValues = { label: [], data: [] } }) => {
   const chartInstance = useRef(null);
 
   useEffect(() => {
-    // 캔버스가 존재하지 않으면 실행 안 함 (에러 방지)
     if (!chartRef.current) return;
 
-    // 1. 기존 차트 인스턴스 파괴
+    // 1. 차트 인스턴스가 이미 존재하면 파괴 대신 데이터만 업데이트
     if (chartInstance.current) {
-      chartInstance.current.destroy();
-      chartInstance.current = null;
-    }
-
-    // 2. 차트 생성
-    const ctx = chartRef.current.getContext('2d');
-    chartInstance.current = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: dataValues.label,
-        datasets: [{
-          label: '이상치 발생 횟수 (건)',
-          data: dataValues.data,
-          backgroundColor: '#dd6b20',
-          borderRadius: 4,
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false, // 이 설정이 차트의 가로세로비를 부모에 맞춤
-        plugins: {
-          legend: { display: false }
+      chartInstance.current.data.labels = dataValues.label;
+      chartInstance.current.data.datasets[0].data = dataValues.data;
+      
+      // 'none' 옵션 없이 update() 호출 시 애니메이션이 자동 실행됨
+      chartInstance.current.update(); 
+    } 
+    // 2. 차트가 없으면 새로 생성
+    else {
+      const ctx = chartRef.current.getContext('2d');
+      chartInstance.current = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dataValues.label,
+          datasets: [{
+            label: '이상치 발생 횟수 (건)',
+            data: dataValues.data,
+            backgroundColor: '#dd6b20',
+            borderRadius: 4,
+            borderWidth: 0
+          }]
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { drawBorder: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart'
           },
-          x: {
-            grid: { display: false },
-            ticks: {
-              maxRotation: 45, // 최대 기울기 (45도)
-              minRotation: 45, // 최소 기울기 (45도)
-              autoSkip: false  // 라벨이 많아도 생략하지 않고 다 표시
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { drawBorder: false } },
+            x: { 
+              grid: { display: false },
+              ticks: { maxRotation: 45, minRotation: 45, autoSkip: false }
             }
           }
         }
-      }
-    });
-
-    // 3. 언마운트 시 에러 방지용 파괴
-    return () => {
-      if (chartInstance.current) {
-        chartInstance.current.destroy();
-        chartInstance.current = null;
-      }
-    };
+      });
+    }
   }, [dataValues]);
 
   return (
