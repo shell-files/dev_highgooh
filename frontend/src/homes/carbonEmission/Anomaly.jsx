@@ -36,7 +36,7 @@ const Anomaly = () => {
     const matchedOption = actionOptions.find(opt => opt.label === log.state?.trim());
     setModalStatus(matchedOption ? matchedOption.value : "15");
     setIsModalOpen(true);
-    
+
   };
   // 상태 변경 모달 닫기 함수
   const closeStatusModal = () => {
@@ -67,12 +67,13 @@ const Anomaly = () => {
       limit: 10,
       offset: offset
     };
-    
-    console.log(param);
+
+
 
     POST("/anomaly", param).then(res => {
       if (res && res.status === true) {
         setLogs(processAnomalyData(res.data.list));
+        console.log(processAnomalyData(res.data.list));
 
         //차트데이터
         const stats = res.data.stats;
@@ -501,7 +502,19 @@ const Anomaly = () => {
                   <td className="text-center">{log.metrics}</td>
                   <td className="text-center">{log.score}</td>
                   <td className="text-center">
-                    <span style={{ color: log.levelColor, fontWeight: 600 }}>{log.level}</span>
+                    <span style={{
+                      backgroundColor: log.bgColor,
+                      color: log.levelColor,
+                      fontWeight: 600,
+                      padding: '4px 10px', 
+                      borderRadius: '12px', 
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px', 
+                      fontSize: '0.9em'
+                    }}>
+                      {log.icon} {log.level}
+                    </span>
                   </td>
                   <td className="text-center">
                     <button
