@@ -1,10 +1,12 @@
 package cloud.weareithero.api.carbonAnomaly;
 
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyRequestDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyStateUpdateDTO;
 import cloud.weareithero.api.carbonAnomaly.service.CarbonAnomalyService;
 import cloud.weareithero.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +33,11 @@ public class CarbonAnomalyController
             @RequestBody CarbonAnomalyRequestDTO dto) {
 
         return carbonAnomalyService.getAnomalyList(dto);
+    }
+
+    @PatchMapping("/anomaly")
+    public ResponseDTO updateAnomalyStatus(@RequestBody CarbonAnomalyStateUpdateDTO dto) {
+        log.info("이상치 상태 변경 요청: {}", dto);
+        return carbonAnomalyService.updateAnomalyStatus(dto);
     }
 }

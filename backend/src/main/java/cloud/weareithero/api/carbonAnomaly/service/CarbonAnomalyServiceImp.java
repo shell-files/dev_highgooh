@@ -12,6 +12,7 @@ import cloud.weareithero.api.carbonAnomaly.dao.CarbonAnomalyDao;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyCountDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyRequestDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyStateUpdateDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyYesterdayDTO;
 import cloud.weareithero.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -109,4 +110,29 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
                 .message(message)
                 .build();
     }
+
+    @Override
+    public ResponseDTO updateAnomalyStatus(CarbonAnomalyStateUpdateDTO dto) {
+            boolean isSuccess = false;
+            String message = "상태 변경이 완료되었습니다.";
+
+            try {
+                // DAO의 업데이트 메서드 호출
+                int updatedRows = carbonAnomalyDao.updateAnomalyStatus(dto);
+                
+                if (updatedRows > 0) {
+                    isSuccess = true;
+                } else {
+                    message = "업데이트할 데이터가 없거나 존재하지 않는 ID입니다.";
+                }
+            } catch (Exception e) {
+                log.error("CarbonAnomalyServiceImp updateAnomalyStatus error", e);
+                message = "상태 변경 중 오류가 발생했습니다.";
+            }
+
+            return ResponseDTO.builder()
+                    .status(isSuccess)
+                    .message(message)
+                    .build();
+        }
 }
