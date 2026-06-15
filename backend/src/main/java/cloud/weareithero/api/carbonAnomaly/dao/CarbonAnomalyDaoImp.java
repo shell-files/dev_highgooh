@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyCountDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyRequestDTO;
+import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyStateUpdateDTO;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyYesterdayDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -35,5 +36,11 @@ public class CarbonAnomalyDaoImp implements CarbonAnomalyDao {
     public List<CarbonAnomalyCountDTO> selectAnomalyCount(CarbonAnomalyRequestDTO dto) {
         // Mapper의 selectAnomalyStats를 호출하여 반환
         return carbonAnomalyMapper.selectAnomalyCount(dto);
+    }
+
+    @Override
+    public int updateAnomalyStatus(CarbonAnomalyStateUpdateDTO dto) {
+        // 인터페이스에 정의된 기능을 실행
+        return carbonAnomalyMapper.updateAnomalyStatus(dto);
     }
 }
