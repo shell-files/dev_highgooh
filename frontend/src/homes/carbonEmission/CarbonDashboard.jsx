@@ -61,6 +61,7 @@ const CarbonDashboard = () => {
         setSearchQuarter(params.selectedQuarter);
         setSearchMonth(params.selectedMonth);
         const line = getLineChartData(res.data);
+        console.log(res.data)
         const bar = getBarChartData(res.data, ['빌릿 가열기', '간접 압출기', '인발기', '알루미늄 시효로', '4축 CNC', '알루미늄 절단기', '아노다이징', '자동 구리스 디스펜서 시스템']);
         const doughnut = getDoughnutChartData(res.data);
         
