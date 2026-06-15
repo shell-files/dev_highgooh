@@ -24,11 +24,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OutboundSummaryDTO {
 
-    private int total;
-    private int expectedToday;
-    private int confirmedToday;
-    private int nearDeadline;
-    private int overdue;
-    private int unassigned;
+    private int unassigned;    // state_code = 20 (미배정)
+    private int vehicleReady;  // state_code = 21 (차량배정)
+    private int waitingOut;    // state_code = 22 (출고대기)
+    private int nearDeadline;  // deadline 3일 이내
+    private int overdue;       // deadline 초과
 
 }

@@ -29,4 +29,9 @@ public interface OutboundService {
     /** 출고 확정 */
     public ResponseDTO confirmShipment(OutboundConfirmDTO outboundConfirmDTO);
 
+    /** 매니페스트에 속한 박스 목록 조회 */
+    public ResponseDTO findPackingsByTransportationId(int transportationId);
+
+    // 송장처리
+    public ResponseDTO issueInvoiceByTransportation(int transportationId);
 }

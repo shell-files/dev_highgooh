@@ -1,5 +1,6 @@
 import '@styles/outbound.css';
 import { useState, useEffect, useRef } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     getOutboundList,
@@ -7,9 +8,10 @@ import {
     getOutboundDetail,
     getOutboundFormData,
     assignOutboundVehicle,
-    issueOutboundInvoice,
     confirmOutboundShipment,
-    setOutboundPage
+    setOutboundPage,
+    getManifestPackings,
+    issueInvoiceByTransportation,  // ← 추가
 } from '@/stores/outboundSlice.js';
 
 const Outbound = () => {
@@ -35,6 +37,20 @@ const Outbound = () => {
     const [activeInvoiceBoxes, setActiveInvoiceBoxes] = useState([]); // 팝업 슬라이더용 packingId 배열
     const [currentSlide, setCurrentSlide] = useState(0);
 
+    //송장출력
+    const [activeTransportationId, setActiveTransportationId] = useState(null);
+
+    const [firstSelectedManifestState, setFirstSelectedManifestState] = useState(null); // 21 | 22 | null
+    const [firstSelectedCarrier, setFirstSelectedCarrier] = useState(null); // 첫 선택 행의 운송사명
+
+    const stateOption = () => {
+        if (viewMode === "box") {
+            return [{ value: "", text: "전체" }, { value: "20", text: "미배정" }]
+        } else {
+            return [{ value: "", text: "전체" }, { value: "21", text: "차량배정" }, { value: "22", text: "송장발급" }]
+        }
+    }
+
     // 차량 배정용 폼 
     const [vehicleForm, setVehicleForm] = useState({
         carrierId: 1,
@@ -45,8 +61,9 @@ const Outbound = () => {
     });
 
     // --- 2. Redux 상태 구독 (슬라이스 규격 정밀 매핑) ---
-    const { loading, view = {}, detailData, carriers = [], vehicles = [] }
+    const { loading, view = {}, detailData, carriers = [], vehicles = [], clients = [] }
         = useSelector(state => state.outbound);
+
 
     // 💡 크리티컬 포인트 해결: list를 쪼개지 말고, 슬라이스가 저장해 둔 전용 배열 상태를 직접 구독합니다.
     const {
@@ -60,24 +77,19 @@ const Outbound = () => {
     } = useSelector((state) => state.outbound.view || {});
 
     // 필터 제어용 useRef
-    const orderNoRef = useRef();
-    const customerRef = useRef();
-    const stateCodeRef = useRef();
+    const defaultBoxFilter = { outboundId: 0, packingId: 0, clientId: 0, carrierId: 0, stateCode: 0 };
+    const defaultManifestFilter = { transportationId: 0, carrierId: 0, stateCode: 0 };
+
+    const [boxFilter, setBoxFilter] = useState(defaultBoxFilter);
+    const [manifestFilter, setManifestFilter] = useState(defaultManifestFilter);
 
     // --- 3. 데이터 페칭 로직 ---
-    const getData = () => {
-        const filters = {
-            page: page,
-            size: size,
-            viewMode: viewMode, // 'box' 또는 'manifest'
-            orderNo: orderNoRef.current?.value || '',
-            customer: customerRef.current?.value || '',
-            stateCode: stateCodeRef.current?.value ? Number(stateCodeRef.current.value) : null
-        };
-        console.log(filters)
+    const getData = (overrideFilter = null) => {
         if (viewMode === 'box') {
+            const filters = { page, size, ...boxFilter, ...(overrideFilter || {}) };
             dispatch(getOutboundList(filters));
         } else {
+            const filters = { page, size, ...manifestFilter, ...(overrideFilter || {}) };
             dispatch(getOutboundManifestList(filters));
         }
     };
@@ -98,13 +110,15 @@ const Outbound = () => {
     //     console.log("manifestList", manifestList);
     // }, [manifestList]);
 
-    // 탭 전환 핸들러
+
     const handleViewModeChange = (mode) => {
         setViewMode(mode);
+        setBoxFilter(defaultBoxFilter);          // 박스 필터 초기화
+        setManifestFilter(defaultManifestFilter); // 매니페스트 필터 초기화
         setCheckedBoxes([]);
         setCheckedManifests([]);
         setSelectedCarrier(null);
-        dispatch(setOutboundPage(1)); // 페이지 번호 초기화 및 데이터 리로드 유도
+        dispatch(setOutboundPage(1));
     };
 
     // --- 4. 변환 및 안전한 헬퍼 유틸 함수 ---
@@ -161,12 +175,28 @@ const Outbound = () => {
         });
     };
 
-    const handleManifestCheck = (transportationId) => {
-        setCheckedManifests(prev =>
-            prev.includes(transportationId)
-                ? prev.filter(id => id !== transportationId)
-                : [...prev, transportationId]
-        );
+    const handleManifestCheck = (transportationId, stateCode, carrierName) => {
+        setCheckedManifests(prev => {
+            const isExist = prev.includes(transportationId);
+            let next;
+
+            if (isExist) {
+                next = prev.filter(id => id !== transportationId);
+                if (next.length === 0) {
+                    // 전부 해제 시 초기화
+                    setFirstSelectedManifestState(null);
+                    setFirstSelectedCarrier(null);
+                }
+            } else {
+                next = [...prev, transportationId];
+                if (prev.length === 0) {
+                    // 첫 선택 시 기준 상태/운송사 고정
+                    setFirstSelectedManifestState(stateCode);
+                    setFirstSelectedCarrier(carrierName);
+                }
+            }
+            return next;
+        });
     };
 
     // --- 6. 비동기 백엔드 트랜잭션 핸들러 ---
@@ -204,7 +234,11 @@ const Outbound = () => {
         setModalOpen(prev => ({ ...prev, vehicle: true }));
     };
 
-    console.log(modalOpen.invoice)
+    const resetData = () => {
+        getData();
+    };
+
+
     // 💡 2. 차량 배정 서브밋 핸들러 (중복 선언 원천 차단)
     const handleVehicleSubmit = async () => {
         if (!vehicleForm.lpn || !vehicleForm.lpn.trim()) return alert('차량 번호를 입력해주세요.');
@@ -218,6 +252,7 @@ const Outbound = () => {
             driver: vehicleForm.driver,
             etd: vehicleForm.etd
         };
+        // console.log('배정 payload:', payload);
 
         try {
             const result = await dispatch(assignOutboundVehicle(payload));
@@ -324,49 +359,45 @@ const Outbound = () => {
         )
     }
 
-    const openInvoiceModal = (singleTransId = null) => {
+    const openInvoiceModal = async (singleTransId = null) => {
         let linkedBoxes = [];
 
         if (viewMode === 'box') {
             if (checkedBoxes.length === 0) return alert('송장을 발행할 박스를 선택해주세요.');
             linkedBoxes = checkedBoxes;
+            setActiveTransportationId(null);  // ← 추가
         } else {
-            let targetManifests = [];
-            if (singleTransId) {
-                targetManifests = [singleTransId];
-            } else {
-                if (checkedManifests.length === 0) return alert('송장을 발행할 매니페스트를 선택해주세요.');
-                targetManifests = checkedManifests;
-            }
+            const targetId = singleTransId ?? (checkedManifests[0] ?? null);
+            if (!targetId) return alert('송장을 발행할 매니페스트를 선택해주세요.');
 
-            // ✅ manifestList에서 packingIds를 직접 꺼내도록 수정
-            targetManifests.forEach(transId => {
-                const manifest = manifestList.find(m => m.transportationId === transId);
-                if (manifest?.packingIds) {
-                    linkedBoxes.push(...manifest.packingIds);
-                } else {
-                    // packingIds가 없으면 transportationId 자체를 임시 식별자로 사용
-                    linkedBoxes.push(transId);
-                }
-            });
+            setActiveTransportationId(targetId);  // ← 추가
+
+            const result = await dispatch(getManifestPackings(targetId));
+            if (result.meta.requestStatus !== 'fulfilled') {
+                return alert('박스 목록을 불러오는 데 실패했습니다.');
+            }
+            linkedBoxes = (result.payload?.data?.list || []).map(p => p.packingId);
 
             if (linkedBoxes.length === 0) {
-                return alert('선택한 매니페스트에 연결된 박스 정보를 찾을 수 없습니다.');
+                return alert('해당 매니페스트에 연결된 박스가 없습니다.');
             }
         }
 
         setActiveInvoiceBoxes(linkedBoxes);
         setSelectedInvoiceBox(linkedBoxes[0]);
         setCurrentSlide(0);
-        setModalOpen(prev => ({ ...prev, invoice: true })); // ✅ 버그 2도 같이 수정
+        setModalOpen(prev => ({ ...prev, invoice: true }));
     };
 
     const handleInvoiceSubmit = async () => {
-        const result = await dispatch(issueOutboundInvoice({ packingIds: activeInvoiceBoxes }));
+        if (!activeTransportationId) return alert('매니페스트 정보가 없습니다.');
+
+        const result = await dispatch(issueInvoiceByTransportation(activeTransportationId));
         if (result.meta.requestStatus === 'fulfilled') {
-            setModalOpen({ ...modalOpen, invoice: false });
+            setModalOpen(prev => ({ ...prev, invoice: false }));
             setCheckedBoxes([]);
             setCheckedManifests([]);
+            setActiveTransportationId(null);
             getData();
         }
     };
@@ -377,6 +408,8 @@ const Outbound = () => {
             const result = await dispatch(confirmOutboundShipment({ transportationIds: checkedManifests }));
             if (result.meta.requestStatus === 'fulfilled') {
                 setCheckedManifests([]);
+                setFirstSelectedManifestState(null); // ← 추가
+                setFirstSelectedCarrier(null);        // ← 추가
                 getData();
             }
         }
@@ -409,6 +442,33 @@ const Outbound = () => {
         }
     };
 
+
+    const OutboundQRCode = ({ packingId }) => {
+        // packingId가 없으면 아무것도 렌더링하지 않음 (안전 장치)
+        if (!packingId) return null;
+
+        // 내부에서 QR에 매핑할 URL 정의
+        const qrUrl = `http://localhost/${packingId}`;
+
+        return (
+            <div className="qr-visualization-zone" style={{ textAlign: 'center', margin: '12px 0', padding: '8px', background: '#f8fafc', borderRadius: '6px' }}>
+                <div style={{ background: 'white', padding: '10px', display: 'inline-block', borderRadius: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                    <QRCodeSVG
+                        value={qrUrl}
+                        size={105}
+                        bgColor={"#ffffff"}
+                        fgColor={"#000000"}
+                        level={"H"}
+                        includeMargin={false}
+                    />
+                </div>
+                <div style={{ fontSize: '0.7rem', marginTop: '6px', color: '#4a5568', wordBreak: 'break-all' }}>
+                    QR 링크: <span style={{ color: '#007bff' }}>{qrUrl}</span>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div id="outbound-page">
             <div className="page-header-flex">
@@ -418,43 +478,182 @@ const Outbound = () => {
             {/* 통계 서머리 대시보드 */}
             <div className="order-summary-grid">
                 <div className="summary-card-item">
-                    <div className="card-info-left"><span className="summary-label">출고 예정</span><span className="summary-value">{summary.expectedToday}<small>건</small></span></div>
-                    <div className="card-trend-right"><span className="status-badge bg-all-light text-muted">전체</span></div>
-                </div>
-                <div className="summary-card-item">
-                    <div className="card-info-left"><span className="summary-label">출고 확정</span><span className="summary-value text-green">{summary.confirmedToday}<small>건</small></span></div>
+                    <div className="card-info-left"><span className="summary-label">출고대기</span><span className="summary-value text-green">{summary.waitingOut}<small>건</small></span></div>
                     <div className="card-trend-right"><span className="status-badge bg-green-light text-green">전체</span></div>
                 </div>
                 <div className="summary-card-item">
-                    <div className="card-info-left"><span className="summary-label">기한 임박</span><span className="summary-value text-orange">{summary.nearDeadline}<small>건</small></span></div>
-                    <div className="card-trend-right"><span className="status-badge bg-orange-light text-orange">전체</span></div>
-                </div>
-                <div className="summary-card-item">
-                    <div className="card-info-left"><span className="summary-label">기한 초과</span><span className="summary-value text-red">{summary.overdue}<small>건</small></span></div>
-                    <div className="card-trend-right"><span className="status-badge bg-red-light text-red">전체</span></div>
+                    <div className="card-info-left"><span className="summary-label">차량배정</span><span className="summary-value text-blue">{summary.vehicleReady}<small>건</small></span></div>
+                    <div className="card-trend-right"><span className="status-badge bg-blue-light text-blue">전체</span></div>
                 </div>
                 <div className="summary-card-item">
                     <div className="card-info-left"><span className="summary-label">미배정</span><span className="summary-value text-dark">{summary.unassigned}<small>건</small></span></div>
                     <div className="card-trend-right"><span className="status-badge table-badge badge-dark">전체</span></div>
                 </div>
+                <div className="summary-card-item">
+                    <div className="card-info-left"><span className="summary-label">기한임박</span><span className="summary-value text-orange">{summary.nearDeadline}<small>건</small></span></div>
+                    <div className="card-trend-right"><span className="status-badge bg-orange-light text-orange">전체</span></div>
+                </div>
+                <div className="summary-card-item">
+                    <div className="card-info-left"><span className="summary-label">기한초과</span><span className="summary-value text-red">{summary.overdue}<small>건</small></span></div>
+                    <div className="card-trend-right"><span className="status-badge bg-red-light text-red">전체</span></div>
+                </div>
             </div>
 
-            {/* 통합 필터 바 */}
+            {/* 통합 필터 바 — 탭에 따라 조회 조건 변경 */}
             <div className="filter-wrapper-card">
-                <form className="search-filter-grid" onSubmit={(e) => { e.preventDefault(); dispatch(setOutboundPage(1)); getData(); }}>
-                    <div className="filter-group"><label>주문번호 검색</label><input type="text" ref={orderNoRef} className="filter-control" /></div>
-                    <div className="filter-group"><label>고객사 검색</label><input type="text" ref={customerRef} className="filter-control" /></div>
-                    <div className="filter-group">
-                        <label>진행 상태</label>
-                        <select ref={stateCodeRef} className="filter-control">
-                            <option value="">전체 상태</option>
-                            <option value="20">미배정</option>
-                            <option value="21">차량배정</option>
-                            <option value="22">출고대기</option>
-                        </select>
-                    </div>
+                <form
+                    className={viewMode === 'box' ? `search-filter-grid` : `search-filter-grid2`}
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        dispatch(setOutboundPage(1));
+                        getData();  // 현재 filter 상태 그대로 사용
+                    }}
+                >
+                    {viewMode === 'box' ? (
+                        /* ── 박스 탭: 주문번호 | 박스번호 | 고객사 | 운송사 | 진행상태 ── */
+                        <>
+                            <div className="filter-group">
+                                <label>주문번호</label>
+                                <input
+                                    type="text"
+                                    className="filter-control"
+                                    placeholder="주문번호 입력"
+                                    value={boxFilter.outboundId || ''}
+                                    onChange={(e) => setBoxFilter(prev => ({
+                                        ...prev,
+                                        outboundId: e.target.value ? Number(e.target.value) : 0
+                                    }))}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label>박스번호</label>
+                                <input
+                                    type="text"
+                                    className="filter-control"
+                                    placeholder="박스번호 입력"
+                                    value={boxFilter.packingId || ''}
+                                    onChange={(e) => setBoxFilter(prev => ({
+                                        ...prev,
+                                        packingId: e.target.value ? Number(e.target.value) : 0
+                                    }))}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label>고객사</label>
+                                <select
+                                    className="filter-control"
+                                    value={boxFilter.clientId}
+                                    onChange={(e) => setBoxFilter(prev => ({
+                                        ...prev,
+                                        clientId: Number(e.target.value)
+                                    }))}
+                                >
+                                    <option value={0}>전체 고객사</option>
+                                    {clients.map(c => (
+                                        <option key={c.clientId} value={c.clientId}>{c.clientName}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="filter-group">
+                                <label>운송사</label>
+                                <select
+                                    className="filter-control"
+                                    value={boxFilter.carrierId}
+                                    onChange={(e) => setBoxFilter(prev => ({
+                                        ...prev,
+                                        carrierId: Number(e.target.value)
+                                    }))}
+                                >
+                                    <option value={0}>전체 운송사</option>
+                                    {carriers.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="filter-group">
+                                <label>진행 상태</label>
+                                <select
+                                    className="filter-control"
+                                    value={boxFilter.stateCode}
+                                    onChange={(e) => setBoxFilter(prev => ({
+                                        ...prev,
+                                        stateCode: Number(e.target.value)
+                                    }))}
+                                >
+                                    {stateOption().map((v, i) => <option key={i} value={v.value}>{v.text}</option>)}
+                                </select>
+                            </div></>
+                    ) : (
+                        /* ── 매니페스트 탭: 매니페스트번호 | 운송사 | 진행상태 ── */
+                        <>
+                            <div className="filter-group">
+                                <label>매니페스트번호</label>
+                                <input
+                                    type="text"
+                                    className="filter-control"
+                                    placeholder="매니페스트번호 입력"
+                                    value={manifestFilter.transportationId || ''}
+                                    onChange={(e) => setManifestFilter(prev => ({
+                                        ...prev,
+                                        transportationId: e.target.value ? Number(e.target.value) : 0
+                                    }))}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label>운송사</label>
+                                <select
+                                    className="filter-control"
+                                    value={manifestFilter.carrierId}
+                                    onChange={(e) => setManifestFilter(prev => ({
+                                        ...prev,
+                                        carrierId: Number(e.target.value)
+                                    }))}
+                                >
+                                    <option value="">전체 운송사</option>
+                                    {carriers.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="filter-group">
+                                <label>진행 상태</label>
+                                <select
+                                    className="filter-control"
+                                    value={manifestFilter.stateCode}
+                                    onChange={(e) => setManifestFilter(prev => ({
+                                        ...prev,
+                                        stateCode: Number(e.target.value)
+                                    }))}
+                                >
+                                    {stateOption().map((v, i) => <option key={i} value={v.value}>{v.text}</option>)}
+                                </select>
+                            </div>
+                            <div></div>
+                        </>
+                    )}
+
                     <div className="filter-btn-group">
-                        <button type="reset" className="btn-filter-reset" onClick={() => dispatch(setOutboundPage(1))}>초기화</button>
+                        <button
+                            type="reset"
+                            className="btn-filter-reset"
+                            onClick={() => {
+                                const resetBox = { outboundId: 0, packingId: 0, clientId: 0, carrierId: 0, stateCode: 0 };
+                                const resetManifest = { transportationId: 0, carrierId: 0, stateCode: 0 };
+
+                                setBoxFilter(resetBox);
+                                setManifestFilter(resetManifest);
+                                dispatch(setOutboundPage(1));
+
+                                // 초기화된 값으로 바로 조회
+                                if (viewMode === 'box') {
+                                    dispatch(getOutboundList({ page: 1, size, ...resetBox }));
+                                } else {
+                                    dispatch(getOutboundManifestList({ page: 1, size, ...resetManifest }));
+                                }
+                            }}
+                        >
+                            초기화
+                        </button>
                         <button type="submit" className="btn-filter-search">조회하기</button>
                     </div>
                 </form>
@@ -474,8 +673,17 @@ const Outbound = () => {
                         )}
                         {viewMode === 'manifest' && (
                             <>
-                                <button className="btn-action-blue" onClick={() => openInvoiceModal()}>송장 출력</button>
-                                <button className="btn-action-green" onClick={handleConfirmShipment}>출고 확정</button>
+                                <button
+                                    className="btn-action-blue"
+                                    onClick={() => openInvoiceModal()}
+                                    disabled={firstSelectedManifestState === 22}  // 출고대기면 송장 출력 비활성화
+                                >송장 출력
+                                </button>
+                                <button
+                                    className="btn-action-green"
+                                    onClick={handleConfirmShipment}
+                                    disabled={firstSelectedManifestState === 21}  // 차량배정이면 출고 확정 비활성화
+                                >출고 확정</button>
                             </>
                         )}
                     </div>
@@ -548,7 +756,7 @@ const Outbound = () => {
 
                                             {/* 3. 박스번호 (더미 데이터 무시하고 무조건 BOX-YYYYMMDD-XXX 강제 적용) */}
                                             <td className="text-center font-bold text-green">
-                                                {item.packingId}
+                                                {item.packingInvoiceNumber}
                                             </td>
 
                                             {/* 4. 고객사 */}
@@ -597,12 +805,26 @@ const Outbound = () => {
                                                 <input
                                                     type="checkbox"
                                                     className="manifest-check"
-                                                    // 💡 '차량배정' 완벽 일치가 아니라 '배정'이라는 글자가 포함되어 있으면 체크박스 활성화
-                                                    disabled={
-                                                        item.stateCode !== 21 &&
-                                                        item.stateCode !== 22
-                                                    }
-                                                    onChange={() => handleManifestCheck(item.transportationId)}
+                                                    disabled={(() => {
+                                                        // 기본: 21, 22 상태만 선택 가능
+                                                        if (item.stateCode !== 21 && item.stateCode !== 22) return true;
+
+                                                        // 아무것도 선택 안 됐으면 활성화
+                                                        if (firstSelectedManifestState === null) return false;
+
+                                                        // 첫 선택이 차량배정(21)이면 → 같은 운송사 + 같은 상태만 활성화
+                                                        if (firstSelectedManifestState === 21) {
+                                                            return item.carrierName !== firstSelectedCarrier || item.stateCode !== 21;
+                                                        }
+
+                                                        // 첫 선택이 출고대기(22)이면 → 같은 상태(22)만 활성화
+                                                        if (firstSelectedManifestState === 22) {
+                                                            return item.stateCode !== 22;
+                                                        }
+
+                                                        return false;
+                                                    })()}
+                                                    onChange={() => handleManifestCheck(item.transportationId, item.stateCode, item.carrierName)}
                                                     checked={checkedManifests.includes(item.transportationId)}
                                                 />
                                             </td>
@@ -740,13 +962,7 @@ const Outbound = () => {
                                                                     <tr><th>특이사항</th><td>정상 출고 공정 승인 완료건</td></tr>
                                                                 </tbody>
                                                             </table>
-                                                            <div className="barcode-wrapper">
-                                                                <div className="barcode-lines">
-                                                                    <span className="b-w-1"></span><span className="b-w-2"></span><span className="b-w-3"></span>
-                                                                    <span className="b-w-4"></span><span className="b-w-1"></span>
-                                                                </div>
-                                                                <div className="barcode-text">*PK-{packingId}*</div>
-                                                            </div>
+                                                            <OutboundQRCode packingId={packingId} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -757,7 +973,7 @@ const Outbound = () => {
                             </div>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn-main-action" onClick={handleInvoiceSubmit}>출력 마감 승인</button>
+                            <button type="button" className="btn-main-action" onClick={handleInvoiceSubmit}>전체 송장 출력</button>
                             <button type="button" className="btn-pop-cancel" onClick={() => setModalOpen({ ...modalOpen, invoice: false })}>취소</button>
                         </div>
                     </div>

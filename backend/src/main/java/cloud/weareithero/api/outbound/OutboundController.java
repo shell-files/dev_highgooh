@@ -1,6 +1,7 @@
 package cloud.weareithero.api.outbound;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -95,5 +96,13 @@ public class OutboundController implements OutboundControllerDocs {
     public ResponseDTO confirmShipment(@RequestBody OutboundConfirmDTO outboundConfirmDTO) {
         return outboundService.confirmShipment(outboundConfirmDTO);
     }
+    @GetMapping("/manifest/{transportationId}/packings")
+    public ResponseDTO findPackingsByTransportationId(@PathVariable Integer transportationId) {
+        return outboundService.findPackingsByTransportationId(transportationId);
+    }
 
+    @PatchMapping("/manifest/{transportationId}/issue")
+    public ResponseDTO issueInvoiceByTransportation(@PathVariable Integer transportationId) {
+        return outboundService.issueInvoiceByTransportation(transportationId);
+    }
 }
