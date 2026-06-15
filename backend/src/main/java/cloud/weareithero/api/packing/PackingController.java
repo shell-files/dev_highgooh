@@ -41,7 +41,7 @@ public class PackingController implements PackingControllerDocs {
 
     @PatchMapping("/{invoiceId:[A-Za-z0-9-]+}")
     @Override
-    public ResponseDTO completePacking(@PathVariable String invoiceId) {
-        return packingService.completePacking(invoiceId);
+    public ResponseDTO completePacking(@PathVariable String packingInvoiceNumber) {
+        return packingService.completePacking(packingInvoiceNumber);
     }
 }

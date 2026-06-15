@@ -59,13 +59,13 @@ public class PackingDaoImp implements PackingDao {
     }
 
     @Override
-    public int findPackingInvoiceStateCode(String invoiceId) {
-        return packingMapper.findPackingInvoiceStateCode(invoiceId);
+    public int findPackingInvoiceStateCode(String packingInvoiceNumber) {
+        return packingMapper.findPackingInvoiceStateCode(packingInvoiceNumber);
     }
 
     @Override
-    public int updatePackingInvoiceStateCode(String invoiceId) {
-        return packingMapper.updatePackingInvoiceStateCode(invoiceId);
+    public int updatePackingInvoiceStateCode(String packingInvoiceNumber) {
+        return packingMapper.updatePackingInvoiceStateCode(packingInvoiceNumber);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class PackingDaoImp implements PackingDao {
     }
 
     @Override
-    public int findOrderIdByInvoiceId(String invoiceId) {
-        return packingMapper.findOrderIdByInvoiceId(invoiceId);
+    public int findOrderIdByInvoiceId(String packingInvoiceNumber) {
+        return packingMapper.findOrderIdByInvoiceId(packingInvoiceNumber);
     }
 }

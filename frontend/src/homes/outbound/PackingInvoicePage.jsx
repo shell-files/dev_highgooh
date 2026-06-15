@@ -4,13 +4,13 @@ import { useDispatch } from 'react-redux';
 import { completePacking } from '@stores/packingSlice';
 
 const PackingInvoicePage = () => {
-    const { invoiceId } = useParams();
+    const { packingInvoiceNumber } = useParams();
     const dispatch = useDispatch();
     const [result, setResult] = useState(null); // { status, message }
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        dispatch(completePacking({ invoiceId }))
+        dispatch(completePacking({ packingInvoiceNumber }))
           .then((res) => {
             setResult({
               status: res.payload?.status,
