@@ -59,6 +59,7 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
         Map<String, Object> resultMap = new HashMap<>();
 
         try {
+<<<<<<< Updated upstream
             int year = Integer.parseInt(dto.getYear());
             LocalDateTime start;
             LocalDateTime end;
@@ -88,6 +89,19 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
             List<CarbonAnomalyCountDTO> stats = carbonAnomalyDao.selectAnomalyCount(dto);
         
             // 전체 카운트 계산
+=======
+            // 1. 페이징 처리 (DTO에 이미 year, month, quarter가 세팅되어 있음)
+            if (dto.getPage() == null || dto.getPage() < 1) {
+                dto.setPage(1);
+            }
+            dto.setOffset((dto.getPage() - 1) * dto.getLimit());
+
+            // 2. DB 조회
+            List<CarbonAnomalyDTO> detailList = carbonAnomalyDao.selectAnomalyList(dto);
+            List<CarbonAnomalyCountDTO> stats = carbonAnomalyDao.selectAnomalyCount(dto);
+
+            // 3. 결과 합산
+>>>>>>> Stashed changes
             long totalCount = stats.stream().mapToLong(CarbonAnomalyCountDTO::getAnomaly_count).sum();
 
             // Map에 결과 담기

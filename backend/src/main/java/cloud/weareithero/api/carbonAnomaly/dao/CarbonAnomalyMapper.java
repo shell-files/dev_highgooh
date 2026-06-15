@@ -45,17 +45,31 @@ public interface CarbonAnomalyMapper {
 
     @Select("""
     <script>
+<<<<<<< Updated upstream
             SELECT
                 al.id, pm.process, al.anomaly_score AS anomaly_score, cc.name AS state, al.create_at AS create_at,
                 pce.direct_emission AS direct_emission, pm.proper_direct_emission AS proper_direct_emission,
                 pce.electricity_used AS electricity_used, pm.proper_electricity_used AS proper_electricity_used,
                 pce.indirect_emission AS indirect_emission, pm.proper_indirect_emission AS proper_indirect_emission
+=======
+        <![CDATA[
+            SELECT
+                al.id, pm.process, al.anomaly_score AS anomaly_score,
+                cc.name AS state, al.create_at AS create_at,
+                pce.direct_emission AS direct_emission,
+                pm.proper_direct_emission AS proper_direct_emission,
+                pce.electricity_used AS electricity_used,
+                pm.proper_electricity_used AS proper_electricity_used,
+                pce.indirect_emission AS indirect_emission,
+                pm.proper_indirect_emission AS proper_indirect_emission
+>>>>>>> Stashed changes
             FROM ANOMALY_LOG al
             JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
             JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
             JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
             JOIN COMMON_CODE cc ON cc.id = al.state_code
             WHERE 1 = 1
+<<<<<<< Updated upstream
               AND pd.process_start <![CDATA[ >= ]]> #{dto.calculatedStartDate}
               AND pd.process_start <![CDATA[ < ]]> #{dto.calculatedEndDate}
             ORDER BY al.create_at DESC
@@ -77,6 +91,59 @@ public interface CarbonAnomalyMapper {
             ORDER BY pm.id ASC
         </script>
     """)
+=======
+        ]]>
+        <if test="dto.year != null and dto.year != ''">
+            AND YEAR(pd.process_start) = #{dto.year}
+        </if>
+        <if test="dto.month != null and dto.month != ''">
+            AND MONTH(pd.process_start) = #{dto.month}
+        </if>
+        <if test="dto.quarter != null and dto.quarter != ''">
+            AND QUARTER(pd.process_start) = #{dto.quarter}
+        </if>
+        <![CDATA[
+            ORDER BY al.create_at DESC
+            LIMIT #{dto.limit} OFFSET #{dto.offset}
+        ]]>
+    </script>
+""")
+List<CarbonAnomalyDTO> selectAnomalyList(@Param("dto") CarbonAnomalyRequestDTO dto);
+
+    @Select("""
+            <script>
+                <![CDATA[
+                    SELECT
+                        pm.process AS process,
+                        SUM(CASE WHEN cc.name = '조치완료' THEN 1 ELSE 0 END) +
+                        SUM(CASE WHEN cc.name = '조치중' THEN 1 ELSE 0 END) +
+                        SUM(CASE WHEN cc.name = '조치대기' THEN 1 ELSE 0 END) AS anomaly_count,
+                        SUM(CASE WHEN cc.name = '조치완료' THEN 1 ELSE 0 END) AS actioned_count,
+                        SUM(CASE WHEN cc.name = '조치중' THEN 1 ELSE 0 END) AS actioning_count,
+                        SUM(CASE WHEN cc.name = '조치대기' THEN 1 ELSE 0 END) AS waiting_count
+                    FROM ANOMALY_LOG al
+                    JOIN PRODUCT_CARBON_EMISSION pce ON al.product_carbon_emission_id = pce.id
+                    JOIN PRODUCTION_DETAIL pd ON pce.production_detail_id = pd.id
+                    JOIN PROCESS_MASTER pm ON pd.process_id = pm.id
+                    JOIN COMMON_CODE cc ON al.state_code = cc.id
+                    WHERE 1 = 1
+                ]]>
+                <if test="dto.year != null and dto.year != ''">
+                    AND YEAR(pd.process_start) = #{dto.year}
+                </if>
+                <if test="dto.month != null and dto.month != ''">
+                    AND MONTH(pd.process_start) = #{dto.month}
+                </if>
+                <if test="dto.quarter != null and dto.quarter != ''">
+                    AND QUARTER(pd.process_start) = #{dto.quarter}
+                </if>
+                <![CDATA[
+                    GROUP BY pm.id, pm.process
+                    ORDER BY pm.id ASC
+                ]]>
+            </script>
+            """)
+>>>>>>> Stashed changes
     List<CarbonAnomalyCountDTO> selectAnomalyCount(@Param("dto") CarbonAnomalyRequestDTO dto);
 
     
