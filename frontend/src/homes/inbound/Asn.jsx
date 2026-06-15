@@ -185,8 +185,7 @@ const Asn = () => {
                 </tr>
               </thead>
               <tbody>
-                {list.length === 0 ? (<tr>
-                  <td colSpan={7} className="text-center" style={{ padding: '2rem', color: 'gray' }}>조회된 데이터가 없습니다.</td></tr>) :
+                {list.length === 0 ? (<tr><td colSpan={7} className="text-center" style={{ padding: '2rem', color: 'gray' }}>조회된 데이터가 없습니다.</td></tr>) :
                   list?.map(v => (
                     <tr key={v.asnId}>
                       <td>{v.orderDate}</td>
