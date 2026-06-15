@@ -6,7 +6,6 @@ import { getInbound, getInboundDetail, setPage, closeInboundModal } from '@store
 import { getFirstDay, getLastDayOfMonth, addOneDay } from '@stores/date';
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
-// 1. 내부 모달 컴포넌트도 리덕스 액션을 바라보도록 수정
 const InboundModal = ({ detailData, isModal }) => {
     const dispatch = useDispatch();
     const inbound = detailData?.inbound;
@@ -120,39 +119,34 @@ const Inbound = () => {
     };
 
     const getData = () => {
-        const params = { page, size };
+        const startVal = orderStartRef.current?.value || "";
+        const endVal = orderEndRef.current?.value || "";
 
-        if (asnRef.current?.value) {
-            params.asnId = asnRef.current.value;
-        }
-
-        if (orderStartRef.current?.value) {
-            params.orderStart = orderStartRef.current.value;
-            setFirstDate(params.orderStart);
-        }
-
-        if (orderEndRef.current?.value) {
-            params.orderEnd = addOneDay(orderEndRef.current.value);
-            setEndDate(orderEndRef.current.value);
-        }
-
-        if (params.orderStart === "" && params.orderEnd !== "") {
+        if ((startVal !== "" && endVal === "") || (startVal === "" && endVal !== "")) {
             showDefaultAlert("오류", "입고일자 검색을 완성하거나 초기화 후 검색해주세요.", "error");
             return;
+        }
+
+        const params = { page, size };
+
+        if (asnRef.current !== null) params.asnId = asnRef.current.value;
+
+        if (startVal !== "") {
+            params.orderStart = startVal;
+            setFirstDate(startVal);
+        }
+
+        if (endVal !== "") {
+            params.orderEnd = addOneDay(endVal);
+            setEndDate(endVal);
         }
 
         dispatch(getInbound(params));
     };
 
     useEffect(() => {
-        if (orderStartRef.current) orderStartRef.current.value = getFirstDay();
-        if (orderEndRef.current) orderEndRef.current.value = getLastDayOfMonth();
-        getData();
-    }, []);
-
-    useEffect(() => {
-        if (page !== 1) getData();
-    }, [page]);
+        if (!isModal) getData();
+    }, [page, isModal]);
 
     return (
         <div id="inbound-page">
@@ -165,9 +159,9 @@ const Inbound = () => {
                     <div className="filter-group group-date-range">
                         <label>입고일자 검색</label>
                         <div className="date-range-container">
-                            <input type="date" id="search_start_date" className="filter-control" ref={orderStartRef} />
+                            <input type="date" id="search_start_date" className="filter-control" ref={orderStartRef} defaultValue={getFirstDay()} />
                             <span className="date-separator">~</span>
-                            <input type="date" id="search_end_date" className="filter-control" ref={orderEndRef} />
+                            <input type="date" id="search_end_date" className="filter-control" ref={orderEndRef} defaultValue={getLastDayOfMonth()} />
                         </div>
                     </div>
                     <div className="filter-group">
