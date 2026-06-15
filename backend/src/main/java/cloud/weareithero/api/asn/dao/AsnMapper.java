@@ -1,11 +1,14 @@
 package cloud.weareithero.api.asn.dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import cloud.weareithero.api.asn.dto.AsnDTO;
 import cloud.weareithero.api.asn.dto.AsnMaterialDTO;
@@ -173,5 +176,18 @@ public interface AsnMapper {
       FROM `highgooh`.`MATERIAL_MASTER`
       """)
   public List<AsnMaterialDTO> findByMaterial();
+
+  // 입고 완료 처리 - state_code 변경, ata(실제입고시각) 기록
+  @Update("""
+      UPDATE `INBOUND` 
+        SET `state_code` = 5, 
+            `ata` = #{ata}
+        WHERE `id` = #{asnId}
+      """)
+  public int completeInbound(@Param("asnId") int asnId, @Param("ata") LocalDateTime ata);
+
+  // 입고 상태 검색
+  @Select("SELECT `state_code` FROM `INBOUND` WHERE `id` = #{asnId}")
+  public int findStateCode(int asnId);
 
 }
