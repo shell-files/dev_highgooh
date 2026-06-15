@@ -1,5 +1,6 @@
 package cloud.weareithero.api.asn.dao;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -67,4 +68,13 @@ public class AsnDaoImp implements AsnDao {
     return asnMapper.findByMaterial();
   }
 
+  @Override
+  public int completeInbound(int asnId, LocalDateTime ata) {
+    return asnMapper.completeInbound(asnId, ata);
+  }
+
+  @Override
+  public int findStateCode(int asnId) {
+    return asnMapper.findStateCode(asnId);
+  }
 }

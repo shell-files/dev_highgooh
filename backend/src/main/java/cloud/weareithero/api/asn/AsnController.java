@@ -1,6 +1,7 @@
 package cloud.weareithero.api.asn;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cloud.weareithero.api.asn.dto.AsnAddDTO;
+import cloud.weareithero.api.asn.dto.AsnCompleteDTO;
 import cloud.weareithero.api.asn.dto.AsnRequestDTO;
 import cloud.weareithero.api.asn.service.AsnService;
 import cloud.weareithero.dto.ResponseDTO;
@@ -43,6 +45,12 @@ public class AsnController implements AsnControllerDocs {
   @Override
   public ResponseDTO findAllAsn() {
     return asnService.findAllAsn();
+  }
+
+  @PatchMapping
+  @Override
+  public ResponseDTO completeInbound(@RequestBody AsnCompleteDTO asnCompleteDTO) {
+      return asnService.completeInbound(asnCompleteDTO);
   }
 
 }
