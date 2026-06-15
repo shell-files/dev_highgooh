@@ -59,37 +59,6 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
         Map<String, Object> resultMap = new HashMap<>();
 
         try {
-<<<<<<< Updated upstream
-            int year = Integer.parseInt(dto.getYear());
-            LocalDateTime start;
-            LocalDateTime end;
-
-            // 기간 계산 로직 (월/분기/연도)
-            if (dto.getMonth() != null && !dto.getMonth().isBlank()) {
-                int month = Integer.parseInt(dto.getMonth());
-                start = LocalDate.of(year, month, 1).atStartOfDay();
-                end = start.plusMonths(1);
-            } else if (dto.getQuarter() != null && !dto.getQuarter().isBlank()) {
-                int quarter = Integer.parseInt(dto.getQuarter());
-                int startMonth = (quarter - 1) * 3 + 1;
-                start = LocalDate.of(year, startMonth, 1).atStartOfDay();
-                end = start.plusMonths(3);
-            } else {
-                start = LocalDate.of(year, 1, 1).atStartOfDay();
-                end = start.plusYears(1);
-            }
-
-            if (dto.getPage() == null || dto.getPage() < 1) dto.setPage(1);
-            dto.setOffset((dto.getPage() - 1) * dto.getLimit());
-            dto.setCalculatedStartDate(start);
-            dto.setCalculatedEndDate(end);
-
-            // DB 조회 요청
-            List<CarbonAnomalyDTO> detailList = carbonAnomalyDao.selectAnomalyList(dto);
-            List<CarbonAnomalyCountDTO> stats = carbonAnomalyDao.selectAnomalyCount(dto);
-        
-            // 전체 카운트 계산
-=======
             // 1. 페이징 처리 (DTO에 이미 year, month, quarter가 세팅되어 있음)
             if (dto.getPage() == null || dto.getPage() < 1) {
                 dto.setPage(1);
@@ -101,7 +70,6 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
             List<CarbonAnomalyCountDTO> stats = carbonAnomalyDao.selectAnomalyCount(dto);
 
             // 3. 결과 합산
->>>>>>> Stashed changes
             long totalCount = stats.stream().mapToLong(CarbonAnomalyCountDTO::getAnomaly_count).sum();
 
             // Map에 결과 담기
