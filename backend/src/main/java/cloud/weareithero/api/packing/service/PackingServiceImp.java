@@ -130,14 +130,14 @@ public class PackingServiceImp implements PackingService {
         boolean isSuccess = false;
         String message = null;
         try {
-            // 1. 이미 완료된 패킹 송장인지 확인
+            // 1. 패킹중인 송장인지 확인
             int stateCode = packingDao.findPackingInvoiceStateCode(packingInvoiceNumber);
-            if (stateCode == 20) {
-                message = "이미 패킹완료 처리된 송장입니다.";
+            if (stateCode != 19) {
+                message = "패킹중 상태의 송장만 완료 처리할 수 있습니다.";
                 return ResponseDTO.builder()
-                .status(isSuccess)
-                .message(message)
-                .build();
+                    .status(isSuccess)
+                    .message(message)
+                    .build();
             }
 
             // 2. 패킹 송장 state_code 20(패킹완료)으로 변경
