@@ -30,7 +30,7 @@ public interface PackingControllerDocs {
     @Operation(summary = "Packing 상세 조회", description = "Packing API")
     @ApiCommonSuccess
     @ApiCommonErrors
-    public ResponseDTO findOne(Integer packingId);
+    public ResponseDTO findOne(int packingId);
 
     @Operation(summary = "Packing 생성", description = "Packing API")
     @ApiCommonSuccess
@@ -41,5 +41,10 @@ public interface PackingControllerDocs {
         }
     )) 
     PackingAddDTO packingAddDTO);
+
+    @Operation(summary = "Packing 완료 처리", description = "Packing API")
+    @ApiCommonSuccess
+    @ApiCommonErrors
+    public ResponseDTO completePacking(String packingInvoiceNumber);
     
 }

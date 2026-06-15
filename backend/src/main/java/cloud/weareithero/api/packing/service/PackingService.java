@@ -11,4 +11,6 @@ public interface PackingService {
     public ResponseDTO findOne(int orderId);
 
     public ResponseDTO addPacking(PackingAddDTO PackingAddDTO);
+
+    public ResponseDTO completePacking(String packingInvoiceNumber);
 }
