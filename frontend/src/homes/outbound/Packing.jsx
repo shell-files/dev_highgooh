@@ -4,6 +4,7 @@ import '@styles/packing.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPacking, getPackingDetail, addPackingInvoice, openPackingModal, closePackingModal, setPage } from '@stores/packingSlice';
 import { getFirstDay, getLastDayOfMonth, addOneDay } from '@stores/date';
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 // ==========================================
 // 1. 하위 컴포넌트: 대시보드 요약 (PackingSummary)
@@ -231,7 +232,7 @@ const InvoiceSlider = ({ invoicePreviews, currentSlipIdx, prevSlip, nextSlip, cu
               />
             </div>
             <div style={{ fontSize: '0.7rem', marginTop: '6px', color: '#4a5568', wordBreak: 'break-all' }}>
-              QR 링크: <span style={{ color: '#007bff' }}>{qrUrl}</span>
+              {/* QR 링크: <span style={{ color: '#007bff' }}>{qrUrl}</span> */}
             </div>
           </div>
           <div style={{ height: '5px' }}></div>
@@ -395,16 +396,17 @@ const Packing = () => {
     setCarrier('');
     setInvoicePreviews([]);
     setCurrentSlipIdx(0);
+    fetchPackingData(page);
   };
 
   const handleGenerateInvoice = () => {
     if (!carrier) {
-      alert('배송을 담당할 택배사/물류업체를 선택해 주세요.');
+      showDefaultAlert("선택 오류", "배송을 담당할 택배사/물류업체를 선택해 주세요.", "error");
       return;
     }
     const items = detailData?.items ?? [];
     if (!items.length) {
-      alert('출고 처리를 진행할 제품 정보가 존재하지 않습니다.');
+      showDefaultAlert("오류", "출고 처리를 진행할 제품 정보가 존재하지 않습니다.", "error");
       return;
     }
     const packingInvoice = items.flatMap(product =>
@@ -427,8 +429,6 @@ const Packing = () => {
         fetchPackingData(page);
       }
     });
-
-    // alert(`[낱개 분할 처리 완료] 총 주문 수량 ${reSelectedInvoices.length}개에 매핑되는 개별 QR 라벨 송장 기록이 생성되었습니다.`);
   };
 
   // 전체 송장 일괄 출력 핸들러 함수
@@ -436,7 +436,7 @@ const Packing = () => {
     const totalCount = invoicePreviews.length;
     const keyListStr = invoicePreviews.map(inv => inv.id).join('\n - ');
 
-    alert(`[바코드 스풀러 인쇄 명령 수신]\n\n총 ${totalCount}개의 낱개 송장라벨 출력을 시작합니다.\n\n[출력 대상 고유키 리스트]:\n - ${keyListStr}`);
+    showDefaultAlert("[바코드 스풀러 인쇄 명령 수신]", `총 ${totalCount}개의 낱개 송장라벨 출력을 시작합니다.`, "success");
   };
 
   const prevSlip = () => { if (currentSlipIdx > 0) setCurrentSlipIdx(currentSlipIdx - 1); };
