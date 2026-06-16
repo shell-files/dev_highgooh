@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeOrderModal, addOrder, getOrder, processOrder } from '@stores/orderSlice';
+import { closeOrderModal, addOrder, getOrder, completeOrder } from '@stores/orderSlice';
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
 import { getToday } from '@stores/date';
 
@@ -156,12 +156,10 @@ const OrderModal = () => {
       })),
     };
 
-    dispatch(addOrder(params)).then(() => {
-      dispatch(getOrder({ page: 1, size: 10 }));
-      setTimeout(() => {
-        setModal();
-        window.location.reload();
-      }, 100);
+    dispatch(addOrder(params)).then((res) => {
+      if (res.payload?.status === true) {
+        dispatch(getOrder({ page: currentPage, size })); // 목록 갱신만
+      }
     });
   };
 
@@ -180,8 +178,7 @@ const OrderModal = () => {
           <form id="orderForm" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', margin: 0 }}>
             <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
               <div className="modal-form-grid">
-
-                {/* 고객사 */}
+                {/* 고객사 - 공통 */}
                 <div className="form-group">
                   <label>고객사 {!isDetail && <span className="required">*</span>}</label>
                   {isDetail
@@ -195,28 +192,36 @@ const OrderModal = () => {
                   }
                 </div>
 
-                {/* 주문마감일자 */}
-                <div className="form-group">
-                  <label>주문마감일자 {!isDetail && <span className="required">*</span>}</label>
-                  <input type="date" id="modal_deadline" className="modal-input" value={formData.deadline} onChange={handleInputChange} readOnly={isDetail} />
-                </div>
-
-                {/* 상세 모드일 때만 표시 */}
+                {/* 상세 모드: 진행상태, 주문일자 */}
                 {isDetail && (
                   <>
-                    <div className="form-group">
-                      <label>주문일자</label>
-                      <input type="date" className="modal-input" value={formData.orderDate} readOnly />
-                    </div>
-
                     <div className="form-group">
                       <label>진행상태</label>
                       <input type="text" className="modal-input" value={initialData?.order?.stateCode ?? ''} readOnly />
                     </div>
+                    <div className="form-group">
+                      <label>주문일자</label>
+                      <input type="date" className="modal-input" value={formData.orderDate} readOnly />
+                    </div>
+                  </>
+                )}
 
+                {/* 주문마감일자 - 공통 */}
+                <div className="form-group">
+                  <label>주문 마감일자 {!isDetail && <span className="required">*</span>}</label>
+                  <input type="date" id="modal_deadline" className="modal-input" value={formData.deadline} onChange={handleInputChange} readOnly={isDetail} />
+                </div>
+
+                {/* 상세 모드: 총 물량, 출고예정일자 */}
+                {isDetail && (
+                  <>
+                    <div className="form-group">
+                      <label>총 물량 (세트)</label>
+                      <input type="number" className="modal-input" value={initialData?.order?.totalQuantity ?? ''} readOnly />
+                    </div>
                     <div className="form-group">
                       <label>출고 예정일자</label>
-                      <input type="date" className="modal-input" value={formData.order?.etd ?? ''} readOnly />
+                      <input type="date" className="modal-input" value={formData.etd ?? ''} readOnly />
                     </div>
                   </>
                 )}
@@ -301,6 +306,10 @@ const OrderModal = () => {
               <button className="modal-close-btn" onClick={() => setIsEtdModal(false)}>&times;</button>
             </div>
             <div className="modal-body" style={{ padding: '1.5rem' }}>
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label>주문 마감일자</label>
+                <input type="date" className="modal-input" value={formData.deadline} readOnly />
+              </div>
               <div className="form-group">
                 <label>출고 예정일자</label>
                 <input type="date" className="modal-input" value={etdInput} onChange={(e) => setEtdInput(e.target.value)} />
@@ -313,7 +322,7 @@ const OrderModal = () => {
                   showDefaultAlert("오류", "출고 예정일을 입력해주세요.", "error");
                   return;
                 }
-                dispatch(processOrder({ outboundId: initialData.order.outboundId, etd: etdInput }));
+                dispatch(completeOrder({ outboundId: initialData.order.outboundId, etd: etdInput }));
                 setIsEtdModal(false);
               }}>확인</button>
             </div>
@@ -321,8 +330,6 @@ const OrderModal = () => {
         </div>
       )}
     </>
-
-
   );
 };
 

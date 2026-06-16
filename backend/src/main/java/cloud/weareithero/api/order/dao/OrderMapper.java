@@ -108,6 +108,7 @@ public interface OrderMapper {
             `o`.`order_date`               AS `orderDate`,
             `o`.`deadline`                 AS `deadline`,
             `o`.`etd`,
+            `o`.`state_code`               AS `stepCode`,
             `o`.`total_quantity`           AS `totalQuantity`,
             (SELECT SUM(CAST(`op`.`total_price` AS UNSIGNED))
              FROM `ORDER_PRODUCT` `op`
@@ -154,7 +155,10 @@ public interface OrderMapper {
         `o`.`partner_company_id`   AS `partnerCompanyId`,
         `pcm`.`name`               AS `partnerName`,
         `o`.`order_date`           AS `orderDate`,
+        `o`.`total_quantity`       AS `totalQuantity`,
         `o`.`deadline`             AS `deadline`,
+        `o`.`etd`,
+        `o`.`state_code`           AS `stepCode`,
         `cc`.`name`                AS `stateCode`
       FROM `OUTBOUND` `o`
       JOIN `PARTNER_COMPANY_MASTER` `pcm`
@@ -237,16 +241,14 @@ public interface OrderMapper {
 
   // ──────────────────────────────────────────────────────────────
   // 7. 주문 마스터 UPDATE (OUTBOUND 테이블)
-  // [신규] Inbound에 없던 수정 기능
-  // deadline 수정 (state_code는 별도 상태 변경 API 검토 여지 있음)
+  // etd 설정, `state_code` = 9 (완료) 설정
   //
-  // TODO: state_code 수정도 이 API에서 처리할지 별도 상태변경 API로 분리할지 결정 필요
   // ──────────────────────────────────────────────────────────────
   @Update("""
       UPDATE `OUTBOUND`
       SET
         `etd` = #{etd},
-        `state_code` = 8
+        `state_code` = 9
       WHERE `id` = #{outboundId}
       """)
   public int update(@Param("outboundId") int outboundId, @Param("etd") String etd);

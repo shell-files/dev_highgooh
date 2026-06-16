@@ -55,7 +55,7 @@ public class OrderController implements OrderControllerDocs {
     return orderService.add(orderAddDTO);
   }
 
-  /** 신규 => 처리중 */
+  /** 신규 => 주문완료 처리 */
   @PatchMapping("/{outboundId:[0-9]+}")
   public ResponseDTO update(@PathVariable Integer outboundId,
                             @RequestBody OrderUpdateDTO orderUpdateDTO) {

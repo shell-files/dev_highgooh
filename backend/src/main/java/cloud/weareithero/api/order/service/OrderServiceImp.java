@@ -178,14 +178,8 @@ public class OrderServiceImp implements OrderService {
   }
 
   // ─────────────────────────────────────────────
-  // 4. 주문 수정
-  // [신규] Inbound에 없던 기능
-  // OUTBOUND 헤더(deadline, state_code) 수정
-  // ORDER_PRODUCT 품목 수정 (quantity, price, total_price)
-  //
-  // TODO: 품목 수정 전략 결정 필요
-  // 현재는 "기존 품목 전체 삭제 후 재삽입" 방식으로 구현
-  // 항목별 UPDATE 방식이 필요하면 orderDao.updateOrderProduct() 별도 추가
+  // 4. 주문 완료
+  // OUTBOUND 헤더(etd, state_code) 수정
   // ─────────────────────────────────────────────
   @Override
   @Transactional
@@ -196,7 +190,7 @@ public class OrderServiceImp implements OrderService {
       int result = orderDao.update(outboundId, orderUpdateDTO.getEtd());
       if (result > 0) {
           isSuccess = true;
-          message = "주문이 처리중으로 변경되었습니다.";
+          message = "주문이 완료되었습니다.";
       } else {
           message = "해당 주문을 찾을 수 없습니다.";
       }

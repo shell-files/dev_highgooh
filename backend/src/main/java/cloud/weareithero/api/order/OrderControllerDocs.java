@@ -47,7 +47,7 @@ public interface OrderControllerDocs {
               @ExampleObject(
                   name = "5. 진행상태 검색",
                   value = OrderResponseExamples.SUCCESS5_DEFAULT,
-                  description = "진행상태(신규/처리중/주문완료)로 필터링합니다."
+                  description = "진행상태(신규/주문완료)로 필터링합니다."
               ),
           }
       ))
@@ -73,8 +73,8 @@ public interface OrderControllerDocs {
                   description = "신규 주문을 등록합니다."
               )})) OrderAddDTO orderAddDTO);
 
-  @Operation(summary = "주문 수정",
-      description = "기존 주문의 마감일·진행상태·품목 수량·금액을 수정합니다. (OUTBOUND 헤더 + ORDER_PRODUCT 품목)")
+  @Operation(summary = "주문 완료 처리",
+      description = "신규 주문의 출고 예정 일자 설정 및 주문 완료 상태로 변경합니다.")
   @ApiCommonSuccess
   @ApiCommonErrors
   public ResponseDTO update(Integer outboundId, OrderUpdateDTO orderUpdateDTO);
