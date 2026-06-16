@@ -30,22 +30,27 @@ const OutboundOrder = () => {
 
   // ── 단일 데이터 조회 함수 (Ref 데이터 직접 수집) ──
   const getData = () => {
+    const startVal = startDateRef.current?.value || "";
+    const endVal = endDateRef.current?.value || "";
+
+    if ((startVal !== "" && endVal === "") || (startVal === "" && endVal !== "")) {
+      showDefaultAlert("오류", "주문 기간 검색을 완성하거나 초기화 후 검색해주세요.", "error");
+      return;
+    }
+
     const params = { page, size };
-
-    if (startDateRef.current?.value) params.orderStart = startDateRef.current.value;
-
-    // Packing 표준 규격에 맞춰 종료일 검증 문맥에 하루를 더해 검색 조건 보정
-    if (endDateRef.current?.value) params.orderEnd = addOneDay(endDateRef.current.value);
 
     if (orderIdRef.current?.value) params.outboundId = orderIdRef.current.value;
     if (customerIdRef.current?.value) params.customerName = customerIdRef.current.value;
     if (stepRef.current?.value) params.status = stepRef.current.value;
 
-    if (params.orderStart && !endDateRef.current?.value) {
-      showDefaultAlert("에러", "주문 기간이 필요합니다.", "error");
-      return;
+    if (startVal !== "") {
+      params.orderStart = startVal;
     }
-
+    if (endVal !== "") {
+      params.orderEnd = addOneDay(endVal);
+    }
+    
     dispatch(getOrder(params));
   };
 
