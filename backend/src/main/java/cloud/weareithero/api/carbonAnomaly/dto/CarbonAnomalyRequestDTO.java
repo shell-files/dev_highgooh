@@ -1,6 +1,5 @@
 package cloud.weareithero.api.carbonAnomaly.dto;
 
-import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
