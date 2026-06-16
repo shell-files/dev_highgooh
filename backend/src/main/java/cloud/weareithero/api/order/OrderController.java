@@ -1,6 +1,7 @@
 package cloud.weareithero.api.order;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -59,7 +60,7 @@ public class OrderController implements OrderControllerDocs {
    * [신규] Inbound에 없던 수정 엔드포인트
    * Path Variable로 수정 대상 outboundId 전달
    */
-  @PostMapping("/{outboundId:[0-9]+}/update")
+  @PatchMapping("/{outboundId:[0-9]+}/update")
   public ResponseDTO update(@PathVariable Integer outboundId,
                             @RequestBody OrderUpdateDTO orderUpdateDTO) {
     return orderService.update(outboundId, orderUpdateDTO);
