@@ -26,7 +26,7 @@ const OutHistory = () => {
     const [transName, setTransName] = useState("");
     const [startDay, setStartDay] = useState("");
     const [endDay, setEndDay] = useState("");
-
+    console.log(historyList)
 
     // 2. 가짜 데이터 필드 구조 호환을 위한 맵 변환 가공
     const summaryData = {
@@ -128,14 +128,15 @@ const OutHistory = () => {
     const selectedOrderNo = detailData && detailData.length > 0 ? (detailData[0].outbound_id) : '';
 
 
+    // modalData 수정
     const modalData = {
         customer: detailData && detailData.length > 0 ? detailData[0].partner_company_name : '-',
         transportCompany: detailData && detailData.length > 0 ? detailData[0].transport_company_name : '-',
-        status: detailData && detailData.length > 0 ? (detailData[0].delivery_status === '기한달성' ? '기한 달성' : '기한 초과') : '확인불가',
         boxes: detailData ? detailData.map(box => ({
             boxNo: box.packing_invoice_number || '-',
             productName: box.name || '상품 정보 없음',
-            trackingNo: box.invoice_number || '-'
+            trackingNo: box.invoice_number || '-',
+            deliveryStatus: box.delivery_status === '기한달성' ? '기한 달성' : '기한 초과'  // ← 박스별로 보관
         })) : []
     };
 
@@ -360,10 +361,10 @@ const OutHistory = () => {
                                                     <td className="td-name">{box.productName}</td>
                                                     <td className="td-qty text-center">{box.trackingNo}</td>
                                                     <td className="text-center">
-                                                        <span className={`status-badge ${modalData.status === '기한 달성' ? 'bg-green-light text-green' :
-                                                            modalData.status === '기한 초과' ? 'bg-red-light text-red' : 'bg-blue-light text-blue'
+                                                        <span className={`status-badge ${box.deliveryStatus === '기한 달성' ? 'bg-green-light text-green' :
+                                                            box.deliveryStatus === '기한 초과' ? 'bg-red-light text-red' : 'bg-blue-light text-blue'
                                                             }`}>
-                                                            {modalData.status}
+                                                            {box.deliveryStatus}
                                                         </span>
                                                     </td>
                                                 </tr>

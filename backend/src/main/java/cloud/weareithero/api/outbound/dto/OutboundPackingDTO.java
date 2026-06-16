@@ -54,6 +54,20 @@ public class OutboundPackingDTO {
     private LocalDate etd; // OUTBOUND.etd (출발 예정일)
     private Integer transportationId; // OUTBOUND_PACKING.outbound_transportation_id (null=미배정)
 
+    private String senderName;       // COMPANY_MASTER.name
+    private String senderAddress;    // COMPANY_MASTER.company_address
+
+    // 수취인 정보
+    private String receiverName;     // PARTNER_COMPANY_MASTER.name (고객사)
+    private String receiverAddress;  // PARTNER_COMPANY_ADDRESS.company_address
+    private String receiverPostal;   // PARTNER_COMPANY_ADDRESS.postal_code
+
+    // 제품명
+    private String productName;      // ORDER_PRODUCT → OUTBOUND_PRODUCT_MASTER.name
+
+    // 발송일 (송장 발급일 = 서버 오늘 날짜)
+    private String shippedAt;
+
     @Schema(description = "운송사 ID (차량 배정 모달용)")
     private Integer carrierId; // LEFT JOIN이므로 Integer(nullable)
     // ※ selectable(체크박스 활성 여부): transportationId IS NULL 이면 true

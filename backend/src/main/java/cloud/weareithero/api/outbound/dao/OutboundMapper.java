@@ -47,34 +47,26 @@ public interface OutboundMapper {
    * TODO: '완료' state_code 정수값 확인 필요 (현재 CASE WHEN state_code != 9 로 임시 처리)
    * OrderMapper 기준 9 = 출고완료 이므로 동일 체계라면 9 사용 가능, COMMON_CODE 확인 필요
    */
-  @Select("<script>" +
-      """
-          SELECT
-            SUM(CASE WHEN `op`.`state_code` = 20 THEN 1 ELSE 0 END) AS `unassigned`,
-            SUM(CASE WHEN `op`.`state_code` = 21 THEN 1 ELSE 0 END) AS `vehicleReady`,
-            SUM(CASE WHEN `op`.`state_code` = 22 THEN 1 ELSE 0 END) AS `waitingOut`,
-            SUM(CASE WHEN DATEDIFF(`ob`.`deadline`, CURDATE()) BETWEEN 0 AND 3
-                          AND `op`.`state_code` != 22
+  @Select("""
+      <script>
+      SELECT
+          SUM(CASE WHEN `op`.`state_code` = 20 THEN 1 ELSE 0 END) AS `unassigned`,
+          SUM(CASE WHEN `op`.`state_code` = 21 THEN 1 ELSE 0 END) AS `vehicleReady`,
+          SUM(CASE WHEN `op`.`state_code` = 22 THEN 1 ELSE 0 END) AS `waitingOut`,
+          
+          SUM(CASE WHEN `ob`.`etd` &gt;= NOW()
+                    AND DATEDIFF(`ob`.`etd`, NOW()) &lt;= 3
+                    AND `op`.`state_code` IN (20,21,22)
                     THEN 1 ELSE 0 END) AS `nearDeadline`,
-            SUM(CASE WHEN `ob`.`deadline` &lt; CURDATE()
-                          AND `op`.`state_code` != 22
+
+          SUM(CASE WHEN `ob`.`etd` &lt; NOW() 
+                    AND `op`.`state_code` IN (20,21,22)
                     THEN 1 ELSE 0 END) AS `overdue`
-          FROM `OUTBOUND_PACKING` `op`
-          JOIN `OUTBOUND` `ob` ON `op`.`outbound_id` = `ob`.`id`
-          JOIN `PARTNER_COMPANY_MASTER` `pcm` ON `ob`.`partner_company_id` = `pcm`.`id`
-          """ +
-      "<where>" +
-      "<if test='clientId != null and clientId != 0'>" +
-      " AND `ob`.`partner_company_id` = #{clientId} " +
-      "</if>" +
-      "<if test='outboundId != null and outboundId != 0'>" +
-      " AND `ob`.`id` = #{outboundId} " +
-      "</if>" +
-      "<if test='customerName != null and customerName != \"\"'>" +
-      " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
-      "</if>" +
-      "</where>" +
-      "</script>")
+      FROM `OUTBOUND_PACKING` `op`
+      INNER JOIN `OUTBOUND` `ob` ON `op`.`outbound_id` = `ob`.`id`
+      
+      </script>
+      """)
   public OutboundSummaryDTO findSummary(OutboundRequestDTO outboundRequestDTO);
 
   /**
@@ -480,14 +472,48 @@ public interface OutboundMapper {
 
   @Select("""
     SELECT
-      `op`.`id`                        AS `packingId`,
-      `op`.`packing_invoice_number`    AS `packingInvoiceNumber`,
-      `op`.`invoice_number`            AS `invoiceNumber`,
-      `op`.`state_code`                AS `stateCode`,
-      `cc`.`name`                      AS `stateName`
+      `op`.`id`                           AS `packingId`,
+      `op`.`packing_invoice_number`       AS `packingInvoiceNumber`,
+      `op`.`invoice_number`               AS `invoiceNumber`,
+      `op`.`state_code`                   AS `stateCode`,
+      `cc`.`name`                         AS `stateName`,
+      `ob`.`deadline`                     AS `deadline`,
+      `ob`.`etd`                          AS `etd`,
+      `op`.`partner_company_id`           AS `carrierId`,
+      `carrier`.`name`                    AS `carrierName`,
+      `pcm`.`name`                        AS `customerName`,
+      `op`.`outbound_transportation_id`   AS `transportationId`,
+
+      `cm`.`name`                         AS `senderName`,
+      `cm`.`company_address`              AS `senderAddress`,
+
+      `pcm`.`name`                        AS `receiverName`,
+      `pca`.`company_address`             AS `receiverAddress`,
+      `pca`.`postal_code`                 AS `receiverPostal`,
+
+      `opm`.`name`                        AS `productName`,
+
+      CURDATE()                           AS `shippedAt`
+
     FROM `OUTBOUND_PACKING` `op`
-    JOIN `COMMON_CODE` `cc` ON `op`.`state_code` = `cc`.`id`
+    JOIN `COMMON_CODE` `cc`
+      ON `op`.`state_code` = `cc`.`id`
+    JOIN `OUTBOUND` `ob`
+      ON `op`.`outbound_id` = `ob`.`id`
+    JOIN `PARTNER_COMPANY_MASTER` `pcm`
+      ON `ob`.`partner_company_id` = `pcm`.`id`
+    LEFT JOIN `PARTNER_COMPANY_MASTER` `carrier`
+      ON `op`.`partner_company_id` = `carrier`.`id`
+    LEFT JOIN `PARTNER_COMPANY_ADDRESS` `pca`
+      ON `ob`.`partner_company_id` = `pca`.`partner_company_id`
+    JOIN `COMPANY_MASTER` `cm`
+      ON `cm`.`id` = 1
+    LEFT JOIN `ORDER_PRODUCT` `op2`
+      ON `op2`.`outbound_id` = `ob`.`id`
+    LEFT JOIN `OUTBOUND_PRODUCT_MASTER` `opm`
+      ON `op2`.`outbound_product_id` = `opm`.`id`
     WHERE `op`.`outbound_transportation_id` = #{transportationId}
+    GROUP BY `op`.`id`
     ORDER BY `op`.`id` ASC
     """)
   public List<OutboundPackingDTO> findPackingsByTransportationId(int transportationId);
@@ -541,4 +567,38 @@ public interface OutboundMapper {
       @Param("transportationId") int transportationId,
       @Param("stateCode") int stateCode
   );
+
+  @Select("<script>" +
+    """
+        SELECT COUNT(DISTINCT `ot`.`id`)
+        FROM `OUTBOUND_TRANSPORTATION` `ot`
+        JOIN `PARTNER_COMPANY_MASTER` `carrier` ON `ot`.`partner_company_id` = `carrier`.`id`
+        LEFT JOIN `OUTBOUND_PACKING` `op` ON `op`.`outbound_transportation_id` = `ot`.`id`
+        LEFT JOIN `OUTBOUND` `ob` ON `op`.`outbound_id` = `ob`.`id`
+        LEFT JOIN `PARTNER_COMPANY_MASTER` `pcm` ON `ob`.`partner_company_id` = `pcm`.`id`
+        """ +
+    "<where>" +
+    "   `ot`.`state_code` IS NOT NULL " +
+    " AND `ot`.`state_code` &lt; 23 " +
+    "<if test='stateCode != null and stateCode != 0'>" +
+    " AND `ot`.`state_code` = #{stateCode} " +
+    "</if>" +
+    "<if test='carrierId != null and carrierId != 0'>" +
+    " AND `ot`.`partner_company_id` = #{carrierId} " +
+    "</if>" +
+    "<if test='transportationId != null and transportationId != 0'>" +
+    " AND `ot`.`id` = #{transportationId} " +
+    "</if>" +
+    "<if test='customerName != null and customerName != \"\"'>" +
+    " AND `pcm`.`name` LIKE CONCAT('%', #{customerName}, '%') " +
+    "</if>" +
+    "<if test='orderStart != null and orderStart != \"\" and orderEnd != null and orderEnd != \"\"'>" +
+    " AND `ob`.`order_date` BETWEEN #{orderStart} AND #{orderEnd} " +
+    "</if>" +
+    "</where>" +
+    "</script>")
+  public int countAllManifest(OutboundRequestDTO outboundRequestDTO);
+
+  @Select("SELECT `id`, `name` FROM `PARTNER_COMPANY_MASTER` WHERE `id` = #{carrierId}")
+  public OutboundCarrierDTO findCarrierById(@Param("carrierId") int carrierId);
 }
