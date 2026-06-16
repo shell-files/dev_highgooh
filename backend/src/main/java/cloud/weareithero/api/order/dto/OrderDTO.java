@@ -34,6 +34,7 @@ public class OrderDTO {
   private LocalDate etd;
   private Long totalPrice;         // ORDER_PRODUCT.total_price SUM (목록 집계용)
   private Integer totalQuantity;
+  private int stepCode;
   private String stateCode;        // COMMON_CODE.name (상태명 문자열)
   private List<OrderProductDTO> items;
 

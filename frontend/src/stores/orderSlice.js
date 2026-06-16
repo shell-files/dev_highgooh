@@ -72,8 +72,8 @@ export const addOrder = createAsyncThunk(
   }
 );
 
-export const processOrder = createAsyncThunk(
-  'order/process',
+export const completeOrder = createAsyncThunk(
+  'order/complete',
   async (credentials, { rejectWithValue }) => {
     try {
       return await PATCH(`/order/${credentials.outboundId}`, { etd: credentials.etd });
@@ -83,7 +83,7 @@ export const processOrder = createAsyncThunk(
   }
 );
 
-const orderAsyncActions = [getOrder, getOrderDetail, getOrderModal, addOrder, processOrder];
+const orderAsyncActions = [getOrder, getOrderDetail, getOrderModal, addOrder, completeOrder];
 
 // ─────────────────────────────────────────────────────────────
 // Slice 정의
@@ -173,7 +173,7 @@ const orderSlice = createSlice({
         state.loading = false;
       })
       // 처리중으로 변경
-      .addCase(processOrder.fulfilled, (state, action) => {
+      .addCase(completeOrder.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
           showDefaultAlert("완료", res.message, "success");
