@@ -247,13 +247,6 @@
     margin-bottom: 1.5rem;
 }
 
-/* 4열 분할에서 기간 단위 확장형 3열 배분 구조로 최적화 */
-#outbound-page .search-filter-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr auto;
-    gap: 1.5rem;
-    align-items: flex-end;
-}
 
 #outbound-page .filter-group {
     display: flex;
@@ -1301,14 +1294,14 @@
 
 #outbound-page .search-filter-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     gap: 1.5rem;
     align-items: flex-end;
 }
 
 #outbound-page .search-filter-grid2 {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 1.5rem;
     align-items: flex-end;
 }
@@ -2174,4 +2167,40 @@
 
 #outbound-page .slider-controls span {
     padding: 0 10px;
+}
+
+
+#outbound-page .btn-action-blue:disabled,
+#outbound-page .btn-action-green:disabled {
+    background-color: #b0b8c1;   /* 회색 */
+    color: #ffffff;
+    border-color: #b0b8c1;
+    cursor: not-allowed;
+    opacity: 0.65;
+    pointer-events: auto;        /* disabled는 pointer-events: none이라 cursor가 안 먹히므로 wrapper 처리 필요 */
+}
+
+#outbound-page .btn-disabled {
+    background-color: #b0b8c1 !important;
+    color: #fff !important;
+    border-color: #b0b8c1 !important;
+    cursor: not-allowed !important;
+}
+
+
+#outbound-page .invoice-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+#outbound-page .invoice-list-id {
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+#outbound-page .invoice-list-deadline {
+    font-size: 0.8rem;
+    text-align: right;
 }

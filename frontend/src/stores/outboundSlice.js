@@ -153,6 +153,15 @@ const outboundSlice = createSlice({
   reducers: {
     setOutboundPage: (state, action) => {
       state.view.page = action.payload;
+    },
+    resetSummary: (state) => {  // ← 추가
+      state.view.summary = {
+        unassigned: 0,
+        vehicleReady: 0,
+        waitingOut: 0,
+        nearDeadline: 0,
+        overdue: 0
+      };
     }
   },
   extraReducers: (builder) => {
@@ -220,9 +229,6 @@ const outboundSlice = createSlice({
           state.view.totalPages = res.data?.pagination?.totalPages || 1;
 
           // 상단 대시보드 카드 요약 데이터 연동
-          if (res.data?.summary) {
-            state.view.summary = res.data.summary;
-          }
         } else {
           state.error = res?.message || "데이터 로드 실패";
         }
@@ -271,7 +277,16 @@ const outboundSlice = createSlice({
           alert(res?.message || '송장 발급 처리 실패');
         }
         state.loading = false;
-      });
+      })
+
+      .addCase(getOutboundSummary.fulfilled, (state, action) => {
+        const res = action.payload;
+        if (res?.status && res.data?.summary) {
+          state.view.summary = res.data.summary;
+        }
+        state.loading = false;
+      })
+      ;
 
     // 로딩 및 에러 통신 처리 공통 매처
     builder
@@ -286,5 +301,16 @@ const outboundSlice = createSlice({
   }
 });
 
-export const { setOutboundPage } = outboundSlice.actions;
+export const getOutboundSummary = createAsyncThunk(
+  'outbound/summary',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await POST('/outbound', { page: 1, size: 1, outboundId: 0, clientId: 0, carrierId: 0, packingId: 0, stateCode: 0, transportationId: 0 });
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const { setOutboundPage, resetSummary } = outboundSlice.actions;
 export default outboundSlice.reducer;
