@@ -109,7 +109,7 @@ const OutboundOrder = () => {
         </div>
         <div className="summary-card-item">
           <div className="card-info-left">
-            <span className="summary-label">출고완료</span>
+            <span className="summary-label">주문완료</span>
             <span className="summary-value text-green">{summary.completed}<small>건</small></span>
           </div>
           <div className="card-trend-right">
