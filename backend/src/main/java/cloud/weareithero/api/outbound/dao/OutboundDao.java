@@ -63,4 +63,8 @@ public interface OutboundDao {
     public int updatePackingStateByTransportationId(int transportationId, int stateCode);
 
     public int updateTransportationStateTo22(int transportationId);
+
+    public int countAllManifest(OutboundRequestDTO outboundRequestDTO);
+
+    OutboundCarrierDTO findCarrierById(int carrierId);
 }
