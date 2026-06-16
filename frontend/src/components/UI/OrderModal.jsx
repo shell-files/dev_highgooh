@@ -160,7 +160,7 @@ const OrderModal = () => {
   return (
     <>
       <div className="modal-overlay active" onClick={setModal}>
-        <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', height: '580px', maxHeight: '85vh', overflow: 'hidden' }}>
+        <div className="modal-container" onClick={(e) => e.stopPropagation()} >
 
           <div className="modal-header" style={{ flexShrink: 0 }}>
             <h3>{isDetail ? '주문 계약 상세 내역' : '신규 주문 계약 등록'}</h3>
