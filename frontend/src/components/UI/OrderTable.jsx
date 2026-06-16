@@ -18,7 +18,7 @@ const OrderTable = ({ orders, onOrderClick }) => {
             <th>고객사(고객사)</th>
             <th>총 공급가액</th>
             <th>주문일자</th>
-            <th>출고마감</th>
+            <th>주문마감</th>
             <th>진행상태</th>
           </tr>
         </thead>

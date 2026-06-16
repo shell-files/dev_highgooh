@@ -134,11 +134,6 @@ const OrderModal = () => {
     }
   };
 
-  // ── 💡 [2번 요구사항 반영] 백엔드 DTO 타입 에러 완벽 차단 및 검증 정형화 ──
-  // ── 🛠️ 백엔드 DTO 스펙 미세 불일치 방어용 전송 전처리 ──
-  // ── 🛠️ 리덕스 슬라이스 아키텍처와 충돌 없는 클린 호출 구조 ──
-  // ── 🛠️ 등록 성공 확정 후 목록 리로드(Reload) 완벽 보장 구조 ──
-  // ── 🛠️ 리덕스 상태(State) 불일치 및 새로고침 누락 우회용 강제 매핑 ──
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -263,48 +258,22 @@ const OrderModal = () => {
                     {formData.products.map((product, index) => (
                       <tr key={product.id ?? index}>
                         <td>
-                          <select
-                            className="modal-select"
-                            value={product.outboundProductId}
-                            onChange={(e) => handleProductChange(index, 'outboundProductId', e.target.value)}
-                            disabled={isDetail}
-                            required
-                          >
+                          <select className="modal-select" value={product.outboundProductId} onChange={(e) => handleProductChange(index, 'outboundProductId', e.target.value)} disabled={isDetail} required>
                             <option value={0}>-- 품목 선택 --</option>
                             {products && products.map((p) => (
-                              <option key={p.id} value={p.id}>{p.name}</option>
+                              <option key={p.productId} value={p.productId}>{p.productName}</option>
                             ))}
                           </select>
                         </td>
                         <td>
-                          <input
-                            type="number"
-                            className="modal-input text-right"
-                            placeholder="0"
-                            min="1"
-                            value={product.quantity}
-                            onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
-                            readOnly={isDetail}
-                            required
-                          />
+                          <input type="number" className="modal-input text-right" placeholder="0" min="1" value={product.quantity} onChange={(e) => handleProductChange(index, 'quantity', e.target.value)} readOnly={isDetail} required />
                         </td>
                         <td>
-                          <input
-                            type="number"
-                            className="modal-input text-right"
-                            placeholder="0"
-                            min="0"
-                            value={product.price}
-                            onChange={(e) => handleProductChange(index, 'price', e.target.value)}
-                            readOnly={isDetail}
-                            required
-                          />
+                          <input type="number" className="modal-input text-right" placeholder="0" min="0" value={product.price} onChange={(e) => handleProductChange(index, 'price', e.target.value)} readOnly={isDetail} required />
                         </td>
                         {!isDetail && (
                           <td className="text-center">
-                            <button type="button" className="btn-delete-row" onClick={() => deleteProductRow(product.id)}>
-                              &times;
-                            </button>
+                            <button type="button" className="btn-delete-row" onClick={() => deleteProductRow(product.id)}>&times;</button>
                           </td>
                         )}
                       </tr>
@@ -315,13 +284,9 @@ const OrderModal = () => {
             </div>
 
             <div className="modal-footer" style={{ flexShrink: 0, display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', padding: '1rem 1.5rem', backgroundColor: '#f8fafc' }}>
-              <button type="button" className="btn-pop-cancel" onClick={setModal}>
-                {isDetail ? '닫기' : '취소'}
-              </button>
+              <button type="button" className="btn-pop-cancel" onClick={setModal}>{isDetail ? '닫기' : '취소'}</button>
               {!isDetail && (
-                <button type="submit" className="btn-pop-submit">
-                  주문 저장
-                </button>
+                <button type="submit" className="btn-pop-submit">주문 저장</button>
               )}
             </div>
           </form>

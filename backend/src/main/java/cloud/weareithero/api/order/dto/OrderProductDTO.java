@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderProductDTO {
 
-  private int id;       // OUTBOUND_PRODUCT_MASTER.id
-  private String name;  // OUTBOUND_PRODUCT_MASTER.name
+  private int productId;       // OUTBOUND_PRODUCT_MASTER.id
+  private String productName;  // OUTBOUND_PRODUCT_MASTER.name
+  private int price;           // PRODUCT_PRICE.price
 
 }
