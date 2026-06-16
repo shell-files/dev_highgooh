@@ -12,9 +12,6 @@ import cloud.weareithero.api.outboundHistory.dto.OutboundHistoryRequestDTO;
 @Mapper
 public interface OutboundHistoryMapper {
 
-  /**
-   * 1. 요약 카드용 통계 계산 (검색 필터 동적 연동)
-   */
   @Select("""
     <script>
         WITH total_completed AS (
@@ -57,7 +54,7 @@ public interface OutboundHistoryMapper {
                 </if>
             </where>
             GROUP BY P.outbound_id
-            HAVING COUNT(*) = COUNT(CASE WHEN P.state_code = 23 AND P.updated_at &lt;= O.etd THEN 1 END)
+            HAVING COUNT(*) = COUNT(CASE WHEN P.state_code = 23 AND P.updated_at &lt; O.etd THEN 1 END)
         )
         SELECT 
             (SELECT COUNT(*) FROM total_completed) AS totalCompletedCount,
@@ -79,9 +76,9 @@ public interface OutboundHistoryMapper {
             p.`name` AS trans, 
             COUNT(o.outbound_id) AS cnt,
             CASE 
-                WHEN MAX(o.updated_at) &lt;= MAX(b.etd) THEN '기한달성'
-                ELSE '기한초과'
-            END AS delivery_status
+    WHEN SUM(CASE WHEN o.updated_at &gt; b.etd THEN 1 ELSE 0 END) = 0 THEN '기한달성'
+    ELSE '기한초과'
+END AS delivery_status
         FROM OUTBOUND_PACKING AS o
         INNER JOIN (
             SELECT 
@@ -160,21 +157,20 @@ public interface OutboundHistoryMapper {
   @Select("SELECT id, `name`, customer_yn_code, carrier_yn_code FROM PARTNER_COMPANY_MASTER")
     List<Map<String, Object>> getPartnerCompanies();
 
-  @Select("""
-    SELECT 
-        p.outbound_id,
-        p.packing_invoice_number,
-        m.`name`, 
-        p.invoice_number, 
-        CASE 
-            WHEN MAX(p.updated_at) <= MAX(b.etd) THEN '기한달성'
-            ELSE '기한초과'
-        END AS delivery_status
-    FROM OUTBOUND_PACKING AS p
-    INNER JOIN OUTBOUND_PRODUCT_MASTER AS m ON p.outbound_product_id = m.id
-    INNER JOIN OUTBOUND AS b ON p.outbound_id = b.id
-    WHERE p.outbound_id = #{outboundId}
-    GROUP BY p.packing_invoice_number, m.`name`, p.invoice_number, p.outbound_id
-""")
+    @Select("""
+        SELECT 
+            p.outbound_id,
+            p.packing_invoice_number,
+            m.`name`, 
+            p.invoice_number, 
+            CASE 
+                WHEN p.updated_at <= b.etd THEN '기한달성'
+                ELSE '기한초과'
+            END AS delivery_status
+        FROM OUTBOUND_PACKING AS p
+        INNER JOIN OUTBOUND_PRODUCT_MASTER AS m ON p.outbound_product_id = m.id
+        INNER JOIN OUTBOUND AS b ON p.outbound_id = b.id
+        WHERE p.outbound_id = #{outboundId}
+    """)
     List<Map<String, Object>> getOutboundDetailList(Integer outboundId);
-}
+    }

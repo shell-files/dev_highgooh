@@ -51,3 +51,8 @@ token:
 
 logging.level.org:
   springframework.security: DEBUG #INFO trace
+
+# api 전달값 로그 확인 가능하게 해주는 명령어 (쿼리문, 결과값)
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
