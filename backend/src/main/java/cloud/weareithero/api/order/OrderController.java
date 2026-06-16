@@ -55,12 +55,8 @@ public class OrderController implements OrderControllerDocs {
     return orderService.add(orderAddDTO);
   }
 
-  /**
-   * 주문 수정
-   * [신규] Inbound에 없던 수정 엔드포인트
-   * Path Variable로 수정 대상 outboundId 전달
-   */
-  @PatchMapping("/{outboundId:[0-9]+}/update")
+  /** 신규 => 처리중 */
+  @PatchMapping("/{outboundId:[0-9]+}")
   public ResponseDTO update(@PathVariable Integer outboundId,
                             @RequestBody OrderUpdateDTO orderUpdateDTO) {
     return orderService.update(outboundId, orderUpdateDTO);
