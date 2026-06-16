@@ -87,6 +87,10 @@ const OutboundOrder = () => {
     dispatch(getOrderDetail({ outboundId: order.outboundId }));
   };
 
+  // ── 당월 기준 충족 여부 연산 ──
+  const isCurrentMonth = getFirstDay() === startDateRef.current?.value && getLastDayOfMonth() === endDateRef.current?.value;
+  const trendText = isCurrentMonth ? "당월" : "선택";
+
   return (
     <div id="order-page">
       <div className="page-header-flex">
@@ -104,7 +108,7 @@ const OutboundOrder = () => {
             <span className="summary-value">{summary.total}<small>건</small></span>
           </div>
           <div className="card-trend-right">
-            <span className="status-badge bg-all-light text-muted">당월</span>
+            <span className="status-badge bg-all-light text-muted">{trendText}</span>
           </div>
         </div>
         <div className="summary-card-item">
@@ -113,7 +117,7 @@ const OutboundOrder = () => {
             <span className="summary-value text-green">{summary.completed}<small>건</small></span>
           </div>
           <div className="card-trend-right">
-            <span className="status-badge bg-green-light text-green">당월</span>
+            <span className="status-badge bg-green-light text-green">{trendText}</span>
           </div>
         </div>
         <div className="summary-card-item">
@@ -122,7 +126,7 @@ const OutboundOrder = () => {
             <span className="summary-value text-blue">{summary.newOrder}<small>건</small></span>
           </div>
           <div className="card-trend-right">
-            <span className="status-badge bg-blue-light text-blue">당월</span>
+            <span className="status-badge bg-blue-light text-blue">{trendText}</span>
           </div>
         </div>
         {/* <div className="summary-card-item">
@@ -131,7 +135,7 @@ const OutboundOrder = () => {
             <span className="summary-value text-orange">{summary.inProgress}<small>건</small></span>
           </div>
           <div className="card-trend-right">
-            <span className="status-badge bg-orange-light text-orange">당월</span>
+            <span className="status-badge bg-orange-light text-orange">{trendText}</span>
           </div>
         </div> */}
       </div>
