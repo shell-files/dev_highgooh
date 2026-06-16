@@ -10,8 +10,10 @@ import {
     assignOutboundVehicle,
     confirmOutboundShipment,
     setOutboundPage,
+    resetSummary,
     getManifestPackings,
-    issueInvoiceByTransportation,  // ← 추가
+    issueInvoiceByTransportation,
+    getOutboundSummary  // ← 추가
 } from '@/stores/outboundSlice.js';
 
 const Outbound = () => {
@@ -38,16 +40,19 @@ const Outbound = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
 
     //송장출력
-    const [activeTransportationId, setActiveTransportationId] = useState(null);
-
+    const [activeTransportationIds, setActiveTransportationIds] = useState([]);
+    const [invoiceDataMap, setInvoiceDataMap] = useState({});
     const [firstSelectedManifestState, setFirstSelectedManifestState] = useState(null); // 21 | 22 | null
     const [firstSelectedCarrier, setFirstSelectedCarrier] = useState(null); // 첫 선택 행의 운송사명
+
+
+    const [invoiceModalStateCode, setInvoiceModalStateCode] = useState(null);
 
     const stateOption = () => {
         if (viewMode === "box") {
             return [{ value: "", text: "전체" }, { value: "20", text: "미배정" }]
         } else {
-            return [{ value: "", text: "전체" }, { value: "21", text: "차량배정" }, { value: "22", text: "송장발급" }]
+            return [{ value: "", text: "전체" }, { value: "21", text: "차량배정" }, { value: "22", text: "출고대기" }]
         }
     }
 
@@ -100,6 +105,7 @@ const Outbound = () => {
 
     useEffect(() => {
         dispatch(getOutboundFormData());
+        dispatch(getOutboundSummary());
     }, [dispatch]);
 
     // useEffect(() => {
@@ -119,6 +125,14 @@ const Outbound = () => {
         setCheckedManifests([]);
         setSelectedCarrier(null);
         dispatch(setOutboundPage(1));
+        //  dispatch(getOutboundSummary());
+        // dispatch(resetSummary());
+
+        if (viewMode === 'box') {
+            dispatch(getOutboundList({ page: 1, size, ...defaultBoxFilter }));
+        } else {
+            dispatch(getOutboundManifestList({ page: 1, size, ...defaultManifestFilter }));
+        }
     };
 
     // --- 4. 변환 및 안전한 헬퍼 유틸 함수 ---
@@ -150,9 +164,9 @@ const Outbound = () => {
     const getStatusStyle = (stateName) => {
         if (!stateName) return 'badge-dark'; // 💡 방어 코드 삽입
         switch (stateName) {
-            case '출고완료': return 'text-green bg-green-light';
-            case '출고대기': return 'text-blue bg-blue-light';
-            case '차량배정': return 'badge-pending';
+            case '출고완료': return 'badge-pending';
+            case '출고대기': return 'text-green bg-green-light';
+            case '차량배정': return 'text-blue bg-blue-light';
             case '미배정': return 'badge-dark';
             default: return 'badge-dark';
         }
@@ -359,46 +373,76 @@ const Outbound = () => {
         )
     }
 
-    const openInvoiceModal = async (singleTransId = null) => {
+    const openInvoiceModal = async (singleTransId = null, stateCode = null) => {
         let linkedBoxes = [];
+        let targetIds = [];
+
 
         if (viewMode === 'box') {
             if (checkedBoxes.length === 0) return alert('송장을 발행할 박스를 선택해주세요.');
             linkedBoxes = checkedBoxes;
-            setActiveTransportationId(null);  // ← 추가
         } else {
-            const targetId = singleTransId ?? (checkedManifests[0] ?? null);
-            if (!targetId) return alert('송장을 발행할 매니페스트를 선택해주세요.');
+            // 단일 클릭(행 클릭)이면 그것만, 아니면 체크된 전체
+            targetIds = singleTransId ? [singleTransId] : [...checkedManifests];
+            if (targetIds.length === 0) return alert('송장을 발행할 매니페스트를 선택해주세요.');
 
-            setActiveTransportationId(targetId);  // ← 추가
+            // 모든 매니페스트에 대해 병렬 API 호출
+            const results = await Promise.all(
+                targetIds.map(id => dispatch(getManifestPackings(id)))
+            );
 
-            const result = await dispatch(getManifestPackings(targetId));
-            if (result.meta.requestStatus !== 'fulfilled') {
-                return alert('박스 목록을 불러오는 데 실패했습니다.');
+            // 실패한 게 하나라도 있으면 중단
+            if (results.some(r => r.meta.requestStatus !== 'fulfilled')) {
+                return alert('일부 박스 목록을 불러오는 데 실패했습니다.');
             }
-            linkedBoxes = (result.payload?.data?.list || []).map(p => p.packingId);
 
-            if (linkedBoxes.length === 0) {
-                return alert('해당 매니페스트에 연결된 박스가 없습니다.');
-            }
+            // 전체 결과에서 packingId 합산
+            const allPackings = results.flatMap(r => r.payload?.data?.list || []);
+            const dataMap = {};
+            allPackings.forEach(p => { dataMap[p.packingId] = p; });
+            setInvoiceDataMap(dataMap);
+            linkedBoxes = allPackings.map(p => p.packingId);
+            // allPackings 만든 직후에 추가
+            console.log('📦 allPackings 원본:', allPackings);  // ← 이 줄 추가
+
+            if (linkedBoxes.length === 0) return alert('연결된 박스가 없습니다.');
         }
 
+        setActiveTransportationIds(targetIds);  // 배열로 저장 (아래 수정 2 참고)
         setActiveInvoiceBoxes(linkedBoxes);
         setSelectedInvoiceBox(linkedBoxes[0]);
         setCurrentSlide(0);
+        setInvoiceModalStateCode(stateCode);
         setModalOpen(prev => ({ ...prev, invoice: true }));
     };
 
-    const handleInvoiceSubmit = async () => {
-        if (!activeTransportationId) return alert('매니페스트 정보가 없습니다.');
+    const closeInvoiceModal = () => {
+        setModalOpen(prev => ({ ...prev, invoice: false }));
+        setCheckedManifests([]);
+        setFirstSelectedManifestState(null);
+        setFirstSelectedCarrier(null);
+        setActiveTransportationIds([]);
+        setInvoiceModalStateCode(null);
+    };
 
-        const result = await dispatch(issueInvoiceByTransportation(activeTransportationId));
-        if (result.meta.requestStatus === 'fulfilled') {
+    const handleInvoiceSubmit = async () => {
+        if (activeTransportationIds.length === 0) return alert('매니페스트 정보가 없습니다.');
+
+        const results = await Promise.all(
+            activeTransportationIds.map(id => dispatch(issueInvoiceByTransportation(id)))
+        );
+
+        const allSuccess = results.every(r => r.meta.requestStatus === 'fulfilled');
+        if (allSuccess) {
+            // ✅ 모달 닫기 + 체크 상태 전체 초기화 (버그 3 동시 해결)
             setModalOpen(prev => ({ ...prev, invoice: false }));
-            setCheckedBoxes([]);
             setCheckedManifests([]);
-            setActiveTransportationId(null);
+            setFirstSelectedManifestState(null);
+            setFirstSelectedCarrier(null);
+            setActiveTransportationIds([]);
             getData();
+        } else {
+            alert('일부 송장 발급에 실패했습니다.');
         }
     };
 
@@ -462,9 +506,9 @@ const Outbound = () => {
                         includeMargin={false}
                     />
                 </div>
-                <div style={{ fontSize: '0.7rem', marginTop: '6px', color: '#4a5568', wordBreak: 'break-all' }}>
+                {/* <div style={{ fontSize: '0.7rem', marginTop: '6px', color: '#4a5568', wordBreak: 'break-all' }}>
                     QR 링크: <span style={{ color: '#007bff' }}>{qrUrl}</span>
-                </div>
+                </div> */}
             </div>
         );
     };
@@ -669,20 +713,30 @@ const Outbound = () => {
 
                     <div className="toggle-right">
                         {viewMode === 'box' && (
-                            <button className="btn-action-gray" onClick={openVehicleModal}>차량 배정</button>
+                            <button
+                                className={`btn-filter-search ${checkedBoxes.length === 0 ? 'btn-disabled' : ''}`}
+                                disabled={checkedBoxes.length === 0}
+                                onClick={openVehicleModal}
+                            >
+                                차량 배정
+                            </button>
                         )}
                         {viewMode === 'manifest' && (
                             <>
                                 <button
-                                    className="btn-action-blue"
-                                    onClick={() => openInvoiceModal()}
-                                    disabled={firstSelectedManifestState === 22}  // 출고대기면 송장 출력 비활성화
-                                >송장 출력
-                                </button>
+                                    className={`btn-action-blue ${firstSelectedManifestState === 22 || checkedManifests.length === 0 ? 'btn-disabled' : ''}`}
+                                    onClick={() => {
+                                        if (firstSelectedManifestState === 22 || checkedManifests.length === 0) return;
+                                        openInvoiceModal();
+                                    }}
+                                >송장 출력</button>
+
                                 <button
-                                    className="btn-action-green"
-                                    onClick={handleConfirmShipment}
-                                    disabled={firstSelectedManifestState === 21}  // 차량배정이면 출고 확정 비활성화
+                                    className={`btn-action-green ${firstSelectedManifestState === 21 || checkedManifests.length === 0 ? 'btn-disabled' : ''}`}
+                                    onClick={() => {
+                                        if (firstSelectedManifestState === 21 || checkedManifests.length === 0) return;
+                                        handleConfirmShipment();
+                                    }}
                                 >출고 확정</button>
                             </>
                         )}
@@ -745,7 +799,7 @@ const Outbound = () => {
                                             </td>
 
                                             {/* 1. 기한 */}
-                                            <td className="text-center">{formatDeadline(item.deadline)}</td>
+                                            <td className="text-center">{formatDeadline(item.etd)}</td>
 
                                             {/* 2. 주문번호 (이제 기한 날짜를 베이스로 에러 없이 실시간 렌더링) */}
                                             <td className="text-center text-green font-bold"
@@ -828,7 +882,7 @@ const Outbound = () => {
                                                     checked={checkedManifests.includes(item.transportationId)}
                                                 />
                                             </td>
-                                            <td className="text-center font-bold text-link manifest-no-link" onClick={() => openInvoiceModal(item.transportationId)}>
+                                            <td className="text-center font-bold text-link manifest-no-link" onClick={() => openInvoiceModal(item.transportationId, item.stateCode)}>
                                                 {item.transportationId}
                                             </td>
                                             <td>{item.carrierName}</td>
@@ -921,22 +975,27 @@ const Outbound = () => {
                     <div className="modal-container invoice-modal-container">
                         <div className="modal-header">
                             <h3>송장 발급 관리 ({viewMode === 'manifest' ? '매니페스트 연동' : '개별박스 선택'})</h3>
-                            <button type="button" className="modal-close-btn" onClick={() => setModalOpen({ ...modalOpen, invoice: false })}>&times;</button>
+                            <button type="button" className="modal-close-btn" onClick={() => closeInvoiceModal()}>&times;</button>
                         </div>
                         <div className="modal-body">
                             <div className="invoice-manager-layout">
                                 <div className="invoice-box-list">
                                     <div className="invoice-list-title">대상 식별 ID 목록 ({activeInvoiceBoxes.length}건)</div>
                                     <ul id="invoiceBoxList">
-                                        {activeInvoiceBoxes.map((packingId, index) => (
-                                            <li
-                                                key={packingId}
-                                                className={`invoice-list-item ${selectedInvoiceBox === packingId ? 'active' : ''}`}
-                                                onClick={() => handleListBoxClick(packingId, index)}
-                                            >
-                                                ID: {packingId}
-                                            </li>
-                                        ))}
+                                        {activeInvoiceBoxes.map((packingId, index) => {
+                                            const info = invoiceDataMap[packingId] || {};  // ← 이 줄 추가
+                                            console.log(activeInvoiceBoxes)
+                                            return (
+                                                <li
+                                                    key={packingId}
+                                                    className={`invoice-list-item ${selectedInvoiceBox === packingId ? 'active' : ''}`}
+                                                    onClick={() => handleListBoxClick(packingId, index)}
+                                                >
+                                                    <span className="invoice-list-id">{info.packingInvoiceNumber || packingId}</span>
+                                                    <span className="invoice-list-deadline">{formatDeadline(info.etd)}</span>
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                 </div>
 
@@ -949,32 +1008,70 @@ const Outbound = () => {
 
                                     <div className="slider-viewport slider-viewport-window">
                                         <div className="slider-track slider-track-animate" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                                            {activeInvoiceBoxes.map((packingId) => (
-                                                <div className="slide-item slide-item-card" key={`slide-${packingId}`}>
-                                                    <div className="invoice-preview-card invoice-card-centered">
-                                                        <div className="invoice-box-inner">
-                                                            <div className="invoice-header-title">택배 운송장 (공정 규격)</div>
-                                                            <table className="invoice-mini-table">
-                                                                <tbody>
-                                                                    <tr><th>패킹식별ID</th><td>{packingId}</td></tr>
-                                                                    <tr><th>도착지코드</th><td>SEOUL-MAIN</td></tr>
-                                                                    <tr><th>발송인</th><td>통합 물류 인프라 센터</td></tr>
-                                                                    <tr><th>특이사항</th><td>정상 출고 공정 승인 완료건</td></tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <OutboundQRCode packingId={packingId} />
+                                            {activeInvoiceBoxes.map((packingId) => {
+                                                const info = invoiceDataMap[packingId] || {};
+                                                console.log(info)
+                                                return (
+                                                    <div className="slide-item slide-item-card" key={`slide-${packingId}`}>
+                                                        <div className="invoice-preview-card invoice-card-centered">
+                                                            <div className="invoice-box-inner">
+                                                                <div className="invoice-header-title">택배 운송장</div>
+                                                                <table className="invoice-mini-table">
+                                                                    <tbody>
+                                                                        <tr><th>운송장번호</th><td>{info.invoiceNumber || '-'}</td></tr>
+                                                                        <tr><th>발송인</th><td>{info.senderName || '-'}</td></tr>
+                                                                        <tr><th>발송주소</th><td>{info.senderAddress || '-'}</td></tr>
+                                                                        <tr><th>수취인</th><td>{info.receiverName || '-'}</td></tr>
+                                                                        <tr><th>수취주소</th><td>{info.receiverAddress || '-'}</td></tr>
+                                                                        <tr><th>우편번호</th><td>{info.receiverPostal || '-'}</td></tr>
+                                                                        <tr><th>제품명</th><td>{info.productName || '-'}</td></tr>
+                                                                        <tr><th>발송일</th><td>{info.shippedAt ? String(info.shippedAt).substring(0, 10) : new Date().toISOString().substring(0, 10)}</td></tr>
+                                                                        <tr><th>박스번호</th><td>{info.packingInvoiceNumber || packingId}</td></tr>
+                                                                    </tbody>
+                                                                </table>
+                                                                <OutboundQRCode packingId={packingId} />
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn-main-action" onClick={handleInvoiceSubmit}>전체 송장 출력</button>
-                            <button type="button" className="btn-pop-cancel" onClick={() => setModalOpen({ ...modalOpen, invoice: false })}>취소</button>
+                            {invoiceModalStateCode === 22 ? (
+                                // 출고대기(22) 상태: 재출력 + 출고확정 + 취소
+                                <>
+                                    <button
+                                        type="button"
+                                        className="btn-main-action"
+                                        onClick={() => alert('송장이 재출력 되었습니다.')}
+                                    >
+                                        전체 송장 재출력
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn-action-green"
+                                        onClick={async () => {
+                                            if (window.confirm(`선택한 ${activeTransportationIds.length}건의 출고 공정을 최종 확정 승인하시겠습니까?`)) {
+                                                const result = await dispatch(confirmOutboundShipment({ transportationIds: activeTransportationIds }));
+                                                if (result.meta.requestStatus === 'fulfilled') {
+                                                    closeInvoiceModal();
+                                                    getData();
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        출고 확정
+                                    </button>
+                                </>
+                            ) : (
+                                // 차량배정(21) 상태: 전체 송장 출력만
+                                <button type="button" className="btn-main-action" onClick={handleInvoiceSubmit}>전체 송장 출력</button>
+                            )}
+                            <button type="button" className="btn-pop-cancel" onClick={() => closeInvoiceModal()}>취소</button>
                         </div>
                     </div>
                 </div>
