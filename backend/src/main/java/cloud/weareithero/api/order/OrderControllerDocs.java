@@ -47,7 +47,7 @@ public interface OrderControllerDocs {
               @ExampleObject(
                   name = "5. 진행상태 검색",
                   value = OrderResponseExamples.SUCCESS5_DEFAULT,
-                  description = "진행상태(신규/처리중/완료)로 필터링합니다."
+                  description = "진행상태(신규/주문완료)로 필터링합니다."
               ),
           }
       ))
@@ -63,19 +63,21 @@ public interface OrderControllerDocs {
       description = "고객사·주문일자·출고마감일·품목 목록을 입력받아 OUTBOUND + ORDER_PRODUCT 에 저장합니다.")
   @ApiCommonSuccess
   @ApiCommonErrors
-  public ResponseDTO add(OrderAddDTO orderAddDTO);
+  public ResponseDTO add(@RequestBody(
+      content = @Content(
+          schema = @Schema(implementation = OrderRequestDTO.class),
+          examples = {
+              @ExampleObject(
+                  name = "신규 주문 등록",
+                  value = OrderResponseExamples.ORDER_ADD_DEFAULT,
+                  description = "신규 주문을 등록합니다."
+              )})) OrderAddDTO orderAddDTO);
 
-  @Operation(summary = "주문 수정",
-      description = "기존 주문의 마감일·진행상태·품목 수량·금액을 수정합니다. (OUTBOUND 헤더 + ORDER_PRODUCT 품목)")
+  @Operation(summary = "주문 완료 처리",
+      description = "신규 주문의 출고 예정 일자 설정 및 주문 완료 상태로 변경합니다.")
   @ApiCommonSuccess
   @ApiCommonErrors
   public ResponseDTO update(Integer outboundId, OrderUpdateDTO orderUpdateDTO);
-
-  // @Operation(summary = "주문 삭제",
-  //     description = "outboundId에 해당하는 주문을 삭제합니다. ORDER_PRODUCT 품목도 함께 삭제됩니다.")
-  // @ApiCommonSuccess
-  // @ApiCommonErrors
-  // public ResponseDTO delete(Integer outboundId);
 
   @Operation(summary = "주문 등록 기초 데이터 조회",
       description = "신규 주문 등록 모달에 필요한 고객사 목록(PARTNER_COMPANY_MASTER)과 완제품 목록(OUTBOUND_PRODUCT_MASTER)을 조회합니다.")

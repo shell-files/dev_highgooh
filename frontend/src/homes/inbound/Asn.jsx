@@ -185,7 +185,7 @@ const Asn = () => {
                       <td>{v.eta}</td>
                       <td>{v.itemCount}건</td>
                       <td>
-                        <span className={v.step === '입고예정' ? 'status-badge ready' : 'status-badge complete'}>
+                        <span className={v.step === '입고예정' ? 'status-badge bg-blue-light text-blue' : 'status-badge bg-green-light text-green'}>
                           {v.step}
                         </span>
                       </td>

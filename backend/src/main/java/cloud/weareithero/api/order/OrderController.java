@@ -1,6 +1,7 @@
 package cloud.weareithero.api.order;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,28 +55,12 @@ public class OrderController implements OrderControllerDocs {
     return orderService.add(orderAddDTO);
   }
 
-  /**
-   * 주문 수정
-   * [신규] Inbound에 없던 수정 엔드포인트
-   * Path Variable로 수정 대상 outboundId 전달
-   */
-  @PostMapping("/{outboundId:[0-9]+}/update")
+  /** 신규 => 주문완료 처리 */
+  @PatchMapping("/{outboundId:[0-9]+}")
   public ResponseDTO update(@PathVariable Integer outboundId,
                             @RequestBody OrderUpdateDTO orderUpdateDTO) {
     return orderService.update(outboundId, orderUpdateDTO);
   }
-
-  /**
-   * 주문 삭제
-   * [신규] Inbound에 없던 삭제 엔드포인트
-   * JSX OrderDetailModal 하단 '수정' 버튼 외에 삭제 동선은 화면에 미확인 상태이므로
-   * 엔드포인트만 정의하고 실제 연결 여부는 프론트와 협의 필요
-   * TODO: 화면에 삭제 버튼이 추가되면 React 연동 확인
-  //  */
-  // @DeleteMapping("/{outboundId:[0-9]+}")
-  // public ResponseDTO delete(@PathVariable Integer outboundId) {
-  //   return orderService.delete(outboundId);
-  // }
 
   /** 등록 모달 기초 데이터 조회 (고객사 목록 + 완제품 목록) */
   @GetMapping

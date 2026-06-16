@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import cloud.weareithero.api.order.dao.OrderDao;
 import cloud.weareithero.api.order.dto.OrderAddDTO;
 import cloud.weareithero.api.order.dto.OrderCustomerDTO;
-import cloud.weareithero.api.order.dto.OrderDetailProductDTO;
 import cloud.weareithero.api.order.dto.OrderDTO;
+import cloud.weareithero.api.order.dto.OrderDetailProductDTO;
 import cloud.weareithero.api.order.dto.OrderProductDTO;
 import cloud.weareithero.api.order.dto.OrderRequestDTO;
 import cloud.weareithero.api.order.dto.OrderSummaryDTO;
@@ -105,6 +107,7 @@ public class OrderServiceImp implements OrderService {
   // → ORDER_PRODUCT 반복 INSERT → 건수 비교
   // ─────────────────────────────────────────────
   @Override
+  @Transactional
   public ResponseDTO add(OrderAddDTO orderAddDTO) {
     boolean isSuccess = false;
     String message = null;
@@ -125,7 +128,7 @@ public class OrderServiceImp implements OrderService {
       // 💡 [수정] 2. etd 파싱 추가, 계산한 totalQuantity 주입, 초기 상태 코드(7: 주문접수) 주입 완료
       OrderDTO orderDTO = OrderDTO.builder()
           .partnerCompanyId(orderAddDTO.getCustomerCompanyId())
-          .orderDate(LocalDate.parse(orderAddDTO.getOrderDate(), formatter))
+          // .orderDate(LocalDate.parse(orderAddDTO.getOrderDate(), formatter))
           .deadline(LocalDate.parse(orderAddDTO.getDeadline(), formatter))
           .etd(orderAddDTO.getEtd() != null && !orderAddDTO.getEtd().isEmpty()
               ? LocalDate.parse(orderAddDTO.getEtd(), formatter)
@@ -164,6 +167,7 @@ public class OrderServiceImp implements OrderService {
       }
     } catch (Exception e) {
       log.info("OrderServiceImp add error : {}", e.getMessage());
+      TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
       message = "주문 등록에 실패했습니다.";
     }
     return ResponseDTO.builder()
@@ -174,110 +178,32 @@ public class OrderServiceImp implements OrderService {
   }
 
   // ─────────────────────────────────────────────
-  // 4. 주문 수정
-  // [신규] Inbound에 없던 기능
-  // OUTBOUND 헤더(deadline, state_code) 수정
-  // ORDER_PRODUCT 품목 수정 (quantity, price, total_price)
-  //
-  // TODO: 품목 수정 전략 결정 필요
-  // 현재는 "기존 품목 전체 삭제 후 재삽입" 방식으로 구현
-  // 항목별 UPDATE 방식이 필요하면 orderDao.updateOrderProduct() 별도 추가
+  // 4. 주문 완료
+  // OUTBOUND 헤더(etd, state_code) 수정
   // ─────────────────────────────────────────────
   @Override
+  @Transactional
   public ResponseDTO update(int outboundId, OrderUpdateDTO orderUpdateDTO) {
     boolean isSuccess = false;
     String message = null;
-    Map<String, Object> request = new HashMap<>();
     try {
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-      // OUTBOUND 헤더 수정용 DTO 구성 (기한 변경만 반영)
-      OrderDTO orderDTO = OrderDTO.builder()
-          .outboundId(outboundId)
-          .deadline(orderUpdateDTO.getDeadline() != null
-              ? LocalDate.parse(orderUpdateDTO.getDeadline(), formatter)
-              : null)
-          .build();
-
-      // DB 업데이트 실행
-      orderDao.update(orderDTO);
-
-      isSuccess = true;
-      message = "주문 정보가 성공적으로 수정되었습니다.";
+      int result = orderDao.update(outboundId, orderUpdateDTO.getEtd());
+      if (result > 0) {
+          isSuccess = true;
+          message = "주문이 완료되었습니다.";
+      } else {
+          message = "해당 주문을 찾을 수 없습니다.";
+      }
     } catch (Exception e) {
-      log.error("OrderServiceImp update error : {}", e.getMessage());
-      message = "주문 수정에 실패했습니다.";
+      log.info("OrderServiceImp update error : {}", e.getMessage());
+      TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+      message = "주문 상태 변경에 실패했습니다.";
     }
-
     return ResponseDTO.builder()
-        .status(isSuccess)
-        .data(request)
-        .message(message)
-        .build();
+      .status(isSuccess)
+      .message(message)
+      .build();
   }
-
-  // 품목 수정: 기존 품목 전체 삭제 후 재삽입
-  // if (orderUpdateDTO.getItems() != null &&
-  // !orderUpdateDTO.getItems().isEmpty()) {
-  // orderDao.deleteOrderProducts(outboundId);
-  // int size = 0;
-  // for (OrderDetailProductDTO item : orderUpdateDTO.getItems()) {
-  // OrderDetailProductDTO detailDTO = OrderDetailProductDTO.builder()
-  // .outboundId(outboundId)
-  // .outboundProductId(item.getOutboundProductId())
-  // .quantity(item.getQuantity())
-  // .price(item.getPrice())
-  // .totalPrice(item.getQuantity() * item.getPrice())
-  // .build();
-  // size += orderDao.addOrderProduct(detailDTO);
-  // }
-  // // TODO: 부분 실패 시 롤백이 필요하다면 @Transactional 적용 검토
-  // // 현재 프로젝트는 @Transactional 미사용 원칙이나, 삭제+재삽입 복합 작업이므로 확인 필요
-  // log.info("OrderServiceImp update items inserted : {}", size);
-  // }
-
-  // isSuccess = true;
-  // message = "주문 수정이 완료되었습니다.";
-  // } catch (Exception e) {
-  // log.info("OrderServiceImp update error : {}", e.getMessage());
-  // message = "주문 수정에 실패했습니다.";
-  // }
-  // return ResponseDTO.builder()
-  // .status(isSuccess)
-  // .data(request)
-  // .message(message)
-  // .build();
-  // }
-
-  // ─────────────────────────────────────────────
-  // 5. 주문 삭제
-  // [신규] Inbound에 없던 기능
-  // ORDER_PRODUCT 품목 먼저 삭제 후 OUTBOUND 헤더 삭제 (FK 순서)
-  // TODO: OUTBOUND_PACKING, OUTBOUND_TRANSPORT 등 연관 테이블
-  // 데이터가 있는 주문의 삭제 정책 결정 필요
-  // ─────────────────────────────────────────────
-  // @Override
-  // public ResponseDTO delete(int outboundId) {
-  // boolean isSuccess = false;
-  // String message = null;
-  // Map<String, Object> request = new HashMap<>();
-  // try {
-  // // 1. ORDER_PRODUCT 품목 삭제 (FK 제약 순서)
-  // orderDao.deleteOrderProducts(outboundId);
-  // // 2. OUTBOUND 헤더 삭제
-  // orderDao.delete(outboundId);
-  // isSuccess = true;
-  // message = "주문 삭제가 완료되었습니다.";
-  // } catch (Exception e) {
-  // log.info("OrderServiceImp delete error : {}", e.getMessage());
-  // message = "주문 삭제에 실패했습니다.";
-  // }
-  // return ResponseDTO.builder()
-  // .status(isSuccess)
-  // .data(request)
-  // .message(message)
-  // .build();
-  // }
 
   // ─────────────────────────────────────────────
   // 6. 등록 모달 기초 데이터 조회

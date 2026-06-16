@@ -55,19 +55,9 @@ public class OrderDaoImp implements OrderDao {
   }
 
   @Override
-  public int update(OrderDTO orderDTO) {
-    return orderMapper.update(orderDTO);
+  public int update(int outboundId, String etd) {
+    return orderMapper.update(outboundId, etd);
   }
-
-  // @Override
-  // public int deleteOrderProducts(int outboundId) {
-  //   return orderMapper.deleteOrderProducts(outboundId);
-  // }
-
-  // @Override
-  // public int delete(int outboundId) {
-  //   return orderMapper.delete(outboundId);
-  // }
 
   @Override
   public List<OrderCustomerDTO> findByCustomer() {
