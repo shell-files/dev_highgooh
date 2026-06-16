@@ -158,7 +158,7 @@ const OutboundOrder = () => {
               <option value="">전체</option>
               <option value="신규">신규</option>
               <option value="처리중">처리중</option>
-              <option value="완료">완료</option>
+              <option value="주문완료">주문완료</option>
             </select>
           </div>
           <div className="filter-btn-group">

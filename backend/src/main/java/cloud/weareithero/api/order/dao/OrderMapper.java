@@ -268,9 +268,12 @@ public interface OrderMapper {
   // ──────────────────────────────────────────────────────────────
   @Select("""
       SELECT
-        `id`,
-        `name`
-      FROM `OUTBOUND_PRODUCT_MASTER`
+        `o`.`id`                  AS 'productId',
+        `o`.`name`	  	          AS 'productName',
+        `pp`.`price`		          AS 'price'
+      FROM `OUTBOUND_PRODUCT_MASTER` o
+      JOIN `PRODUCT_PRICE` pp
+   		ON `o`.`id` = `pp`.`outbound_product_id`
       """)
   public List<OrderProductDTO> findByProduct();
 

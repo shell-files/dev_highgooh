@@ -47,7 +47,7 @@ public interface OrderControllerDocs {
               @ExampleObject(
                   name = "5. 진행상태 검색",
                   value = OrderResponseExamples.SUCCESS5_DEFAULT,
-                  description = "진행상태(신규/처리중/완료)로 필터링합니다."
+                  description = "진행상태(신규/처리중/주문완료)로 필터링합니다."
               ),
           }
       ))
