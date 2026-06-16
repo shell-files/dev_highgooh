@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeOrderModal, addOrder, getOrder } from '@stores/orderSlice';
+import { closeOrderModal, addOrder, getOrder, processOrder } from '@stores/orderSlice';
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
 import { getToday } from '@stores/date';
 
@@ -216,7 +216,7 @@ const OrderModal = () => {
 
                     <div className="form-group">
                       <label>출고 예정일자</label>
-                      <input type="date" className="modal-input" value={formData.etd ?? ''} readOnly />
+                      <input type="date" className="modal-input" value={formData.order?.etd ?? ''} readOnly />
                     </div>
                   </>
                 )}

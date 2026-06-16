@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
-import { GET, POST, PUT } from "@utils/Network";
+import { GET, POST, PUT, PATCH } from "@utils/Network";
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 // ─────────────────────────────────────────────────────────────
@@ -72,7 +72,18 @@ export const addOrder = createAsyncThunk(
   }
 );
 
-const orderAsyncActions = [getOrder, getOrderDetail, getOrderModal, addOrder];
+export const processOrder = createAsyncThunk(
+  'order/process',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      return await PATCH(`/order/${credentials.outboundId}`, { etd: credentials.etd });
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+const orderAsyncActions = [getOrder, getOrderDetail, getOrderModal, addOrder, processOrder];
 
 // ─────────────────────────────────────────────────────────────
 // Slice 정의
@@ -160,26 +171,37 @@ const orderSlice = createSlice({
           showDefaultAlert('오류', res.message || '주문 등록에 실패했습니다.', 'error');
         }
         state.loading = false;
+      })
+      // 처리중으로 변경
+      .addCase(processOrder.fulfilled, (state, action) => {
+        const res = action.payload;
+        if (res.status === true) {
+          showDefaultAlert("완료", res.message, "success");
+          state.isModal = false;
+        } else {
+          showDefaultAlert("오류", res.message, "error");
+        }
+        state.loading = false;
       });
 
-    // loading / error 공통 처리
-    builder
+  // loading / error 공통 처리
+  builder
       .addMatcher(
-        isPending(...orderAsyncActions),
-        (state) => {
-          state.loading = true;
-          state.error = null;
-        }
-      )
-      .addMatcher(
-        isRejected(...orderAsyncActions),
-        (state, action) => {
-          state.loading = false;
-          state.error = action.payload || action.error.message || '알 수 없는 에러가 발생했습니다.';
-        }
-      );
-  } // 👈 extraReducers의 끝
-}); // 👈 여기서 createSlice가 비로소 안전하게 끝납니다!
+    isPending(...orderAsyncActions),
+    (state) => {
+      state.loading = true;
+      state.error = null;
+    }
+  )
+    .addMatcher(
+      isRejected(...orderAsyncActions),
+      (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || '알 수 없는 에러가 발생했습니다.';
+      }
+    );
+}
+});
 
 export const { openOrderModal, closeOrderModal, setOrderPage } = orderSlice.actions;
 export default orderSlice.reducer;
