@@ -39,12 +39,8 @@ const OrderModal = () => {
 
   // DB에 저장된 1세트당 기준 단가 맵업 (Fallback용)
   const getBaseUnitPrice = (prodId) => {
-    const id = Number(prodId);
-    if (id === 1) return 580000;
-    if (id === 2) return 620000;
-    if (id === 3) return 880000;
-    const selectedProd = products?.find(p => p.id === id);
-    return selectedProd?.price || selectedProd?.unitPrice || selectedProd?.standardPrice || 0;
+    const selectedProd = products?.find(p => p.productId === Number(prodId));
+    return selectedProd?.price ?? 0;
   };
 
   // 리덕스 데이터 동기화
@@ -107,10 +103,6 @@ const OrderModal = () => {
         const unitPrice = getBaseUnitPrice(prodId);
         updated[index]['price'] = unitPrice * Number(qtyValue);
       }
-    } else if (field === 'price') {
-      updated[index][field] = value === '' ? '' : Number(value);
-    } else {
-      updated[index][field] = value;
     }
 
     setFormData(prev => ({ ...prev, products: updated }));
@@ -263,7 +255,7 @@ const OrderModal = () => {
                           <input type="number" className="modal-input text-right" placeholder="0" value={product.quantity} onChange={(e) => handleProductChange(index, 'quantity', e.target.value)} readOnly={isDetail} required />
                         </td>
                         <td>
-                          <input type="number" className="modal-input text-right" placeholder="0" value={product.price} onChange={(e) => handleProductChange(index, 'price', e.target.value)} readOnly={isDetail} required />
+                          <input type="number" className="modal-input text-right" placeholder="0" value={product.price} readOnly={true} required />
                         </td>
                         {!isDetail && (
                           <td className="text-center">
