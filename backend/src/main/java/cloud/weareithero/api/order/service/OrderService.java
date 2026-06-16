@@ -16,7 +16,6 @@ public interface OrderService {
   public ResponseDTO findOne(int outboundId);
   public ResponseDTO add(OrderAddDTO orderAddDTO);
   public ResponseDTO update(int outboundId, OrderUpdateDTO orderUpdateDTO);
-  // public ResponseDTO delete(int outboundId);
   public ResponseDTO findAllOrders();
 
 }

@@ -67,4 +67,18 @@ public interface OrderResponseExamples {
     }
     """;
 
+  final String ORDER_ADD_DEFAULT = """
+    {
+      "customerCompanyId": 4,
+      "deadline": "2026-06-25",
+      "items": [
+        {
+          "no": 1,
+          "outboundProductId": 3,
+          "quantity": 3,
+          "price": 580000
+        }
+      ]  
+    }    
+    """;
 }

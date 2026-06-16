@@ -25,7 +25,7 @@
 /* 1. [변경] 입고이력 구조(history-summary-grid)와 결합된 상단 주문 그리드 */
 #order-page .order-summary-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
 }
@@ -333,7 +333,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
+    z-index: 200;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;

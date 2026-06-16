@@ -12,7 +12,7 @@ const initialState = {
     page: 1,
     totalCount: 0,
     totalPages: 0,
-    size: 20
+    size: 10
   }
 };
 

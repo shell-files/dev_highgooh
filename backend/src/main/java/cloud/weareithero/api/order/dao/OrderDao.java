@@ -27,11 +27,7 @@ public interface OrderDao {
 
   public int addOrderProduct(OrderDetailProductDTO orderDetailProductDTO);
 
-  public int update(OrderDTO orderDTO);
-
-  // public int deleteOrderProducts(int outboundId);
-
-  // public int delete(int outboundId);
+  public int update(int outboundId, String etd);
 
   public List<OrderCustomerDTO> findByCustomer();
 
