@@ -38,9 +38,9 @@ public class OrderAddDTO {
   @Schema(description = "주문마감일자 (yyyy-MM-dd) → OUTBOUND.deadline", example = "2026-06-24")
   private String deadline;
 
-  @NotBlank(message = "출고마감일자를 입력하세요.") // 👈 형식을 맞춘 Validation 가드 추가
-  @Schema(description = "출고마감일자 (yyyy-MM-dd) → OUTBOUND.etd", example = "2026-06-25") // 👈 Swagger 문서화 양식 매핑
-  private String etd; // 👈 드디어 자바 그릇에 etd 안착!
+  @NotBlank(message = "출고마감일자를 입력하세요.")
+  @Schema(description = "출고마감일자 (yyyy-MM-dd) → OUTBOUND.etd", example = "2026-06-25")
+  private String etd;
 
   @Schema(description = "주문 품목 목록")
   private List<OrderDetailProductDTO> items;

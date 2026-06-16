@@ -144,7 +144,7 @@ const OrderModal = () => {
 
     if (Number(formData.customerCompanyId) === 0) { alert('고객사를 선택하세요.'); return; }
     if (!formData.deadline) { alert('주문마감일자를 입력하세요.'); return; }
-    if (!formData.etd) { alert('출고마감일자를 입력하세요.'); return; }
+    // if (!formData.etd) { alert('출고마감일자를 입력하세요.'); return; }
 
     if (!formData.products || formData.products.length < 1) {
       alert('최소 1개 이상의 제품을 추가해야 합니다.');
@@ -159,20 +159,20 @@ const OrderModal = () => {
 
     const params = {
       customerCompanyId: Number(formData.customerCompanyId),
-      partnerCompanyId: Number(formData.customerCompanyId),
-      orderDate: formData.orderDate,
+      // partnerCompanyId: Number(formData.customerCompanyId),
+      // orderDate: formData.orderDate,
       deadline: formData.deadline,
-      etd: formData.etd,
+      // etd: formData.etd,
       items: formData.products.map(p => ({
         outboundProductId: Number(p.outboundProductId),
         quantity: Number(p.quantity),
         price: Number(p.price)
       })),
-      products: formData.products.map(p => ({
-        outboundProductId: Number(p.outboundProductId),
-        quantity: Number(p.quantity),
-        price: Number(p.price)
-      }))
+      // products: formData.products.map(p => ({
+      //   outboundProductId: Number(p.outboundProductId),
+      //   quantity: Number(p.quantity),
+      //   price: Number(p.price)
+      // }))
     };
 
     // dispatch 완료 후 .then() 블록 실행
@@ -190,7 +190,6 @@ const OrderModal = () => {
       // 프론트엔드가 강제로 인지하여 화면 리스트에 강제 주입하도록 이 타이밍에 window 새로고침을 하거나,
       // 혹은 안전하게 팝업이 닫힌 뒤 화면이 리렌더링되도록 처리합니다.
 
-      // 목록이 죽어도 안 불러와질 때 가장 확실한 최후의 방법: 브라우저 세션 캐시 클리어 겸 로케이션 갱신
       setTimeout(() => {
         // 리덕스 스토어 리셋 주기를 맞추기 위해 100ms 뒤 모달을 닫고 
         // 만약 화면 컴포넌트 내부 state가 꼬인 거라면 window.location.reload()를 쓰거나 
@@ -217,29 +216,14 @@ const OrderModal = () => {
             <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
               <div className="modal-form-grid">
 
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label>주문일자 <span className="required">*</span></label>
-                  <input
-                    type="date"
-                    id="modal_orderDate"
-                    className="modal-input"
-                    value={formData.orderDate}
-                    onChange={handleInputChange}
-                    readOnly={isDetail}
-                    required
-                  />
-                </div>
+                  <input type="date" id="modal_orderDate" className="modal-input" value={formData.orderDate} onChange={handleInputChange} readOnly={isDetail} required />
+                </div> */}
 
                 <div className="form-group">
                   <label>고객사 <span className="required">*</span></label>
-                  <select
-                    id="modal_customerCompanyId"
-                    className="modal-input"
-                    value={formData.customerCompanyId}
-                    onChange={handleInputChange}
-                    disabled={isDetail}
-                    required
-                  >
+                  <select id="modal_customerCompanyId" className="modal-input" value={formData.customerCompanyId} onChange={handleInputChange} disabled={isDetail} required>
                     <option value={0}>-- 고객사 선택 --</option>
                     {customers && customers.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -249,37 +233,19 @@ const OrderModal = () => {
 
                 <div className="form-group">
                   <label>주문마감일자 <span className="required">*</span></label>
-                  <input
-                    type="date"
-                    id="modal_deadline"
-                    className="modal-input"
-                    value={formData.deadline}
-                    onChange={handleInputChange}
-                    readOnly={isDetail}
-                    required
-                  />
+                  <input type="date" id="modal_deadline" className="modal-input" value={formData.deadline} onChange={handleInputChange} readOnly={isDetail} required />
                 </div>
 
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label>출고마감일자 <span className="required">*</span></label>
-                  <input
-                    type="date"
-                    id="modal_etd"
-                    className="modal-input"
-                    value={formData.etd}
-                    onChange={handleInputChange}
-                    readOnly={isDetail}
-                    required
-                  />
-                </div>
+                  <input type="date" id="modal_etd" className="modal-input" value={formData.etd} onChange={handleInputChange} readOnly={isDetail} />
+                </div> */}
               </div>
 
               <div className="modal-section-title" style={{ marginTop: '1.5rem', marginBottom: '0.75rem' }}>
                 <h4>제품 항목 명세</h4>
                 {!isDetail && (
-                  <button type="button" className="btn-secondary-sm" onClick={addProductRow}>
-                    + 항목 추가
-                  </button>
+                  <button type="button" className="btn-secondary-sm" onClick={addProductRow}>+ 항목 추가</button>
                 )}
               </div>
 

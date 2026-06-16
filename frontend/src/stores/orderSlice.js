@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
 import { GET, POST, PUT } from "@utils/Network";
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 // ─────────────────────────────────────────────────────────────
-// initialState — asnSlice 구조 동일하게 유지
+// initialState
 // ─────────────────────────────────────────────────────────────
 const initialState = {
   loading: false,
@@ -74,7 +75,7 @@ export const addOrder = createAsyncThunk(
 const orderAsyncActions = [getOrder, getOrderDetail, getOrderModal, addOrder];
 
 // ─────────────────────────────────────────────────────────────
-// Slice 정의 (괄호 꼬임 완벽 해결)
+// Slice 정의
 // ─────────────────────────────────────────────────────────────
 const orderSlice = createSlice({
   name: 'order',
@@ -152,11 +153,11 @@ const orderSlice = createSlice({
       .addCase(addOrder.fulfilled, (state, action) => {
         const res = action.payload;
         if (res.status === true) {
-          alert('신규 주문이 등록되었습니다.');
+          showDefaultAlert('등록 완료', res.message, 'success');
           state.isModal = false;
         } else {
           state.error = res.message;
-          alert(res.message || '주문 등록에 실패했습니다.');
+          showDefaultAlert('오류', res.message || '주문 등록에 실패했습니다.', 'error');
         }
         state.loading = false;
       });

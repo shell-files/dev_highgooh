@@ -106,6 +106,8 @@ public interface OrderMapper {
             `pcm`.`name`                   AS `partnerName`,
             `o`.`order_date`               AS `orderDate`,
             `o`.`deadline`                 AS `deadline`,
+            `o`.`etd`,
+            `o`.`total_quantity`           AS `totalQuantity`,
             (SELECT SUM(CAST(`op`.`total_price` AS UNSIGNED))
              FROM `ORDER_PRODUCT` `op`
              WHERE `op`.`outbound_id` = `o`.`id`) AS `totalPrice`,
@@ -144,8 +146,6 @@ public interface OrderMapper {
 
   // ──────────────────────────────────────────────────────────────
   // 3. 주문 마스터 단건 조회 (상세 모달 헤더)
-  // [DB 변경] ORDER_PRODUCT_LIST → OUTBOUND
-  // [DB 변경] 파라미터명: orderId → outboundId
   // ──────────────────────────────────────────────────────────────
   @Select("""
       SELECT
@@ -195,21 +195,16 @@ public interface OrderMapper {
 
   // ──────────────────────────────────────────────────────────────
   // 5. 주문 마스터 INSERT (OUTBOUND 테이블)
-  // [DB 변경] 테이블: ORDER_PRODUCT_LIST → OUTBOUND
-  // [DB 변경] keyProperty: orderId → outboundId
-  // 💡 [수정완료] 빠져있던 etd, state_code, total_quantity 컬럼 및 매핑 추가
   // ──────────────────────────────────────────────────────────────
   @Insert("""
       INSERT INTO `OUTBOUND` (
         `partner_company_id`,
-        `order_date`,
         `deadline`,
         `etd`,
         `state_code`,
         `total_quantity`
       ) VALUES (
         #{partnerCompanyId},
-        #{orderDate},
         #{deadline},
         #{etd},
         #{stateCode},
@@ -221,8 +216,6 @@ public interface OrderMapper {
 
   // ──────────────────────────────────────────────────────────────
   // 6. 주문 품목 INSERT (ORDER_PRODUCT 테이블)
-  // [DB 변경] 테이블: ORDER_PRODUCT (outbound_id FK)
-  // [DB 변경] price, total_price 컬럼 모두 포함
   // ──────────────────────────────────────────────────────────────
   @Insert("""
       INSERT INTO `ORDER_PRODUCT` (
@@ -244,41 +237,17 @@ public interface OrderMapper {
   // ──────────────────────────────────────────────────────────────
   // 7. 주문 마스터 UPDATE (OUTBOUND 테이블)
   // [신규] Inbound에 없던 수정 기능
-  // deadline, updated_at만 수정 (state_code는 별도 상태 변경 API 검토 여지 있음)
+  // deadline 수정 (state_code는 별도 상태 변경 API 검토 여지 있음)
   //
   // TODO: state_code 수정도 이 API에서 처리할지 별도 상태변경 API로 분리할지 결정 필요
   // ──────────────────────────────────────────────────────────────
   @Update("""
       UPDATE `OUTBOUND`
       SET
-        `deadline`   = #{deadline},
-        `updated_at` = NOW()
+        `deadline` = #{deadline}
       WHERE `id` = #{outboundId}
       """)
   public int update(OrderDTO orderDTO);
-
-  // ──────────────────────────────────────────────────────────────
-  // 8. 주문 품목 전체 삭제 (outbound_id 기준)
-  // [신규] 수정 시 재삽입 전 기존 품목 정리
-  // 삭제 단독 API에서도 호출됨 (FK 제약 순서)
-  // ──────────────────────────────────────────────────────────────
-  // @Delete("""
-  // DELETE FROM `ORDER_PRODUCT`
-  // WHERE `outbound_id` = #{outboundId}
-  // """)
-  // public int deleteOrderProducts(int outboundId);
-
-  // ──────────────────────────────────────────────────────────────
-  // 9. 주문 마스터 삭제 (OUTBOUND 테이블)
-  // [신규] ORDER_PRODUCT 삭제 후 호출 (FK 순서 준수)
-  // TODO: OUTBOUND_PACKING, OUTBOUND_TRANSPORT 등 하위 테이블 연관 데이터
-  // 존재 시 삭제 순서 / 정책 추가 필요
-  // ──────────────────────────────────────────────────────────────
-  // @Delete("""
-  // DELETE FROM `OUTBOUND`
-  // WHERE `id` = #{outboundId}
-  // """)
-  // public int delete(int outboundId);
 
   // ──────────────────────────────────────────────────────────────
   // 10. 고객사 목록 조회 (등록 모달 드롭다운)
