@@ -129,15 +129,6 @@ const OutboundOrder = () => {
             <span className="status-badge bg-blue-light text-blue">{trendText}</span>
           </div>
         </div>
-        {/* <div className="summary-card-item">
-          <div className="card-info-left">
-            <span className="summary-label">처리중</span>
-            <span className="summary-value text-orange">{summary.inProgress}<small>건</small></span>
-          </div>
-          <div className="card-trend-right">
-            <span className="status-badge bg-orange-light text-orange">{trendText}</span>
-          </div>
-        </div> */}
       </div>
 
       {/* 검색 필터 영역 (공통 date 유틸 기본값 바인딩) */}
@@ -164,7 +155,6 @@ const OutboundOrder = () => {
             <select className="filter-control" ref={stepRef} defaultValue="">
               <option value="">전체</option>
               <option value="신규">신규</option>
-              {/* <option value="처리중">처리중</option> */}
               <option value="주문완료">주문완료</option>
             </select>
           </div>

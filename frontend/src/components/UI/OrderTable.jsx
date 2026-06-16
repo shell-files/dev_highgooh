@@ -50,9 +50,8 @@ const OrderTable = ({ orders, onOrderClick }) => {
 // [변경] 파라미터: status → stateCode (호출부와 일치)
 const getStatusBadgeClass = (stateCode) => {
   switch (stateCode) {
-    case '신규': return 'badge-success';
-    case '처리중': return 'badge-danger';
-    case '주문완료': return 'badge-pending';
+    case '신규': return 'status-badge bg-blue-light text-blue';
+    case '주문완료': return 'status-badge bg-green-light text-green';
     default: return '';
   }
 };
