@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -244,10 +245,11 @@ public interface OrderMapper {
   @Update("""
       UPDATE `OUTBOUND`
       SET
-        `deadline` = #{deadline}
+        `etd` = #{etd},
+        `state_code` = 8
       WHERE `id` = #{outboundId}
       """)
-  public int update(OrderDTO orderDTO);
+  public int update(@Param("outboundId") int outboundId, @Param("etd") String etd);
 
   // ──────────────────────────────────────────────────────────────
   // 10. 고객사 목록 조회 (등록 모달 드롭다운)

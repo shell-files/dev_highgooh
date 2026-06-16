@@ -192,34 +192,23 @@ public class OrderServiceImp implements OrderService {
   public ResponseDTO update(int outboundId, OrderUpdateDTO orderUpdateDTO) {
     boolean isSuccess = false;
     String message = null;
-    Map<String, Object> request = new HashMap<>();
     try {
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-      // OUTBOUND 헤더 수정용 DTO 구성 (기한 변경만 반영)
-      OrderDTO orderDTO = OrderDTO.builder()
-          .outboundId(outboundId)
-          .deadline(orderUpdateDTO.getDeadline() != null
-              ? LocalDate.parse(orderUpdateDTO.getDeadline(), formatter)
-              : null)
-          .build();
-
-      // DB 업데이트 실행
-      orderDao.update(orderDTO);
-
-      isSuccess = true;
-      message = "주문 정보가 성공적으로 수정되었습니다.";
+      int result = orderDao.update(outboundId, orderUpdateDTO.getEtd());
+      if (result > 0) {
+          isSuccess = true;
+          message = "주문이 처리중으로 변경되었습니다.";
+      } else {
+          message = "해당 주문을 찾을 수 없습니다.";
+      }
     } catch (Exception e) {
-      log.error("OrderServiceImp update error : {}", e.getMessage());
+      log.info("OrderServiceImp update error : {}", e.getMessage());
       TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-      message = "주문 수정에 실패했습니다.";
+      message = "주문 상태 변경에 실패했습니다.";
     }
-
     return ResponseDTO.builder()
-        .status(isSuccess)
-        .data(request)
-        .message(message)
-        .build();
+      .status(isSuccess)
+      .message(message)
+      .build();
   }
 
   // ─────────────────────────────────────────────
