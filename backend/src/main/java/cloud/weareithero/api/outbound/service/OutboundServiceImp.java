@@ -99,39 +99,6 @@ public class OutboundServiceImp implements OutboundService {
     }
 
     /**
-     * 매니페스트 뷰 목록 조회
-     * - 기준 테이블: OUTBOUND_TRANSPORTATION
-     * - 박스 수: OUTBOUND_PACKING COUNT 집계
-     * ※ totalCount는 별도 COUNT 없이 list.size() 사용 (규모 고려 시 별도 쿼리 추가 권장)
-     */
-    @Override
-    public ResponseDTO findAllManifest(OutboundRequestDTO outboundRequestDTO) {
-        boolean isSuccess = false;
-        String message = null;
-        Map<String, Object> request = new HashMap<>();
-        try {
-            List<OutboundManifestDTO> manifestList = outboundDao.findAllManifest(outboundRequestDTO);
-            PaginationDTO pagination = PaginationDTO.builder()
-                    .page(outboundRequestDTO.getPage())
-                    .totalCount(manifestList.size())
-                    .totalPages((int) Math.ceil((double) manifestList.size() / outboundRequestDTO.getSize()))
-                    .build();
-            request.put("list", manifestList);
-            request.put("pagination", pagination);
-            isSuccess = true;
-            message = "매니페스트 목록 조회가 완료되었습니다.";
-        } catch (Exception e) {
-            log.info("OutboundServiceImp findAllManifest error : {}", e.getMessage());
-            message = "매니페스트 목록 조회에 실패했습니다.";
-        }
-        return ResponseDTO.builder()
-                .status(isSuccess)
-                .data(request)
-                .message(message)
-                .build();
-    }
-
-    /**
      * 폼 데이터 조회
      * - 운송사: PARTNER_COMPANY_MASTER WHERE carrier_yn_code = 1
      * - 차량: TRANSPORTATION_VEHICLE_MASTER 전체
@@ -153,6 +120,34 @@ public class OutboundServiceImp implements OutboundService {
         } catch (Exception e) {
             log.info("OutboundServiceImp findAllOutbound error : {}", e.getMessage());
             message = "출고 폼 데이터 조회에 실패했습니다.";
+        }
+        return ResponseDTO.builder()
+                .status(isSuccess)
+                .data(request)
+                .message(message)
+                .build();
+    }
+
+    @Override
+    public ResponseDTO findAllManifest(OutboundRequestDTO outboundRequestDTO) {
+        boolean isSuccess = false;
+        String message = null;
+        Map<String, Object> request = new HashMap<>();
+        try {
+            List<OutboundManifestDTO> manifestList = outboundDao.findAllManifest(outboundRequestDTO);
+            int totalCount = outboundDao.countAllManifest(outboundRequestDTO);  // ← 추가
+            PaginationDTO pagination = PaginationDTO.builder()
+                    .page(outboundRequestDTO.getPage())
+                    .totalCount(totalCount)                                                          // ← 수정
+                    .totalPages((int) Math.ceil((double) totalCount / outboundRequestDTO.getSize()))  // ← 수정
+                    .build();
+            request.put("list", manifestList);
+            request.put("pagination", pagination);
+            isSuccess = true;
+            message = "매니페스트 목록 조회가 완료되었습니다.";
+        } catch (Exception e) {
+            log.info("OutboundServiceImp findAllManifest error : {}", e.getMessage());
+            message = "매니페스트 목록 조회에 실패했습니다.";
         }
         return ResponseDTO.builder()
                 .status(isSuccess)
@@ -217,9 +212,15 @@ public class OutboundServiceImp implements OutboundService {
                 int updatedCount = 0;
                 final int shippingReadyCode = 21;
 
+                String datePrefix = "INV-" + java.time.LocalDate.now().toString().replace("-", "") + "-";
+
                 for (Integer packingId : packingIds) {
                     updatedCount += outboundDao.updatePackingTransportation(
                             packingId, transportationId, shippingReadyCode);
+
+                    // 차량 배정 시 invoice_number 동시 채번 및 저장
+                    String invoiceNumber = datePrefix + packingId;
+                    outboundDao.updateInvoiceNumber(packingId, invoiceNumber, shippingReadyCode);
                 }
 
                 if (updatedCount == packingIds.size()) {

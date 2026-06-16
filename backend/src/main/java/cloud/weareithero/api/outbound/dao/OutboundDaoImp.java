@@ -110,4 +110,14 @@ public class OutboundDaoImp implements OutboundDao {
     public int updatePackingStateByTransportationId(int transportationId, int stateCode) {
         return outboundMapper.updatePackingStateByTransportationId(transportationId, stateCode);
     }
+
+    @Override
+    public int countAllManifest(OutboundRequestDTO outboundRequestDTO) {
+        return outboundMapper.countAllManifest(outboundRequestDTO);
+    }
+
+    @Override
+    public OutboundCarrierDTO findCarrierById(int carrierId) {
+        return outboundMapper.findCarrierById(carrierId);
+    }
 }
