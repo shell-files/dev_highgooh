@@ -346,15 +346,15 @@
 
 #order-page .modal-container {
     background-color: #ffffff;
-    width: 980px;
+    width: 800px;
     max-width: 90%;
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    height: 600px;         /* 👈 추가: 모달의 전체 높이를 명시적으로 확보 */
+    height: fit-content;
     max-height: 85vh;
-    overflow: hidden;      /* 👈 추가: 내부 요소가 둥근 테두리 밖으로 빠져나가지 못하게 통제 */
+    overflow: hidden;
     animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
