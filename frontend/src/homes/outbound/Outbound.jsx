@@ -2,19 +2,8 @@ import '@styles/outbound.css';
 import { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    getOutboundList,
-    getOutboundManifestList,
-    getOutboundDetail,
-    getOutboundFormData,
-    assignOutboundVehicle,
-    confirmOutboundShipment,
-    setOutboundPage,
-    resetSummary,
-    getManifestPackings,
-    issueInvoiceByTransportation,
-    getOutboundSummary  // ← 추가
-} from '@/stores/outboundSlice.js';
+import { getOutboundList, getOutboundManifestList, getOutboundDetail, getOutboundFormData, assignOutboundVehicle, confirmOutboundShipment, setOutboundPage, resetSummary, getManifestPackings, issueInvoiceByTransportation, getOutboundSummary } from '@/stores/outboundSlice.js';
+import { showDefaultAlert, showConfirmAlert } from "@components/UI/ServiceAlert";
 
 const Outbound = () => {
     const dispatch = useDispatch();
@@ -217,8 +206,8 @@ const Outbound = () => {
 
     // 💡 1. 차량 배정 모달 오픈 핸들러 (에러 가드 완벽 적용)
     const openVehicleModal = () => {
-        if (viewMode !== 'box') return alert('박스 탭에서만 차량 배정이 가능합니다.');
-        if (checkedBoxes.length === 0) return alert('미배정 박스를 선택해주세요.');
+        if (viewMode !== 'box') return showDefaultAlert('오류', '박스 탭에서만 차량 배정이 가능합니다.', 'error');
+        if (checkedBoxes.length === 0) return showDefaultAlert('오류', '미배정 박스를 선택해주세요.', 'error');
 
         // 리덕스 구조인 boxList를 안전하게 가져옵니다. 
         // 만약 상단에 boxList가 없다면 view.boxList가 되도록 이중 방어합니다.
@@ -255,8 +244,8 @@ const Outbound = () => {
 
     // 💡 2. 차량 배정 서브밋 핸들러 (중복 선언 원천 차단)
     const handleVehicleSubmit = async () => {
-        if (!vehicleForm.lpn || !vehicleForm.lpn.trim()) return alert('차량 번호를 입력해주세요.');
-        if (!vehicleForm.driver || !vehicleForm.driver.trim()) return alert('운전자 명을 입력해주세요.');
+        if (!vehicleForm.lpn || !vehicleForm.lpn.trim()) return showDefaultAlert('오류', '차량 번호를 입력해주세요.', 'error');
+        if (!vehicleForm.driver || !vehicleForm.driver.trim()) return showDefaultAlert('오류', '운전자 명을 입력해주세요.', 'error');
 
         const payload = {
             packingIds: checkedBoxes,
@@ -271,17 +260,17 @@ const Outbound = () => {
         try {
             const result = await dispatch(assignOutboundVehicle(payload));
             if (result.meta.requestStatus === 'fulfilled') {
-                alert('차량 배정이 완료되었습니다.');
+                // alert('차량 배정이 완료되었습니다.');
                 setModalOpen(prev => ({ ...prev, vehicle: false }));
                 setCheckedBoxes([]);
                 setSelectedCarrier(null);
                 if (typeof getData === 'function') getData(); // 목록 갱신 안전장치
             } else {
-                alert('차량 배정에 실패했습니다. 입력 값을 확인하세요.');
+                showDefaultAlert("오류", "차량 배정에 실패했습니다.", "error");
             }
         } catch (error) {
             console.error("차량 배정 처리 중 크래시 발생:", error);
-            alert('서버 통신 중 에러가 발생했습니다.');
+            showDefaultAlert("오류", "서버 통신 중 에러가 발생했습니다.", "error");
         }
     };
 
@@ -379,12 +368,12 @@ const Outbound = () => {
 
 
         if (viewMode === 'box') {
-            if (checkedBoxes.length === 0) return alert('송장을 발행할 박스를 선택해주세요.');
+            if (checkedBoxes.length === 0) return showDefaultAlert("오류", "송장을 발행할 박스를 선택해주세요.", "error");
             linkedBoxes = checkedBoxes;
         } else {
             // 단일 클릭(행 클릭)이면 그것만, 아니면 체크된 전체
             targetIds = singleTransId ? [singleTransId] : [...checkedManifests];
-            if (targetIds.length === 0) return alert('송장을 발행할 매니페스트를 선택해주세요.');
+            if (targetIds.length === 0) return showDefaultAlert("오류", "송장을 발행할 매니페스트를 선택해주세요.", "error");
 
             // 모든 매니페스트에 대해 병렬 API 호출
             const results = await Promise.all(
@@ -393,7 +382,7 @@ const Outbound = () => {
 
             // 실패한 게 하나라도 있으면 중단
             if (results.some(r => r.meta.requestStatus !== 'fulfilled')) {
-                return alert('일부 박스 목록을 불러오는 데 실패했습니다.');
+                return showDefaultAlert("오류", "일부 박스 목록을 불러오는 데 실패했습니다.", "error");
             }
 
             // 전체 결과에서 packingId 합산
@@ -405,7 +394,7 @@ const Outbound = () => {
             // allPackings 만든 직후에 추가
             console.log('📦 allPackings 원본:', allPackings);  // ← 이 줄 추가
 
-            if (linkedBoxes.length === 0) return alert('연결된 박스가 없습니다.');
+            if (linkedBoxes.length === 0) return showDefaultAlert("오류", "연결된 박스가 없습니다.", "error");
         }
 
         setActiveTransportationIds(targetIds);  // 배열로 저장 (아래 수정 2 참고)
@@ -426,7 +415,7 @@ const Outbound = () => {
     };
 
     const handleInvoiceSubmit = async () => {
-        if (activeTransportationIds.length === 0) return alert('매니페스트 정보가 없습니다.');
+        if (activeTransportationIds.length === 0) return showDefaultAlert("오류", "매니페스트 정보가 없습니다.", "error");
 
         const results = await Promise.all(
             activeTransportationIds.map(id => dispatch(issueInvoiceByTransportation(id)))
@@ -447,8 +436,9 @@ const Outbound = () => {
     };
 
     const handleConfirmShipment = async () => {
-        if (checkedManifests.length === 0) return alert('출고를 확정할 매니페스트를 선택해주세요.');
-        if (window.confirm(`선택한 ${checkedManifests.length}건의 출고 공정을 최종 확정 승인하시겠습니까?`)) {
+        if (checkedManifests.length === 0) return showDefaultAlert("오류", "출고을 확정할 매니페스트를 선택해주세요.", "error");
+        const isConfirmed = await showConfirmAlert('확정', `선택한 ${checkedManifests.length}건의 출고 공정을 최종 확정 승인하시겠습니까?`, 'question');
+        if (isConfirmed) {
             const result = await dispatch(confirmOutboundShipment({ transportationIds: checkedManifests }));
             if (result.meta.requestStatus === 'fulfilled') {
                 setCheckedManifests([]);
@@ -1047,7 +1037,7 @@ const Outbound = () => {
                                     <button
                                         type="button"
                                         className="btn-main-action"
-                                        onClick={() => alert('송장이 재출력 되었습니다.')}
+                                        onClick={() => showDefaultAlert('완료', '송장이 재출력 되었습니다.', 'success')}
                                     >
                                         전체 송장 재출력
                                     </button>
@@ -1055,7 +1045,8 @@ const Outbound = () => {
                                         type="button"
                                         className="btn-action-green"
                                         onClick={async () => {
-                                            if (window.confirm(`선택한 ${activeTransportationIds.length}건의 출고 공정을 최종 확정 승인하시겠습니까?`)) {
+                                            const isConfirmed = await showConfirmAlert('확정', `선택한 ${activeTransportationIds.length}건의 출고 공정을 최종 확정 승인하시겠습니까?`, 'question');
+                                            if (isConfirmed) {
                                                 const result = await dispatch(confirmOutboundShipment({ transportationIds: activeTransportationIds }));
                                                 if (result.meta.requestStatus === 'fulfilled') {
                                                     closeInvoiceModal();

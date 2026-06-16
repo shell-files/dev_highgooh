@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, isPending, isRejected } from '@reduxjs/toolkit';
 import { GET, POST, PUT, PATCH } from "@utils/Network";
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 const initialState = {
   loading: false,
@@ -250,9 +251,9 @@ const outboundSlice = createSlice({
       .addCase(assignOutboundVehicle.fulfilled, (state, action) => {
         const res = action.payload;
         if (res && res.status === true) {
-          alert('차량 배정이 성공적으로 처리되었습니다.');
+          showDefaultAlert('완료', '차량 배정이 성공적으로 처리되었습니다.', 'success');
         } else {
-          alert(res?.message || '차량 배정 처리 중 오류가 발생했습니다.');
+          showDefaultAlert('오류', res?.message || '차량 배정 처리 중 오류가 발생했습니다.', 'error');
         }
         state.loading = false;
       })
@@ -261,9 +262,9 @@ const outboundSlice = createSlice({
       .addCase(confirmOutboundShipment.fulfilled, (state, action) => {
         const res = action.payload;
         if (res && res.status === true) {
-          alert('선택한 매니페스트 단위 출고가 최종 확정 마감되었습니다.');
+          showDefaultAlert('완료', '선택한 매니페스트 단위 출고가 최종 확정 마감되었습니다.', 'success');
         } else {
-          alert(res?.message || '출고 확정 공정 처리 실패');
+          showDefaultAlert('오류', res?.message || '출고 확정 공정 처리 실패', 'error');
         }
         state.loading = false;
       })
@@ -272,9 +273,9 @@ const outboundSlice = createSlice({
       .addCase(issueInvoiceByTransportation.fulfilled, (state, action) => {
         const res = action.payload;
         if (res && res.status === true) {
-          alert('송장 발급이 완료되었습니다.');
+          showDefaultAlert('완료', '송장 발급이 완료되었습니다.', 'success');
         } else {
-          alert(res?.message || '송장 발급 처리 실패');
+          showDefaultAlert('오류', res?.message || '송장 발급 처리 실패', 'error');
         }
         state.loading = false;
       })
