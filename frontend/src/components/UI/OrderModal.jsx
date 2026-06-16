@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeOrderModal, addOrder, getOrder } from '@stores/orderSlice';
+import { showDefaultAlert } from "@components/UI/ServiceAlert";
 
 const OrderModal = () => {
   const dispatch = useDispatch();
@@ -130,26 +131,26 @@ const OrderModal = () => {
     if (formData.products.length > 1) {
       setFormData(prev => ({ ...prev, products: prev.products.filter(p => p.id !== id) }));
     } else {
-      alert('최소 1개 이상의 제품 등록 항목이 구성되어야 합니다.');
+      showDefaultAlert('오류', "최소 1개 이상의 제품 등록 항목이 구성되어야 합니다.", "error");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (Number(formData.customerCompanyId) === 0) { alert('고객사를 선택하세요.'); return; }
-    if (!formData.deadline) { alert('주문마감일자를 입력하세요.'); return; }
+    if (Number(formData.customerCompanyId) === 0) { showDefaultAlert('필수 입력', '고객사를 선택해주세요', 'error'); return; }
+    if (!formData.deadline) { showDefaultAlert('필수 입력', '주문마감일자를 입력해야 합니다.', 'error'); return; } 
     // if (!formData.etd) { alert('출고마감일자를 입력하세요.'); return; }
 
     if (!formData.products || formData.products.length < 1) {
-      alert('최소 1개 이상의 제품을 추가해야 합니다.');
+      showDefaultAlert('필수 입력','최소 1개 이상의 제품을 추가해야 합니다.', 'error');
       return;
     }
 
     for (const p of formData.products) {
-      if (Number(p.outboundProductId) === 0) { alert('제품을 선택하세요.'); return; }
-      if (!p.quantity || Number(p.quantity) < 1) { alert('주문수량은 최소 1세트 이상이어야 합니다.'); return; }
-      if (p.price === '' || p.price === undefined) { alert('가격을 입력하세요.'); return; }
+      if (Number(p.outboundProductId) === 0) { showDefaultAlert('오류', '제품을 선택해주세요', 'error'); return; }
+      if (!p.quantity || Number(p.quantity) < 1) { showDefaultAlert('오류', '수량을 입력해야 합니다.', 'error'); return; }
+      if (p.price === '' || Number(p.price === 0)) { showDefaultAlert('오류','가격을 입력하세요.', 'error'); return; }
     }
 
     const params = {
@@ -218,7 +219,7 @@ const OrderModal = () => {
 
                 <div className="form-group">
                   <label>고객사 <span className="required">*</span></label>
-                  <select id="modal_customerCompanyId" className="modal-input" value={formData.customerCompanyId} onChange={handleInputChange} disabled={isDetail} required>
+                  <select id="modal_customerCompanyId" className="modal-input" value={formData.customerCompanyId} onChange={handleInputChange} disabled={isDetail} >
                     <option value={0}>-- 고객사 선택 --</option>
                     {customers && customers.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -228,7 +229,7 @@ const OrderModal = () => {
 
                 <div className="form-group">
                   <label>주문마감일자 <span className="required">*</span></label>
-                  <input type="date" id="modal_deadline" className="modal-input" value={formData.deadline} onChange={handleInputChange} readOnly={isDetail} required />
+                  <input type="date" id="modal_deadline" className="modal-input" value={formData.deadline} onChange={handleInputChange} readOnly={isDetail} />
                 </div>
 
                 {/* <div className="form-group">
@@ -266,10 +267,10 @@ const OrderModal = () => {
                           </select>
                         </td>
                         <td>
-                          <input type="number" className="modal-input text-right" placeholder="0" min="1" value={product.quantity} onChange={(e) => handleProductChange(index, 'quantity', e.target.value)} readOnly={isDetail} required />
+                          <input type="number" className="modal-input text-right" placeholder="0" value={product.quantity} onChange={(e) => handleProductChange(index, 'quantity', e.target.value)} readOnly={isDetail} required />
                         </td>
                         <td>
-                          <input type="number" className="modal-input text-right" placeholder="0" min="0" value={product.price} onChange={(e) => handleProductChange(index, 'price', e.target.value)} readOnly={isDetail} required />
+                          <input type="number" className="modal-input text-right" placeholder="0" value={product.price} onChange={(e) => handleProductChange(index, 'price', e.target.value)} readOnly={isDetail} required />
                         </td>
                         {!isDetail && (
                           <td className="text-center">

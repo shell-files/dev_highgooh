@@ -50,15 +50,13 @@ const OutboundOrder = () => {
     if (endVal !== "") {
       params.orderEnd = addOneDay(endVal);
     }
-    
+
     dispatch(getOrder(params));
   };
 
   // ── 선언적 생명주기 관리: 페이지 변경 및 모달이 닫힐 때 자동 리로드 ──
   useEffect(() => {
-    if (!isModal) {
-      getData();
-    }
+    if (!isModal) getData();
   }, [page, isModal]);
 
   // ── 검색 폼 제출 핸들러 ──
