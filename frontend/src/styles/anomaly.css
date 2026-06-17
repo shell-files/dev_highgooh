@@ -411,7 +411,7 @@
 }
 
 #anomaly-page .chart-container.chart-height-machine {
-    height: 340px;
+    height: fit-content;
 }
 
 #anomaly-page .chart-margin-bottom {
@@ -619,4 +619,233 @@
 #anomaly-page .btn-modal-action:hover {
     opacity: 0.9;
 }
-
+
+#anomaly-page .aiReport_area {
+    padding-top: 30px;
+}
+
+#anomaly-page .ai_btn {
+    width: 140px;
+}
+
+/* ==========================================================================
+   AI 이상치 보고서(Modal Report Document) 프리미엄 스타일링 추가
+   ========================================================================== */
+
+/* 보고서 모달 너비 확장 컨테이너 */
+#anomaly-page .ai-report-modal-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.05);
+    width: 680px; /* 보고서 서식 가독성을 위해 넓은 규격 확보 */
+    max-width: 95%;
+    max-height: 88vh;
+    padding: 1.5rem;
+    border: 1px solid var(--pipe-border);
+    display: flex;
+    flex-direction: column;
+}
+
+/* 헤더 커스텀 */
+#anomaly-page .ai-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+#anomaly-page .ai-report-header .header-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--pipe-text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#anomaly-page .ai-effect-star {
+    color: #6366f1;
+}
+
+/* 컨트롤 바 (날짜 선택 및 버튼) */
+#anomaly-page .ai-report-control-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 1.25rem;
+}
+
+#anomaly-page .control-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--pipe-text-muted);
+}
+
+#anomaly-page .ai-report-date-input {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    color: var(--pipe-text-dark);
+    font-family: inherit;
+    outline: none;
+    background-color: #ffffff;
+}
+
+#anomaly-page .ai-report-date-input:focus {
+    border-color: var(--primary-green);
+}
+
+#anomaly-page .btn-ai-report-search {
+    background-color: var(--primary-green);
+    color: #ffffff;
+    border: 1px solid var(--primary-green);
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#anomaly-page .btn-ai-report-search:hover {
+    opacity: 0.9;
+}
+
+#anomaly-page .btn-ai-report-search:disabled {
+    background-color: #cbd5e1;
+    border-color: #cbd5e1;
+    cursor: not-allowed;
+}
+
+/* 내부 바디 스크롤 시트 */
+#anomaly-page .ai-report-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 1.25rem;
+}
+
+/* 실제 A4 보고서 서식 느낌의 본문 페이퍼 디자인 */
+#anomaly-page .ai-paper-document {
+    background-color: #fafafa;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+#anomaly-page .paper-main-title {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #0f172a;
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    border-bottom: 2px double #cbd5e1;
+    padding-bottom: 10px;
+}
+
+#anomaly-page .paper-meta-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--pipe-text-muted);
+    margin-bottom: 24px;
+    border-bottom: 1px dashed #e2e8f0;
+    padding-bottom: 8px;
+}
+
+#anomaly-page .paper-section {
+    margin-bottom: 20px;
+}
+
+#anomaly-page .paper-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+#anomaly-page .paper-section-content {
+    background-color: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #334155;
+    white-space: pre-wrap; /* DB 내부 줄바꿈 데이터 원본 보존 처리 */
+}
+
+/* 요약본 강조 백그라운드 칼라 */
+#anomaly-page .paper-section-content.highlighted {
+    background-color: #f0fdf4;
+    border-left: 4px solid var(--primary-green);
+    font-weight: 500;
+}
+
+/* 추천 및 완화 조치 박스 스타일링 */
+#anomaly-page .paper-section-content.advice-box {
+    background-color: #fffbeb;
+    border-left: 4px solid var(--pipe-orange);
+}
+
+/* 로딩 전용 UI 스피너 연출 */
+#anomaly-page .ai-report-status-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    text-align: center;
+    color: var(--pipe-text-muted);
+    font-size: 0.88rem;
+}
+
+#anomaly-page .ai-report-status-box p {
+    margin: 12px 0 0 0;
+}
+
+#anomaly-page .ai-report-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3.5px solid #f1f5f9;
+    border-top-color: var(--primary-green);
+    border-radius: 50%;
+    animation: aiReportSpinAnimate 0.8s linear infinite;
+}
+
+@keyframes aiReportSpinAnimate {
+    to { transform: rotate(360deg); }
+}
+
+/* 데이터 없음 공백 화면 처리 */
+#anomaly-page .ai-report-status-box.empty .empty-icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+#anomaly-page .ai-report-status-box.empty p {
+    font-weight: 700;
+    color: #475569;
+}
+
+#anomaly-page .ai-report-status-box.empty .sub-desc {
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+#anomaly-page .ai-report-footer {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #edf2f7;
+    padding-top: 0.8rem;
+}
