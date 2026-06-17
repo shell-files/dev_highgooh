@@ -5,6 +5,7 @@ import AnomalyBarChart from '@components/UI/AnomalyBarChart.jsx';
 import processAnomalyData from '@components/UI/AnomalyTableData.jsx';
 import getActiveStepDetail from '@components/UI/AnomalyStepData.jsx';
 import { POST, PATCH } from "@utils/Network";
+import * as XLSX from 'xlsx';
 
 
 
@@ -28,6 +29,9 @@ const Anomaly = () => {
   const [waitCount, setWaitCount] = useState(0)
   const [actioningCount, setActioningCount] = useState(0)
   const [actionedCount, setActionedCount] = useState(0)
+
+  const tableColList = ["이상치 ID", "발생 일시", "설비명 (ID)", "SCOPE", "측정값 (기준치)", "이상치 점수", "위험 등급","조치 상태"]
+
 
   // 상태 변경 모달 열기 함수
   const openStatusModal = (e, log) => {
@@ -58,6 +62,10 @@ const Anomaly = () => {
 
   // 데이터 새로고침 함수
   const fetchData = (page = 1) => {
+    setYearData(selectedYear)
+    setQuarterData(selectedQuarter)
+    setMonthData(selectedMonth)
+
     const offset = (page - 1) * 10;
     const param = {
       selectedYear: (selectedYear === "all" || selectedYear === "") ? '' : selectedYear,
@@ -67,7 +75,6 @@ const Anomaly = () => {
       limit: 10,
       offset: offset
     };
-
 
 
     POST("/anomaly", param).then(res => {
@@ -115,9 +122,14 @@ const Anomaly = () => {
   }
 
   // 필터 상태 관리
-  const [selectedYear, setSelectedYear] = useState("2026");
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(String(currentYear));
   const [selectedQuarter, setSelectedQuarter] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
+  const [yearData, setYearData] = useState(String(currentYear))
+  const [quarterData, setQuarterData] = useState("")
+  const [monthData, setMonthData] = useState("")
+
 
   // 분기 선택시 월 선택 초기화
   const quarterChoice = (quarter) => {
@@ -254,6 +266,33 @@ const Anomaly = () => {
     fetchData(1);
   }, []);
 
+  const handleDownload = (data) => {
+      // 1. 데이터를 기반으로 워크시트(Worksheet) 생성
+    
+      const replaceData = []
+      data.map((v) => { replaceData.push({ [tableColList[0]]: v.id, [tableColList[1]]: v.date, [tableColList[2]]: v.machineName, [tableColList[3]]: v.scope, [tableColList[4]]: v.metrics, [tableColList[5]]: v.score, [tableColList[6]]: v.level, [tableColList[7]]: v.state })})
+  
+      const worksheet = XLSX.utils.json_to_sheet(replaceData);
+  
+      // (선택) 엑셀 시트의 헤더(열 이름)를 한글로 예쁘게 변경하고 싶을 때
+      XLSX.utils.sheet_add_aoa(worksheet, [tableColList], { origin: "A1" });
+  
+      const period = quarterData ? `${quarterData}분기` : (monthData ? `${monthData}월` : "");
+      const fileName = [
+        "이상치 탐지 및 발생 로그 이력",
+        `${yearData}년도`,
+        `${pageNumber}페이지`,
+        period
+      ].filter(Boolean).join("_"); // 빈 문자열은 제거하고 '_'로 연결
+  
+      // 2. 새로운 워크북(Workbook)을 생성하고 워크시트 추가
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+      
+      XLSX.writeFile(workbook, `${fileName}.xlsx`);
+      // 3. 엑셀 파일 작성 및 다운로드 실행
+      // 파일명은 원하는 대로 지정할 수 있습니다.
+    };
 
   return (
     <div id="anomaly-page">
@@ -476,20 +515,16 @@ const Anomaly = () => {
       <div className="dashboard-table-card">
         <div className="table-header-flex">
           <h3 className="table-title">실시간 이상치 탐지 및 발생 로그 이력</h3>
-          <button className="btn-excel-download">액셀 다운로드</button>
+          <button className="btn-excel-download" onClick={()=>handleDownload(logs)}>액셀 다운로드</button>
         </div>
         <div className="table-responsive">
           <table className="dashboard-data-table">
             <thead>
               <tr>
-                <th>이상치 ID</th>
-                <th>발생 일시</th>
-                <th>설비명 (ID)</th>
-                <th>SCOPE</th>
-                <th>측정값 (기준치)</th>
-                <th>이상치 점수</th>
-                <th>위험 등급</th>
-                <th>조치 상태</th>
+                
+                {
+                  tableColList.map((v, i) => <th key={i}>{v}</th>)
+                }
               </tr>
             </thead>
             <tbody>
@@ -506,11 +541,11 @@ const Anomaly = () => {
                       backgroundColor: log.bgColor,
                       color: log.levelColor,
                       fontWeight: 600,
-                      padding: '4px 10px', 
-                      borderRadius: '12px', 
+                      padding: '4px 10px',
+                      borderRadius: '12px',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '6px', 
+                      gap: '6px',
                       fontSize: '0.9em'
                     }}>
                       {log.icon} {log.level}
