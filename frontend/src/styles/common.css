@@ -831,3 +831,169 @@ nav button.active::after {
     color: var(--text-dark) !important;
     font-weight: 700 !important;
 }
+
+
+/* ==========================================================================
+   헤더 알림 팝업창 전용 스타일 (header 태그 하위 구조 지정 완료)
+   ========================================================================== */
+
+/* 종 아이콘 내부의 실시간 카운트 레드 닷 */
+header .bell_icon {
+    position: relative;
+}
+
+header .noti-badge-dot {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 6px;
+    height: 6px;
+    background-color: var(--accent-red, #e53e3e);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #ffffff;
+}
+
+/* 알림 드롭다운 본체 구조 */
+header .noti-dropdown {
+    position: absolute;
+    top: 48px;  
+    right: 120px; 
+    width: 320px;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: default;
+    animation: headerNotiFadeIn 0.15s ease-out;
+}
+
+@keyframes headerNotiFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 알림 드롭다운 타이틀 바 */
+header .noti-dropdown-header {
+    background-color: #f8fafc;
+    padding: 12px 16px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .noti-dropdown-header span {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-dark, #333333);
+}
+
+header .btn-all-read {
+    background: none;
+    border: none;
+    font-size: 0.75rem;
+    color: var(--primary-green, #03a94d);
+    font-weight: 600;
+    cursor: pointer;
+}
+header .btn-all-read:hover { 
+    text-decoration: underline; 
+}
+
+/* 스크롤 가능한 바디 영역 */
+header .noti-dropdown-body {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+header .noti-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* 개별 알림 리스트 목록 카드 */
+header .noti-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: background-color 0.15s;
+}
+
+/* 읽지 않은 알림 전용 포인트 컬러 백그라운드 */
+header .noti-item.unread {
+    background-color: #f0fdf4; 
+}
+header .noti-item:hover {
+    background-color: #f8fafc;
+}
+
+header .noti-item-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* 알림 위급도 종류별 동그라미 태그 인디케이터 */
+header .noti-tag-icon {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+header .noti-tag-icon.critical { background-color: var(--accent-red, #e53e3e); }
+header .noti-tag-icon.warning { background-color: var(--accent-orange, #dd6b20); }
+header .noti-tag-icon.info { background-color: #3182ce; }
+
+header .noti-message {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #334155;
+    margin: 0;
+    text-align: left !important; /* 메인 테이블 글로벌 th, td 중앙정렬 간섭 해결 */
+}
+
+/* 이미 읽은 알림 메시지 폰트 색상 디밍 */
+header .noti-item.read .noti-message {
+    color: #94a3b8; 
+}
+
+header .noti-time {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    padding-left: 14px;
+    text-align: left;
+}
+
+/* 알림 내역이 비었을 때 화면 구성 */
+header .noti-empty-state {
+    padding: 40px 0;
+    text-align: center;
+    color: #94a3b8;
+}
+
+header .noti-empty-state .empty-bell {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 6px;
+}
+
+header .noti-empty-state p {
+    font-size: 0.82rem;
+}
+
+header .header-noti-dropdown {
+    position: absolute;
+    top: 40px;
+    background: #fff;
+    border: 1px solid #d1d1d1;
+    border-radius: 10px;
+    overflow: hidden;
+}
