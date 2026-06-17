@@ -40,4 +40,7 @@ public class OutboundRequestDTO extends PageRequestDTO {
 
     @Schema(description = "매니페스트 ID (OUTBOUND_TRANSPORTATION.id, 0이면 전체)", defaultValue = "0", example = "0")
     private int transportationId;
+
+    @Schema(description = "박스 패킹 번호 (OUTBOUND_PACKING.packing_invoice_number, ''이면 전체)", defaultValue = "", example = "")
+    private String packingInvoiceNumber;
 }

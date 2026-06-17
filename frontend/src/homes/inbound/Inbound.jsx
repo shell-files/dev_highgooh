@@ -5,11 +5,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getInbound, getInboundDetail, setPage, closeInboundModal } from '@stores/inboundSlice';
 import { getFirstDay, getLastDayOfMonth, addOneDay } from '@stores/date';
 import { showDefaultAlert } from "@components/UI/ServiceAlert";
+import * as XLSX from 'xlsx';
 
 const InboundModal = ({ detailData, isModal }) => {
     const dispatch = useDispatch();
     const inbound = detailData?.inbound;
     const items = detailData?.items || [];
+
 
     return (
         <>
@@ -101,6 +103,8 @@ const Inbound = () => {
     const [firstDate, setFirstDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
 
+    const tableColList = ["입고일자", "ASN 번호", "공급사","입고 창고"]
+
     const openDetailModal = (asnId) => {
         const params = { asnId };
         dispatch(getInboundDetail(params));
@@ -148,6 +152,28 @@ const Inbound = () => {
         if (!isModal) getData();
     }, [page, isModal]);
 
+
+    const handleDownload = (data) => {
+        // 1. 데이터를 기반으로 워크시트(Worksheet) 생성
+
+        const replaceData = []
+        data.map((v) => { replaceData.push({ "입고일자": v.ata, "ASN 번호": v.asnId, "공급사": v.partnerName, "입고 창고": v.warehouseName}) })
+
+        const worksheet = XLSX.utils.json_to_sheet(replaceData);
+
+        // (선택) 엑셀 시트의 헤더(열 이름)를 한글로 예쁘게 변경하고 싶을 때
+        XLSX.utils.sheet_add_aoa(worksheet, [tableColList], { origin: "A1" });
+
+        // 2. 새로운 워크북(Workbook)을 생성하고 워크시트 추가
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, `입고이력_${page}페이지_${firstDate}~${endDate}`);
+
+        // 3. 엑셀 파일 작성 및 다운로드 실행
+        // 파일명은 원하는 대로 지정할 수 있습니다.
+        XLSX.writeFile(workbook, `입고이력_${page}페이지_${firstDate}~${endDate}.xlsx`);
+    };
+
+
     return (
         <div id="inbound-page">
             <div className="page-header-flex">
@@ -181,16 +207,16 @@ const Inbound = () => {
             <div className="content-card">
                 <div className="table-responsive">
                     <div className="inhistory-btn-group">
-                        <button type="button" className="btn-filter-reset">엑셀 다운로드</button>
+                        <button type="button" className="btn-filter-reset" onClick={() => handleDownload(list)}>엑셀 다운로드</button>
                         <button type="button" className="btn-filter-search" onClick={getData}>새로고침</button>
                     </div>
                     <table className="history-data-table">
                         <thead>
+                            
                             <tr>
-                                <th>입고일자</th>
-                                <th>ASN 번호</th>
-                                <th>공급사</th>
-                                <th>입고 창고</th>
+                                {
+                                    tableColList.map((v, i) => <th key={i}>{v}</th>)
+                                }
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
