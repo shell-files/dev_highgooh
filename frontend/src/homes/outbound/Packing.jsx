@@ -418,7 +418,7 @@ const Packing = () => {
     const packingInvoice = items.flatMap(product =>
       Array.from({ length: product.quantity }, (_, i) => ({
         orderId: detailData.order.orderId,
-        packingInvoiceNumber: `IVC-${detailData.order.orderId}-${product.productId}-${i + 1}`,
+        packingInvoiceNumber: `IVC-${detailData.order.orderId}-${product.productCode}-${i + 1}`,
         productId: product.productId,
         carrierId: Number(carrier),
       }))
