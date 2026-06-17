@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import cloud.weareithero.api.carbonAnomaly.dao.CarbonAnomalyDao;
 import cloud.weareithero.api.carbonAnomaly.dto.CarbonAnomalyCountDTO;
@@ -75,7 +76,7 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
             resultMap.put("list", detailList);
             resultMap.put("stats", stats);
             resultMap.put("totalCount", totalCount);
-            
+
             isSuccess = true;
 
         } catch (Exception e) {
@@ -86,14 +87,36 @@ public class CarbonAnomalyServiceImp implements CarbonAnomalyService {
 
         return ResponseDTO.builder()
                 .status(isSuccess)
-                .data(resultMap) 
+                .data(resultMap)
                 .message(message)
                 .build();
     }
 
     @Override
+    @Transactional
     public ResponseDTO updateAnomalyStatus(CarbonAnomalyStateUpdateDTO dto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateAnomalyStatus'");
+        try {
+            // 1. DAO를 통해 업데이트 실행
+            int updatedRows = carbonAnomalyDao.updateAnomalyStatus(dto);
+
+            // 2. 결과에 따른 응답 설정
+            if (updatedRows > 0) {
+                return ResponseDTO.builder()
+                        .status(true)
+                        .message("상태값이 성공적으로 업데이트되었습니다.")
+                        .build();
+            } else {
+                return ResponseDTO.builder()
+                        .status(false)
+                        .message("ID에 해당하는 데이터를 찾을 수 없습니다.")
+                        .build();
+            }
+        } catch (Exception e) {
+            log.error("CarbonAnomalyServiceImp updateAnomalyStatus error", e);
+            return ResponseDTO.builder()
+                    .status(false)
+                    .message("업데이트 중 오류가 발생했습니다.")
+                    .build();
+        }
     }
 }
