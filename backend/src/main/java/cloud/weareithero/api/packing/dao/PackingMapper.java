@@ -111,6 +111,7 @@ public interface PackingMapper {
             SELECT
                 `o`.id	                    AS 'orderProductNo',
                 `o`.outbound_product_id     AS 'productId',
+                `op`.`product_code`         AS 'productCode',
                 `op`.`name`                 AS 'productName',
                 `o`.`quantity`,
                 `o`.`price`,
