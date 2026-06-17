@@ -339,7 +339,6 @@ const Anomaly = () => {
     if (!reportData) return alert("다운로드할 데이터가 없습니다.");
     // 1. Word 문서 가상 구조 생성
 
-    console.log(reportData)
     const doc = new Document({
       sections: [
         {
@@ -783,7 +782,7 @@ const Anomaly = () => {
 
                 {/* 푸터 영역 */}
                 <div className="ai-report-footer">
-                  <button className="btn-excel-download" onClick={() => handleWordDownload(aiReportData)}>Word 다운로드</button>
+                  <button className="btn-filter-tab active ai_report_btn" onClick={() => handleWordDownload(aiReportData)}>Word 다운로드</button>
                   <button type="button" className="btn-modal-action" onClick={() => setIsAiModalOpen(false)}>닫기</button>
                 </div>
 
