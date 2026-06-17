@@ -226,7 +226,7 @@ const Anomaly = () => {
         // 2. 모달 닫기
         closeStatusModal();
 
-        console.log("상태 변경 성공");
+        // console.log("상태 변경 성공");
       } else {
         console.error("상태 변경 실패:", res);
         alert("상태 변경에 실패했습니다: " + (res.message || "알 수 없는 오류"));

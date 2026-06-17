@@ -53,7 +53,6 @@ const CarbonDashboard = () => {
   // 조회 버튼 이벤트
   const periodSearch = () => {
     const params = { selectedYear, selectedQuarter, selectedMonth };
-    console.log(params)
     setYearData(selectedYear)
     setQuarterData(selectedQuarter)
     setMonthData(selectedMonth)
@@ -127,7 +126,6 @@ const CarbonDashboard = () => {
 
     const replaceData = []
     data.map((v) => { replaceData.push({ "공정명": v.process, "Scope 구분": v.scope, "에너지원": v.source, "활동 데이터(사용량)": v.amount, "단위": v.unit, "배출량 (tCO₂eq)": v.emission, "비율 (%)": v.percent }) })
-    console.log(replaceData)
 
     const worksheet = XLSX.utils.json_to_sheet(replaceData);
 
