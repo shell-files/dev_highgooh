@@ -100,15 +100,6 @@ const Outbound = () => {
         dispatch(getOutboundSummary());
     }, [dispatch]);
 
-    // useEffect(() => {
-    //     console.log("boxList", boxList);
-    // }, [boxList]);
-
-    // useEffect(() => {
-    //     console.log("manifestList", manifestList);
-    // }, [manifestList]);
-
-
     const handleViewModeChange = (mode) => {
         setViewMode(mode);
         setBoxFilter(defaultBoxFilter);          // 박스 필터 초기화
@@ -258,7 +249,6 @@ const Outbound = () => {
             driver: vehicleForm.driver,
             etd: vehicleForm.etd
         };
-        // console.log('배정 payload:', payload);
 
         try {
             const result = await dispatch(assignOutboundVehicle(payload));
@@ -395,7 +385,6 @@ const Outbound = () => {
             setInvoiceDataMap(dataMap);
             linkedBoxes = allPackings.map(p => p.packingId);
             // allPackings 만든 직후에 추가
-            console.log('📦 allPackings 원본:', allPackings);  // ← 이 줄 추가
 
             if (linkedBoxes.length === 0) return showDefaultAlert("오류", "연결된 박스가 없습니다.", "error");
         }
@@ -976,7 +965,6 @@ const Outbound = () => {
                                     <ul id="invoiceBoxList">
                                         {activeInvoiceBoxes.map((packingId, index) => {
                                             const info = invoiceDataMap[packingId] || {};  // ← 이 줄 추가
-                                            console.log(activeInvoiceBoxes)
                                             return (
                                                 <li
                                                     key={packingId}
@@ -1002,7 +990,6 @@ const Outbound = () => {
                                         <div className="slider-track slider-track-animate" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
                                             {activeInvoiceBoxes.map((packingId) => {
                                                 const info = invoiceDataMap[packingId] || {};
-                                                console.log(info)
                                                 return (
                                                     <div className="slide-item slide-item-card" key={`slide-${packingId}`}>
                                                         <div className="invoice-preview-card invoice-card-centered">

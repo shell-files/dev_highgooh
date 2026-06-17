@@ -158,7 +158,6 @@ const Inbound = () => {
 
         const replaceData = []
         data.map((v) => { replaceData.push({ "입고일자": v.ata, "ASN 번호": v.asnId, "공급사": v.partnerName, "입고 창고": v.warehouseName}) })
-        console.log(list)
 
         const worksheet = XLSX.utils.json_to_sheet(replaceData);
 

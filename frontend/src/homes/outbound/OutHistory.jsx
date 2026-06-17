@@ -146,7 +146,6 @@ const OutHistory = () => {
 
         const replaceData = []
         data.map((v)=> {replaceData.push({"출고일자" : v.updated_at, "주문번호" : v.outbound_id, "고객사" : v.partner, "운송사" : v.trans, "총 박스 수량" : `${v.cnt} EA`, "배송상태" : v.delivery_status})})
-        console.log(replaceData)
         
         const worksheet = XLSX.utils.json_to_sheet(replaceData);
 
@@ -162,7 +161,6 @@ const OutHistory = () => {
         XLSX.writeFile(workbook, `출고이력_${page}페이지_${startDay}~${endDay}.xlsx`);
     };
 
-    // console.log(historyList)
     return (
         <div id="outHistory-page">
             <div className="page-header-flex">
