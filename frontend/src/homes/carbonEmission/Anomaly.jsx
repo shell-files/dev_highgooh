@@ -73,7 +73,7 @@ const Anomaly = () => {
     POST("/anomaly", param).then(res => {
       if (res && res.status === true) {
         setLogs(processAnomalyData(res.data.list));
-        console.log(processAnomalyData(res.data.list));
+
 
         //차트데이터
         const stats = res.data.stats;
