@@ -161,8 +161,8 @@ END AS delivery_status
         SELECT 
             p.outbound_id,
             p.packing_invoice_number,
+            p.invoice_number,
             m.`name`, 
-            p.invoice_number, 
             CASE 
                 WHEN p.updated_at <= b.etd THEN '기한달성'
                 ELSE '기한초과'

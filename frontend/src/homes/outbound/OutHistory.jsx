@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import * as XLSX from 'xlsx';
 import {
     getOutboundHistory,
     getOutboundHistoryDetail,
@@ -26,7 +27,8 @@ const OutHistory = () => {
     const [transName, setTransName] = useState("");
     const [startDay, setStartDay] = useState("");
     const [endDay, setEndDay] = useState("");
-    console.log(historyList)
+
+    const tableColList = ["출고일자", "주문번호", "고객사","운송사","총 박스 수량","배송 상태"]
 
     // 2. 가짜 데이터 필드 구조 호환을 위한 맵 변환 가공
     const summaryData = {
@@ -59,14 +61,13 @@ const OutHistory = () => {
             partnerCompanyId: Number(formFilters.customer) || 0,
             transportCompanyId: Number(formFilters.transport) || 0
         };
-        // console.log('📤 credentials:', credentials);
+
         dispatch(getOutboundHistory(credentials));
         setStartDay(formFilters.startDate)
         setEndDay(formFilters.endDate)
     }, [dispatch, page, size, formFilters]);
 
-    console.log(startDay)
-    console.log(endDay)
+
     // 페이지 번호 및 리로드 트리거 감지
     useEffect(() => {
         fetchHistoryData();
@@ -138,6 +139,26 @@ const OutHistory = () => {
             trackingNo: box.invoice_number || '-',
             deliveryStatus: box.delivery_status === '기한달성' ? '기한 달성' : '기한 초과'  // ← 박스별로 보관
         })) : []
+    };
+
+    const handleDownload = (data) => {
+        // 1. 데이터를 기반으로 워크시트(Worksheet) 생성
+
+        const replaceData = []
+        data.map((v)=> {replaceData.push({"출고일자" : v.updated_at, "주문번호" : v.outbound_id, "고객사" : v.partner, "운송사" : v.trans, "총 박스 수량" : `${v.cnt} EA`, "배송상태" : v.delivery_status})})
+        
+        const worksheet = XLSX.utils.json_to_sheet(replaceData);
+
+        // (선택) 엑셀 시트의 헤더(열 이름)를 한글로 예쁘게 변경하고 싶을 때
+        XLSX.utils.sheet_add_aoa(worksheet, [tableColList], { origin: "A1" });
+
+        // 2. 새로운 워크북(Workbook)을 생성하고 워크시트 추가
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, `출고이력_${page}페이지_${startDay}~${endDay}`);
+
+        // 3. 엑셀 파일 작성 및 다운로드 실행
+        // 파일명은 원하는 대로 지정할 수 있습니다.
+        XLSX.writeFile(workbook, `출고이력_${page}페이지_${startDay}~${endDay}.xlsx`);
     };
 
     return (
@@ -240,18 +261,17 @@ const OutHistory = () => {
             <div className="content-card">
                 <div className="table-responsive">
                     <div className="inhistory-btn-group">
-                        <button type="button" className="btn-filter-reset">엑셀 다운로드</button>
+                        <button type="button" className="btn-filter-reset" onClick={()=>{handleDownload(historyList)}}>엑셀 다운로드</button>
                         <button type="button" className="btn-filter-search" onClick={fetchHistoryData}>새로고침</button>
                     </div>
                     <table className="history-data-table">
                         <thead>
+                            
                             <tr>
-                                <th>출고일자</th>
-                                <th>주문 번호</th>
-                                <th>고객사</th>
-                                <th>운송사</th>
-                                <th>총 박스 수량</th>
-                                <th>배송 상태</th>
+                                {
+                                    tableColList.map((v,i)=><th key={i}>{v}</th>)
+                                }
+
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
