@@ -71,7 +71,7 @@ const Outbound = () => {
     } = useSelector((state) => state.outbound.view || {});
 
     // 필터 제어용 useRef
-    const defaultBoxFilter = { outboundId: 0, packingId: 0, clientId: 0, carrierId: 0, stateCode: 0 };
+    const defaultBoxFilter = { outboundId: 0, packingInvoiceNumber: "", clientId: 0, carrierId: 0, stateCode: 0 };
     const defaultManifestFilter = { transportationId: 0, carrierId: 0, stateCode: 0 };
 
     const [boxFilter, setBoxFilter] = useState(defaultBoxFilter);
@@ -86,6 +86,9 @@ const Outbound = () => {
             const filters = { page, size, ...manifestFilter, ...(overrideFilter || {}) };
             dispatch(getOutboundManifestList(filters));
         }
+        // 메인테이블이 갱신되는 모든 시점(차량배정/송장발급/출고확정 등)에
+        // summary 카드도 함께 최신화
+        dispatch(getOutboundSummary());
     };
 
     useEffect(() => {
@@ -407,11 +410,10 @@ const Outbound = () => {
 
     const closeInvoiceModal = () => {
         setModalOpen(prev => ({ ...prev, invoice: false }));
-        setCheckedManifests([]);
-        setFirstSelectedManifestState(null);
-        setFirstSelectedCarrier(null);
         setActiveTransportationIds([]);
         setInvoiceModalStateCode(null);
+        // checkedManifests, firstSelectedManifestState, firstSelectedCarrier는
+        // 닫기/취소 시 유지 — 실제 작업 성공 콜백에서만 초기화
     };
 
     const handleInvoiceSubmit = async () => {
@@ -555,7 +557,7 @@ const Outbound = () => {
                                     value={boxFilter.outboundId || ''}
                                     onChange={(e) => setBoxFilter(prev => ({
                                         ...prev,
-                                        outboundId: e.target.value ? Number(e.target.value) : 0
+                                        outboundId: e.target.value ? e.target.value : 0
                                     }))}
                                 />
                             </div>
@@ -565,10 +567,10 @@ const Outbound = () => {
                                     type="text"
                                     className="filter-control"
                                     placeholder="박스번호 입력"
-                                    value={boxFilter.packingId || ''}
+                                    value={boxFilter.packingInvoiceNumber || ''}
                                     onChange={(e) => setBoxFilter(prev => ({
                                         ...prev,
-                                        packingId: e.target.value ? Number(e.target.value) : 0
+                                        packingInvoiceNumber: e.target.value ? e.target.value : ''
                                     }))}
                                 />
                             </div>
@@ -671,7 +673,7 @@ const Outbound = () => {
                             type="reset"
                             className="btn-filter-reset"
                             onClick={() => {
-                                const resetBox = { outboundId: 0, packingId: 0, clientId: 0, carrierId: 0, stateCode: 0 };
+                                const resetBox = { outboundId: 0, packingInvoiceNumber: '', clientId: 0, carrierId: 0, stateCode: 0 };
                                 const resetManifest = { transportationId: 0, carrierId: 0, stateCode: 0 };
 
                                 setBoxFilter(resetBox);

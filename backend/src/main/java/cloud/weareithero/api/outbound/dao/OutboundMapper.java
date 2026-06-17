@@ -141,8 +141,8 @@ public interface OutboundMapper {
       "<if test='carrierId != null and carrierId != 0'>" +
       " AND `op`.`partner_company_id` = #{carrierId} " + // ← 운송사 필터
       "</if>" +
-      "<if test='packingId != null and packingId != 0'>" +
-      " AND `op`.`id` = #{packingId} " +                 // ← 박스번호 필터
+      "<if test='packingInvoiceNumber != null and packingInvoiceNumber != \"\"'>" +
+      " AND `op`.`packing_invoice_number` LIKE CONCAT('%', #{packingInvoiceNumber}, '%')" +                 // ← 박스번호 필터
       "</if>" +
       "<if test='clientId != null and clientId != 0'>" +    // ← 추가
       " AND `ob`.`partner_company_id` = #{clientId} " +     // ← 추가
