@@ -6,7 +6,8 @@ import processAnomalyData from '@components/UI/AnomalyTableData.jsx';
 import getActiveStepDetail from '@components/UI/AnomalyStepData.jsx';
 import { POST, PATCH } from "@utils/Network";
 import * as XLSX from 'xlsx';
-
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
+import { saveAs } from "file-saver";
 
 
 const Anomaly = () => {
@@ -30,7 +31,7 @@ const Anomaly = () => {
   const [actioningCount, setActioningCount] = useState(0)
   const [actionedCount, setActionedCount] = useState(0)
 
-  const tableColList = ["이상치 ID", "발생 일시", "설비명 (ID)", "SCOPE", "측정값 (기준치)", "이상치 점수", "위험 등급","조치 상태"]
+  const tableColList = ["이상치 ID", "발생 일시", "설비명 (ID)", "SCOPE", "측정값 (기준치)", "이상치 점수", "위험 등급", "조치 상태"]
 
 
   // 상태 변경 모달 열기 함수
@@ -226,7 +227,6 @@ const Anomaly = () => {
         // 2. 모달 닫기
         closeStatusModal();
 
-        // console.log("상태 변경 성공");
       } else {
         console.error("상태 변경 실패:", res);
         alert("상태 변경에 실패했습니다: " + (res.message || "알 수 없는 오류"));
@@ -267,32 +267,124 @@ const Anomaly = () => {
   }, []);
 
   const handleDownload = (data) => {
-      // 1. 데이터를 기반으로 워크시트(Worksheet) 생성
-    
-      const replaceData = []
-      data.map((v) => { replaceData.push({ [tableColList[0]]: v.id, [tableColList[1]]: v.date, [tableColList[2]]: v.machineName, [tableColList[3]]: v.scope, [tableColList[4]]: v.metrics, [tableColList[5]]: v.score, [tableColList[6]]: v.level, [tableColList[7]]: v.state })})
-  
-      const worksheet = XLSX.utils.json_to_sheet(replaceData);
-  
-      // (선택) 엑셀 시트의 헤더(열 이름)를 한글로 예쁘게 변경하고 싶을 때
-      XLSX.utils.sheet_add_aoa(worksheet, [tableColList], { origin: "A1" });
-  
-      const period = quarterData ? `${quarterData}분기` : (monthData ? `${monthData}월` : "");
-      const fileName = [
-        "이상치 탐지 및 발생 로그 이력",
-        `${yearData}년도`,
-        `${pageNumber}페이지`,
-        period
-      ].filter(Boolean).join("_"); // 빈 문자열은 제거하고 '_'로 연결
-  
-      // 2. 새로운 워크북(Workbook)을 생성하고 워크시트 추가
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
-      
-      XLSX.writeFile(workbook, `${fileName}.xlsx`);
-      // 3. 엑셀 파일 작성 및 다운로드 실행
-      // 파일명은 원하는 대로 지정할 수 있습니다.
-    };
+    // 1. 데이터를 기반으로 워크시트(Worksheet) 생성
+
+    const replaceData = []
+    data.map((v) => { replaceData.push({ [tableColList[0]]: v.id, [tableColList[1]]: v.date, [tableColList[2]]: v.machineName, [tableColList[3]]: v.scope, [tableColList[4]]: v.metrics, [tableColList[5]]: v.score, [tableColList[6]]: v.level, [tableColList[7]]: v.state }) })
+
+    const worksheet = XLSX.utils.json_to_sheet(replaceData);
+
+    // (선택) 엑셀 시트의 헤더(열 이름)를 한글로 예쁘게 변경하고 싶을 때
+    XLSX.utils.sheet_add_aoa(worksheet, [tableColList], { origin: "A1" });
+
+    const period = quarterData ? `${quarterData}분기` : (monthData ? `${monthData}월` : "");
+    const fileName = [
+      "이상치 탐지 및 발생 로그 이력",
+      `${yearData}년도`,
+      `${pageNumber}페이지`,
+      period
+    ].filter(Boolean).join("_"); // 빈 문자열은 제거하고 '_'로 연결
+
+    // 2. 새로운 워크북(Workbook)을 생성하고 워크시트 추가
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    // 3. 엑셀 파일 작성 및 다운로드 실행
+    // 파일명은 원하는 대로 지정할 수 있습니다.
+  };
+
+  // ================= AI 이상치 보고서 전용 상태 관리 =================
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiReportDate, setAiReportDate] = useState(new Date().toISOString().split('T')[0]); // 기본값: 오늘 날짜
+  const [aiReportData, setAiReportData] = useState(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+  // AI 보고서 API 통신 함수
+  const fetchAiReport = (targetDate) => {
+    setIsAiLoading(true);
+    setAiReportData(null);
+
+    POST("/airflow", { targetDay: targetDate })
+      .then((res) => {
+        if (res && res.status === true && res.data) {
+          // 🔥 핵심 수정: 데이터가 배열로 들어올 경우 첫 번째 인덱스[0]를 타겟팅
+          if (Array.isArray(res.data)) {
+            setAiReportData(res.data.length > 0 ? res.data[0] : null);
+          } else {
+            setAiReportData(res.data); // 혹시 단일 객체로 바뀌더라도 방어
+          }
+        } else {
+          setAiReportData(null);
+        }
+      })
+      .catch((err) => {
+        console.error("AI 보고서 데이터 요청 실패:", err);
+        alert("보고서를 가져오는 중 오류가 발생했습니다.");
+      })
+      .finally(() => {
+        setIsAiLoading(false);
+      });
+  };
+
+  // 상단 AI 버튼 클릭 이벤트 핸들러
+  const handleOpenAiReport = () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    setAiReportDate(todayStr); // 날짜 상태를 오늘로 초기화
+    setIsAiModalOpen(true);
+    fetchAiReport(todayStr); // 오늘 날짜 데이터 즉시 조회
+  };
+
+  const handleWordDownload = (reportData) => {
+    if (!reportData) return alert("다운로드할 데이터가 없습니다.");
+    // 1. Word 문서 가상 구조 생성
+
+    console.log(reportData)
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            // 메인 타이틀
+            new Paragraph({
+              text: "ANOMALY SUMMARY REPORT",
+              heading: HeadingLevel.TITLE,
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 400 },
+            }),
+            // 메타 정보
+            new Paragraph({
+              children: [
+                new TextRun({ text: `대상 일자: ${reportData.target_day?.split(' ')[0]}   |   `, bold: true }),
+                new TextRun({ text: `발행 일시: ${reportData.create_at || '-'}`, bold: true }),
+              ],
+              spacing: { after: 300 },
+            }),
+
+            // 섹션 1: 당일 탐지 요약
+            new Paragraph({ text: "📌 1. 당일 탐지 요약 (Summary)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: reportData.summary, spacing: { after: 300 } }),
+
+            // 섹션 2: 발생 원인 추론
+            new Paragraph({ text: "🔍 2. 발생 원인 추론 (Reasoning)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: reportData.reasoning, spacing: { after: 300 } }),
+
+            // 섹션 3: 개선 조치 및 권고사항
+            new Paragraph({ text: "💡 3. 개선 조치 및 권고사항 (Recommendation)", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: reportData.recommendation, spacing: { after: 300 } }),
+          ],
+        },
+      ],
+    });
+
+    // 2. 파일 패킹 및 다운로드 트리거
+    Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, `AI_이상치_보고서_${reportData.target_day?.split(' ')[0]}.docx`);
+    });
+  };
+
+
+
 
   return (
     <div id="anomaly-page">
@@ -307,6 +399,9 @@ const Anomaly = () => {
       <div className="pipeline-section-wrapper">
         <div className="pipeline-header-flex">
           <h2>작일 공정 파이프라인 이상치 현황 ({yesterday})</h2>
+          <button className='btn-filter-tab active ai_btn' onClick={handleOpenAiReport}>
+            AI 이상치 보고서
+          </button>
         </div>
 
         {/* 작일 스텝 카드 영역 */}
@@ -357,7 +452,6 @@ const Anomaly = () => {
             </React.Fragment>
           ))}
         </div>
-
         {/* 작일 공정 디테일 카드 */}
         {[getActiveStepDetail(yesterdayRawData, activeStep)].map((detail) => {
           if (!activeStep || !detail || !detail.metrics) return null;
@@ -515,13 +609,13 @@ const Anomaly = () => {
       <div className="dashboard-table-card">
         <div className="table-header-flex">
           <h3 className="table-title">실시간 이상치 탐지 및 발생 로그 이력</h3>
-          <button className="btn-excel-download" onClick={()=>handleDownload(logs)}>액셀 다운로드</button>
+          <button className="btn-excel-download" onClick={() => handleDownload(logs)}>액셀 다운로드</button>
         </div>
         <div className="table-responsive">
           <table className="dashboard-data-table">
             <thead>
               <tr>
-                
+
                 {
                   tableColList.map((v, i) => <th key={i}>{v}</th>)
                 }
@@ -604,6 +698,95 @@ const Anomaly = () => {
                   <button type="button" className="btn-modal-action" onClick={closeStatusModal}>취소</button>
                   <button type="button" className="btn-modal-action save" onClick={saveStatus}>저장</button>
                 </div>
+              </div>
+            </div>
+          )}
+          {/* ================= AI 이상치 요약 보고서 모달 팝업 ================= */}
+          {isAiModalOpen && (
+            <div id="aiReportModal" className="anomaly-modal" style={{ display: 'flex' }}>
+              <div className="ai-report-modal-content">
+
+                {/* 헤더 영역 */}
+                <div className="ai-report-header">
+                  <div className="header-title">
+                    <span className="ai-effect-star"></span> 공정 파이프라인 AI 분석 보고서
+                  </div>
+                  <button type="button" className="close-btn" onClick={() => setIsAiModalOpen(false)}>✕</button>
+                </div>
+
+                {/* 날짜 필터 제어 바 */}
+                <div className="ai-report-control-bar">
+                  <span className="control-label">분석 기준일자 선택 :</span>
+                  <input
+                    type="date"
+                    className="ai-report-date-input"
+                    value={aiReportDate}
+                    onChange={(e) => setAiReportDate(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn-ai-report-search"
+                    onClick={() => fetchAiReport(aiReportDate)}
+                    disabled={isAiLoading}
+                  >
+                    {isAiLoading ? "조회 중..." : "조회"}
+                  </button>
+                </div>
+
+                {/* 보고서 도큐먼트 출력 영역 */}
+                <div className="ai-report-body-scroll">
+                  {isAiLoading ? (
+                    <div className="ai-report-status-box">
+                      <div className="ai-report-spinner"></div>
+                      <p>선택하신 일자의 AI 이상치 보고서를 생성 및 구성 중입니다...</p>
+                    </div>
+                  ) : aiReportData ? (
+                    <div className="ai-paper-document">
+                      <div className="paper-main-title">ANOMALY SUMMARY REPORT</div>
+                      <div className="paper-meta-info">
+                        <span><strong>대상 일자:</strong> {aiReportData.target_day ? aiReportData.target_day.split(' ')[0] : aiReportDate}</span>
+                        <span><strong>발행 일시:</strong> {aiReportData.create_at || '-'}</span>
+                      </div>
+
+                      {/* 섹션 1: 이상치 요약 */}
+                      <div className="paper-section">
+                        <div className="paper-section-title"> 1. 당일 탐지 요약 (Summary)</div>
+                        <div className="paper-section-content highlighted">
+                          {aiReportData.summary || "해당 일자의 요약 데이터 정보가 입력되어 있지 않습니다."}
+                        </div>
+                      </div>
+
+                      {/* 섹션 2: 원인 분석 */}
+                      <div className="paper-section">
+                        <div className="paper-section-title"> 2. 발생 원인 추론 (Reasoning)</div>
+                        <div className="paper-section-content">
+                          {aiReportData.reasoning || "원인 분석 로그 세부 정보가 존재하지 않습니다."}
+                        </div>
+                      </div>
+
+                      {/* 섹션 3: 추천 조치 사항 */}
+                      <div className="paper-section">
+                        <div className="paper-section-title"> 3. 개선 조치 및 권고사항 (Recommendation)</div>
+                        <div className="paper-section-content advice-box">
+                          {aiReportData.recommendation || "권고 조치 가이드라인이 명시되지 않았습니다."}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="ai-report-status-box empty">
+                      <span className="empty-icon">📂</span>
+                      <p>{aiReportDate} 날짜에 매핑된 AI 분석 보고서 데이터가 존재하지 않습니다.</p>
+                      <p className="sub-desc">다른 분석 날짜를 선택한 뒤 조회 버튼을 클릭해 주세요.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 푸터 영역 */}
+                <div className="ai-report-footer">
+                  <button className="btn-excel-download" onClick={() => handleWordDownload(aiReportData)}>Word 다운로드</button>
+                  <button type="button" className="btn-modal-action" onClick={() => setIsAiModalOpen(false)}>닫기</button>
+                </div>
+
               </div>
             </div>
           )}
