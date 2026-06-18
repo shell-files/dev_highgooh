@@ -12,10 +12,12 @@ import cloud.weareithero.api.airflowLog.dto.AirflowLogDTO;
 public interface AirflowLogMapper {
 
     @Select("""
-            SELECT id, target_day, summary, reasoning, recommendation, create_at
-            FROM AIRFLOW_LOG
-            WHERE target_day = #{targetDay}
-            ORDER BY target_day
+            SELECT al.id, al.target_day, al.summary, al.reasoning, al.recommendation, al.create_at
+            FROM AIRFLOW_JOB AS aj
+            INNER JOIN AIRFLOW_LOG AS al
+            ON (aj.airflow_log_id = al.id AND aj.delete_yn = 0)
+            WHERE aj.target_day = #{targetDay}
+            ORDER BY al.target_day
             """)
     List<AirflowLogDTO> selectByTargetDay(@Param("targetDay") String targetDay);
 }
