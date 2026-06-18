@@ -679,6 +679,7 @@
     border-radius: 8px;
     padding: 10px 14px;
     margin-bottom: 1.25rem;
+    justify-content: space-between;
 }
 
 #anomaly-page .control-label {
@@ -853,4 +854,10 @@
 #anomaly-page .ai_report_btn {
     width: 120px;
     margin-right : 5px;
+}
+
+#anomaly-page .ai-report-control-bar_inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
