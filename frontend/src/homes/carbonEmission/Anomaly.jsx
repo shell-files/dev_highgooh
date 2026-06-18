@@ -715,6 +715,7 @@ const Anomaly = () => {
 
                 {/* 날짜 필터 제어 바 */}
                 <div className="ai-report-control-bar">
+                  <div className="ai-report-control-bar_inner">
                   <span className="control-label">분석 기준일자 선택 :</span>
                   <input
                     type="date"
@@ -722,6 +723,7 @@ const Anomaly = () => {
                     value={aiReportDate}
                     onChange={(e) => setAiReportDate(e.target.value)}
                   />
+                  </div>
                   <button
                     type="button"
                     className="btn-ai-report-search"
@@ -774,7 +776,7 @@ const Anomaly = () => {
                   ) : (
                     <div className="ai-report-status-box empty">
                       <span className="empty-icon">📂</span>
-                      <p>{aiReportDate} 날짜에 매핑된 AI 분석 보고서 데이터가 존재하지 않습니다.</p>
+                      <p>{aiReportDate} 날짜에 해당하는 AI 분석 보고서 데이터가 존재하지 않습니다.</p>
                       <p className="sub-desc">다른 분석 날짜를 선택한 뒤 조회 버튼을 클릭해 주세요.</p>
                     </div>
                   )}
