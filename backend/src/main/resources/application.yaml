@@ -51,6 +51,11 @@ token:
 
 logging.level.org:
   springframework.security: DEBUG #INFO trace
+  springframework.web.socket: TRACE
+  springframework.messaging: TRACE
+  springframework.web.socket.handler: TRACE
+  springframework.web.socket.server: TRACE
+  springframework.security.web: DEBUG
 
 # api 전달값 로그 확인 가능하게 해주는 명령어 (쿼리문, 결과값)
 mybatis:
