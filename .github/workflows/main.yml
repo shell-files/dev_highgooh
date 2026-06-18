@@ -42,6 +42,7 @@ jobs:
 
           $frontendEnv = @(
             "VITE_API_URL=${{ secrets.VITE_API_URL }}"
+            "VITE_WEBSOCKET_URL=${{ secrets.VITE_WEBSOCKET_URL }}"
           )
           [System.IO.File]::WriteAllLines("$PWD\frontend\.env", $frontendEnv)
 
