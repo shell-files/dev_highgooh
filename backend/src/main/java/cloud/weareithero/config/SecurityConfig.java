@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import cloud.weareithero.config.auth.JweAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -34,10 +35,16 @@ public class SecurityConfig {
       authorize.requestMatchers("/docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
       authorize.requestMatchers(HttpMethod.POST, "/auth").permitAll();
       authorize.requestMatchers("/hg-websocket/**").permitAll();
+      authorize.requestMatchers("/error").permitAll();
       authorize.anyRequest().authenticated();
       // authorize.anyRequest().permitAll();
     });
     http.addFilterBefore(jweAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    http.exceptionHandling(ex -> ex
+    .authenticationEntryPoint((request, response, authException) -> {
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    })
+);
     return http.build();
   }
 

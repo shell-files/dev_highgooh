@@ -30,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/hg-websocket")
+        registry.addEndpoint("/ws/hg-websocket")
                 .setAllowedOriginPatterns("*")
                 .addInterceptors(httpHandshakeInterceptor);
     }
