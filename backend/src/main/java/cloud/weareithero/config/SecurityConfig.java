@@ -31,9 +31,9 @@ public class SecurityConfig {
     http.csrf(AbstractHttpConfigurer::disable);
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
     http.authorizeHttpRequests(authorize -> {
-      authorize.requestMatchers("/hg-websocket/**").permitAll();
       authorize.requestMatchers("/docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
       authorize.requestMatchers(HttpMethod.POST, "/auth").permitAll();
+      authorize.requestMatchers("/hg-websocket/**").permitAll();
       authorize.anyRequest().authenticated();
       // authorize.anyRequest().permitAll();
     });
