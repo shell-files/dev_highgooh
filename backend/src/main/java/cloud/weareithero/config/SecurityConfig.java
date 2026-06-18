@@ -34,7 +34,7 @@ public class SecurityConfig {
     http.authorizeHttpRequests(authorize -> {
       authorize.requestMatchers("/docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
       authorize.requestMatchers(HttpMethod.POST, "/auth").permitAll();
-      authorize.requestMatchers("/hg-websocket/**").permitAll();
+      authorize.requestMatchers("/ws/hg-websocket/**").permitAll();
       authorize.requestMatchers("/error").permitAll();
       authorize.anyRequest().authenticated();
       // authorize.anyRequest().permitAll();

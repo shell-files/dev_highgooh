@@ -2,6 +2,7 @@ package cloud.weareithero.config.websocket;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,27 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
             
             if (sessionAttributes != null && sessionAttributes.containsKey("AUTH_TOKEN")) {
                 String jweToken = (String) sessionAttributes.get("AUTH_TOKEN");
+                System.out.println(jweToken);
+
+                // ⭕ [Airflow 전용 예외 처리]
+                if ("airflow".equals(jweToken)) {
+                    log.info("👑 Airflow 내부 세션인증 우회 적용 - ADMIN 권한 부여");
+                    
+                    // Airflow 전용 시스템 계정 정보 빌드
+                    UserRoleDto airflowSystem = UserRoleDto.builder()
+                            .id(0L)
+                            .name("Airflow-System")
+                            .email("airflow@weareithero.cloud")
+                            .role("ADMIN")
+                            .build();
+
+                    Collection<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                    UsernamePasswordAuthenticationToken authentication = 
+                            new UsernamePasswordAuthenticationToken(airflowSystem, null, authorities);
+                    
+                    accessor.setUser(authentication);
+                    return message; // 복호화 단계를 건너뛰고 바로 성공 처리
+                }
 
                 try {
                     // ⭕ 기존 JweAuthenticationFilter와 완전히 동일하게 복호화 및 DTO 조립

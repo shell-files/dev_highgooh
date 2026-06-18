@@ -4,7 +4,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -18,16 +20,19 @@ public class NotificationService {
      */
     public void sendNotification(String userEmail, Object message) {
         // 스프링 내부적으로 /user/{userEmail}/queue/notifications 주소로 매핑하여 저격 전송함
+        log.info("sendNotification : {}, {}", userEmail, message);
         messagingTemplate.convertAndSendToUser(userEmail, "/queue/notifications", message);
     }
 
     // 모든 관리자 전용 채널로 메시지 쏘기
     public void sendToAdminGroup(Object message) {
+        log.info("sendToAdminGroup : {}", message);
         messagingTemplate.convertAndSend("/topic/role-ADMIN", message);
     }
-
+    
     // 모든 MANAGER 유저 전용 채널로 메시지 쏘기
     public void sendToManagerGroup(Object message) {
+        log.info("sendToManagerGroup : {}", message);
         messagingTemplate.convertAndSend("/topic/role-MANAGER", message);
 }
 
