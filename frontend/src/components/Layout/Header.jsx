@@ -20,7 +20,7 @@ const Header = () => {
   ]);
 
   useEffect(() => {
-    url = import.meta.env.VITE_WEBSOCKET_URL || `ws://${window.location.hostname}:8080/hg-websocket`
+    const url = import.meta.env.VITE_WEBSOCKET_URL || `ws://${window.location.hostname}:8080/hg-websocket`
     console.log(url)
     // 1. STOMP 클라이언트 생성
     const client = new Client({
