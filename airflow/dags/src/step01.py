@@ -2,9 +2,13 @@ from airflow.providers.mysql.hooks.mysql import MySqlHook
 from airflow.models import Variable
 
 def step01(**context):
+    ti = context['ti']
     mysql_hook = MySqlHook(mysql_conn_id='MariaDB')
     #dt = '2026-04-02'
-    dt = Variable.get("TARGET_DAY", default_var='2026-04-02')
+    # dt = Variable.get("TARGET_DAY", default_var='2026-04-02')
+
+    jobs = ti.xcom_pull(task_ids='INIT', key='step00')
+
     sql = """
         SELECT 정산_기준_시간, 원자재_이름, 합금_종류, 공정_과정, 공정_순서, 총_투입량_kg, 
                실제_가동_시간_hour, 실제_직접_배출량_CO2_T, 실제_전력_사용량_kWh, 실제_간접_배출량_CO2_T, 실제_총_내재배출량_SEE_alu,
@@ -15,18 +19,29 @@ def step01(**context):
         ORDER BY 정산_기준_시간 desc
     """
 
-    records = mysql_hook.get_records(sql, parameters=(dt, dt))
+    list = []
+    for job in jobs:
+        jobId = job['jobId']
+        targetDay = job['targetDay']
+        records = mysql_hook.get_records(sql, parameters=(targetDay, targetDay))
 
-    json_data = [
-        {
-            "정산_기준_시간": row[0],
-            "원자재_이름": row[1],
-            "합금_종류": row[2],
-            "공정_과정": row[3],
-            "공정_순서": row[4],
-        }
-        for row in records
-    ]
-
-    ti = context['ti']
-    ti.xcom_push(key='step01', value=json_data)
+        if records:
+            jsonData = [
+                {
+                    
+                    "정산_기준_시간": row[0],
+                    "원자재_이름": row[1],
+                    "합금_종류": row[2],
+                    "공정_과정": row[3],
+                    "공정_순서": row[4],
+                }
+                for row in records
+            ]
+            data = {
+                "jobId": jobId,
+                "targetDay": targetDay,
+                "jsonData": jsonData
+            }
+            list.append(data)
+    
+    ti.xcom_push(key='step01', value=list)
