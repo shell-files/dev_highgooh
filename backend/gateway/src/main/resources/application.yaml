@@ -1,0 +1,86 @@
+server.port: 7000
+
+spring:
+  application.name: gateway
+  config:
+    import: optional:file:.env[.properties]
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Methods Access-Control-Allow-Headers Access-Control-Allow-Credentials RETAIN_FIRST 
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - ${CORS_ORIGIN1}
+                  - ${CORS_ORIGIN2}
+                  - ${CORS_ORIGIN3}
+                  - ${CORS_ORIGIN4}
+                allow-credentials: true
+                allowedHeaders: 
+                  - '*'
+                allowedMethods:
+                  - PUT
+                  - GET
+                  - POST
+                  - PATCH
+                  - DELETE
+                  - OPTIONS
+          routes:
+            - id: auth-service
+              uri: ${ROUTE_OAUTH_URI}
+              predicates:
+                - Path=/auth/**
+              filters:
+                - RewritePath=/auth/?(?<segment>.*), /${segment}
+                - ApiFilter
+            - id: openapi
+              uri: ${ROUTE_API_URI}
+              predicates:
+                - Path=/v3/api-docs/**
+              filters:
+                - RewritePath=/v3/api-docs/?(?<segment>.*), /${segment}/v3/api-docs
+            - id: inbound-service
+              uri: ${ROUTE_INBOUND_URI}
+              predicates:
+                - Path=/inbound/**
+              filters:
+                - RewritePath=/inbound/?(?<segment>.*), /${segment}
+                - ApiFilter
+            - id: outbound-service
+              uri: ${ROUTE_OUTBOUND_URI}
+              predicates:
+                - Path=/outbound/**
+              filters:
+                - RewritePath=/outbound/?(?<segment>.*), /${segment}
+                - ApiFilter
+            - id: carbon-service
+              uri: ${ROUTE_CARBON_URI}
+              predicates:
+                - Path=/carbon/**
+              filters:
+                - RewritePath=/carbon/?(?<segment>.*), /${segment}
+                - ApiFilter
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: gateway
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    # path: /docs
+    operationsSorter: method
+
+logging.level.org.springframework: INFO

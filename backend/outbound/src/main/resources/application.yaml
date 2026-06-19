@@ -1,0 +1,73 @@
+server:
+  port: 8002
+  servlet:
+    session:
+      timeout: 30s
+
+spring:
+  application:
+    name: outbound
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    driver-class-name: ${MARIADB_DRIVER}
+    url: ${MARIADB_URL}
+    username: ${MARIADB_USER}
+    password: ${MARIADB_PASSWORD}
+  servlet:
+    multipart:
+      maxFileSize: 100MB
+      maxRequestSize: 100MB
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      database: ${REDIS_DB}
+      timeout: 3000ms # 연결 타임아웃 설정 (3초)
+      lettuce:
+        pool:
+          max-active: 8 # 커넥션 풀 최대 개수
+          max-idle: 8   # 대기 상태로 유지할 최대 커넥션 개수
+          min-idle: 0   # 대기 상태로 유지할 최소 커넥션 개수
+
+management:
+  info:
+    git:
+      mode: full
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    path: /docs
+    operationsSorter: method
+
+swagger:
+  api-gateway-url: ${SWAGGER_URL}/${spring.application.name}
+
+logout.redirect-url: ${SWAGGER_URL}
+
+jwt.keys-uri: ${JWT_URL}
+
+file.upload.path: ${FILE_UPLOAD_PATH}
+
+token:
+  expire:
+    access: 30
+    refresh: 2592000
+
+logging.level.org:
+  springframework.security: DEBUG #INFO TRACE
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

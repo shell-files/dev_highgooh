@@ -1,0 +1,93 @@
+server:
+  port: 9000
+  servlet:
+    session:
+      timeout: 30s
+
+spring:
+  application:
+    name: auth
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    driver-class-name: ${MARIADB_DRIVER}
+    url: ${MARIADB_URL}
+    username: ${MARIADB_USER}
+    password: ${MARIADB_PASSWORD}
+  jpa:
+    hibernate.ddl-auto: none # create create-drop update validate none
+    properties.hibernate:
+      show_sql: true
+      format_sql: true
+    # hibernate:
+    #   naming:
+    #     implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    #     physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  servlet:
+    multipart:
+      maxFileSize: 100MB
+      maxRequestSize: 100MB
+  mail:
+    host: ${EMAIL_HOST}
+    port: ${EMAIL_PORT}
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: ${EMAIL_SMTP_AUTH}
+          timeout: ${EMAIL_SMTP_TIMEOUT}
+          starttls:
+            enable: ${EMAIL_SMTP_ENABLE}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      database: ${REDIS_DB}
+      timeout: 3000ms # 연결 타임아웃 설정 (3초)
+      lettuce:
+        pool:
+          max-active: 8 # 커넥션 풀 최대 개수
+          max-idle: 8   # 대기 상태로 유지할 최대 커넥션 개수
+          min-idle: 0   # 대기 상태로 유지할 최소 커넥션 개수
+
+management:
+  info:
+    git:
+      mode: full
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    enabled: false
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    path: /docs
+    operationsSorter: method
+
+swagger:
+  api-gateway-url: ${SWAGGER_URL}/${spring.application.name}
+
+logout.redirect-url: ${SWAGGER_URL}
+
+file.upload.path: ${FILE_UPLOAD_PATH}
+
+rsa:
+  public-key: ${RSA_PUBLIC_KEY}
+  private-key: ${RSA_PRIVATE_KEY}
+
+token:
+  expire:
+    access: 30
+    refresh: 30
+
+logging.level.org:
+  springframework.security: DEBUG #INFO TRACE
+  # hibernate.sql: debug
