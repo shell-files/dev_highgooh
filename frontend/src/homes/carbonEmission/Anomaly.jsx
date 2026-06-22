@@ -599,7 +599,7 @@ const Anomaly = () => {
                     value={selectedMonth}
                     onChange={monthChoice}
                   >
-                    <option value="none">선택</option>
+                    <option value="">선택</option>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
                       <option key={month} value={month}>{month}월</option>
                     ))}
