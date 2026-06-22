@@ -20,9 +20,9 @@ const CarbonDashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [confirmedFilter, setConfirmedFilter] = useState({ year: "2026", quarter: "", month: "" });
   const tableColList = ["공정명", "Scope 구분", "에너지원", "활동 데이터(사용량)", "단위", "배출량 (tCO₂eq)", "비율 (%)"]
-  const [yearData, setYearData] = useState(String(currentYear))
-  const [quarterData, setQuarterData] = useState("")
-  const [monthData, setMonthData] = useState("")
+  // const [yearData, setYearData] = useState(String(currentYear))
+  // const [quarterData, setQuarterData] = useState("")
+  // const [monthData, setMonthData] = useState("")
 
   // 기본 조회 데이터
   const [data, setData] = useState([]);
@@ -53,9 +53,11 @@ const CarbonDashboard = () => {
   // 조회 버튼 이벤트
   const periodSearch = () => {
     const params = { selectedYear, selectedQuarter, selectedMonth };
-    setYearData(selectedYear)
-    setQuarterData(selectedQuarter)
-    setMonthData(selectedMonth)
+    setConfirmedFilter({
+        year: selectedYear,
+        quarter: selectedQuarter,
+        month: selectedMonth
+      });
 
     POST("/carbon", params).then(res => {
       if (res.status === true) {
@@ -82,7 +84,7 @@ const CarbonDashboard = () => {
   const totalEmissionSum = finalData.reduce((acc, item) => acc + item.emission, 0);
 
   // 차트 타이틀
-  const chartTitle =
+  const lineChartTitle =
     confirmedFilter.year === ''
       ? '전체 기간 탄소 배출량 변경 추이 (tCO₂eq)'
       : confirmedFilter.month
@@ -90,6 +92,30 @@ const CarbonDashboard = () => {
         : confirmedFilter.quarter
           ? `${confirmedFilter.year}년 ${confirmedFilter.quarter}분기 탄소 배출량 변경 추이 (tCO₂eq)`
           : `${confirmedFilter.year}년 탄소 배출량 변경 추이 (tCO₂eq)`;
+  const barChartTitle =
+    confirmedFilter.year === ''
+      ? '전체 기간 공정별 탄소 배출량 현황 (tCO₂eq)'
+      : confirmedFilter.month
+        ? `${confirmedFilter.year}년 ${confirmedFilter.month}월 공정별 탄소 배출량 현황 (tCO₂eq)`
+        : confirmedFilter.quarter
+          ? `${confirmedFilter.year}년 ${confirmedFilter.quarter}분기 공정별 탄소 배출량 현황 (tCO₂eq)`
+          : `${confirmedFilter.year}년 공정별 탄소 배출량 현황 (tCO₂eq)`;
+  const doughnutChartTitle =
+    confirmedFilter.year === ''
+      ? '전체 기간 Scope별 배출 비율'
+      : confirmedFilter.month
+        ? `${confirmedFilter.year}년 ${confirmedFilter.month}월 Scope별 배출 비율`
+        : confirmedFilter.quarter
+          ? `${confirmedFilter.year}년 ${confirmedFilter.quarter}분기 Scope별 배출 비율`
+          : `${confirmedFilter.year}년 Scope별 배출 비율`;
+  const tableTitle =
+    confirmedFilter.year === ''
+      ? '전체 기간 공정별 상세 탄소 배출량 명세'
+      : confirmedFilter.month
+        ? `${confirmedFilter.year}년 ${confirmedFilter.month}월 공정별 상세 탄소 배출량 명세`
+        : confirmedFilter.quarter
+          ? `${confirmedFilter.year}년 ${confirmedFilter.quarter}분기 공정별 상세 탄소 배출량 명세`
+          : `${confirmedFilter.year}년 공정별 상세 탄소 배출량 명세`;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,12 +158,12 @@ const CarbonDashboard = () => {
     // (선택) 엑셀 시트의 헤더(열 이름)를 한글로 예쁘게 변경하고 싶을 때
     XLSX.utils.sheet_add_aoa(worksheet, [tableColList], { origin: "A1" });
 
-    const period = quarterData ? `${quarterData}분기` : (monthData ? `${monthData}월` : "");
+    const period = confirmedFilter.quarter ? `${confirmedFilter.quarter}분기` : (monthData ? `${confirmedFilter.month}월` : "");
     const fileName = [
       "공정별 상세 탄소 배출량 명세",
-      `${yearData}년도`,
+      `${confirmedFilter.year}년도`,
       period
-    ].filter(Boolean).join("_"); // 빈 문자열은 제거하고 '_'로 연결
+    ]
 
     // 2. 새로운 워크북(Workbook)을 생성하고 워크시트 추가
     const workbook = XLSX.utils.book_new();
@@ -235,7 +261,7 @@ const CarbonDashboard = () => {
 
       <div className="dashboard-chart-grid" style={{ gridTemplateColumns: '1fr', marginBottom: '1.25rem' }}>
         <div className="chart-card">
-          <h3 className="chart-title">{chartTitle}</h3>
+          <h3 className="chart-title">{lineChartTitle}</h3>
           <div className="chart-container" style={{ height: '300px' }}>
             <CarbonLineChart chartData={chartData.line} />
           </div>
@@ -244,14 +270,14 @@ const CarbonDashboard = () => {
 
       <div className="dashboard-chart-grid">
         <div className="chart-card">
-          <h3 className="chart-title">공정별 탄소 배출량 현황 (tCO₂eq)</h3>
+          <h3 className="chart-title">{barChartTitle}</h3>
           <div className="chart-container" style={{ height: '300px' }}>
             <CarbonBarChart chartData={chartData.bar} />
           </div>
         </div>
 
         <div className="chart-card">
-          <h3 className="chart-title">Scope별 배출 비율</h3>
+          <h3 className="chart-title">{doughnutChartTitle}</h3>
           <div className="chart-container" style={{ height: '300px' }}>
             <CarbonDoughnutChart chartData={chartData.doughnut} />
           </div>
@@ -260,8 +286,8 @@ const CarbonDashboard = () => {
 
       <div className="dashboard-table-card">
         <div className="table-header-flex">
-          <h3 className="table-title">공정별 상세 탄소 배출량 명세</h3>
-          <button className="btn-excel-download" onClick={() => { handleDownload(finalData) }}>액셀 다운로드</button>
+          <h3 className="table-title">{tableTitle}</h3>
+          <button className="btn-excel-download" onClick={() => { handleDownload(finalData) }}>엑셀 다운로드</button>
         </div>
         <div className="table-responsive">
           <table className="dashboard-data-table">

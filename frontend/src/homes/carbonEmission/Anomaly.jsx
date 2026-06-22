@@ -63,10 +63,6 @@ const Anomaly = () => {
 
   // 데이터 새로고침 함수
   const fetchData = (page = 1) => {
-    setYearData(selectedYear)
-    setQuarterData(selectedQuarter)
-    setMonthData(selectedMonth)
-
     const offset = (page - 1) * 10;
     const param = {
       selectedYear: (selectedYear === "all" || selectedYear === "") ? '' : selectedYear,
@@ -76,13 +72,26 @@ const Anomaly = () => {
       limit: 10,
       offset: offset
     };
+    setConfirmedFilter({
+          year: selectedYear,
+          quarter: selectedQuarter,
+          month: selectedMonth
+        });
 
-
+    
     POST("/anomaly", param).then(res => {
       if (res && res.status === true) {
         setLogs(processAnomalyData(res.data.list));
-
-
+        setSelectedYear(param.selectedYear);
+        setSelectedQuarter(param.selectedQuarter);
+        setSelectedMonth(param.selectedMonth);
+        setConfirmedFilter({ 
+          year: selectedYear, 
+          quarter: selectedQuarter, 
+          month: selectedMonth 
+        });
+        
+        
         //차트데이터
         const stats = res.data.stats;
         const label = stats.map(item => item.process);
@@ -90,21 +99,21 @@ const Anomaly = () => {
         const waitActionData = stats.map(item => item.waiting_count);
         const actioningData = stats.map(item => item.actioning_count);
         const actionedData = stats.map(item => item.actioned_count);
-
+        
         // 합계데이터
         const total = data.reduce((sum, current) => sum + current, 0);
         setTotalCount(total);
         const waitingAction = waitActionData.reduce((sum, current) => sum + current, 0);
         const actioning = actioningData.reduce((sum, current) => sum + current, 0);
         const actioned = actionedData.reduce((sum, current) => sum + current, 0);
-
+        
         setActioningCount(actioning)
         setActionedCount(actioned)
         setWaitCount(waitingAction)
-
+        
         setChartData({ label, data });
-
-        setPageNumber(page);
+        
+      setPageNumber(page);
       } else {
         console.error("조회 실패:", res);
       }
@@ -127,9 +136,7 @@ const Anomaly = () => {
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
   const [selectedQuarter, setSelectedQuarter] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
-  const [yearData, setYearData] = useState(String(currentYear))
-  const [quarterData, setQuarterData] = useState("")
-  const [monthData, setMonthData] = useState("")
+  const [confirmedFilter, setConfirmedFilter] = useState({ year: "2026", quarter: "", month: "" });
 
 
   // 분기 선택시 월 선택 초기화
@@ -265,6 +272,24 @@ const Anomaly = () => {
     // 기본적으로 2026년 데이터 조회
     fetchData(1);
   }, []);
+
+    // 차트 타이틀
+  const chartTitle =
+    confirmedFilter.year === ''
+      ? '전체 기간 설비별 이상치 발생 횟수 현황'
+      : confirmedFilter.month
+        ? `${confirmedFilter.year}년 ${confirmedFilter.month}월 설비별 이상치 발생 횟수 현황`
+        : confirmedFilter.quarter
+          ? `${confirmedFilter.year}년 ${confirmedFilter.quarter}분기 설비별 이상치 발생 횟수 현황`
+          : `${confirmedFilter.year}년 설비별 이상치 발생 횟수 현황`;
+  const tableTitle =
+    confirmedFilter.year === ''
+      ? '전체 기간 이상치 탐지 및 발생 로그 이력'
+      : confirmedFilter.month
+        ? `${confirmedFilter.year}년 ${confirmedFilter.month}월 이상치 탐지 및 발생 로그 이력`
+        : confirmedFilter.quarter
+          ? `${confirmedFilter.year}년 ${confirmedFilter.quarter}분기 이상치 탐지 및 발생 로그 이력`
+          : `${confirmedFilter.year}년 이상치 탐지 및 발생 로그 이력`;
 
   const handleDownload = (data) => {
     // 1. 데이터를 기반으로 워크시트(Worksheet) 생성
@@ -597,7 +622,7 @@ const Anomaly = () => {
       {/* 차트 영역 */}
       <div style={{ marginBottom: '40px' }}>
         <div className="chart-card">
-          <h3 className="chart-title">설비별 이상치 발생 횟수 현황</h3>
+          <h3 className="chart-title">{chartTitle}</h3>
           <div className="chart-container chart-height-machine">
             <AnomalyBarChart dataValues={chartData} />
           </div>
@@ -607,8 +632,8 @@ const Anomaly = () => {
       {/* 테이블 로그 영역 */}
       <div className="dashboard-table-card">
         <div className="table-header-flex">
-          <h3 className="table-title">실시간 이상치 탐지 및 발생 로그 이력</h3>
-          <button className="btn-excel-download" onClick={() => handleDownload(logs)}>액셀 다운로드</button>
+          <h3 className="table-title">{tableTitle}</h3>
+          <button className="btn-excel-download" onClick={() => handleDownload(logs)}>엑셀 다운로드</button>
         </div>
         <div className="table-responsive">
           <table className="dashboard-data-table">
