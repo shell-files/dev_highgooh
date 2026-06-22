@@ -15,7 +15,7 @@ public interface AirflowLogMapper {
             SELECT al.id, al.target_day, al.summary, al.reasoning, al.recommendation, al.create_at
             FROM AIRFLOW_JOB AS aj
             INNER JOIN AIRFLOW_LOG AS al
-            ON (aj.airflow_log_id = al.id AND aj.delete_yn = 0)
+            ON (aj.airflow_log_id = al.id)
             WHERE aj.target_day = #{targetDay}
             ORDER BY al.target_day
             """)
