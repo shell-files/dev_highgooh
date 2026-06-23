@@ -1,7 +1,7 @@
 import json
 from pprint import pprint
 from websocket import create_connection
-from airflow.models import Variable
+from airflow.sdk import Variable
 
 def send_websocket_alarm(message):
     """

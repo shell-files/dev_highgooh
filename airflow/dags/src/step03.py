@@ -1,6 +1,6 @@
 from pprint import pprint
 from airflow.providers.mysql.hooks.mysql import MySqlHook
-from airflow.models import Variable
+from airflow.sdk import Variable
 
 def step03(**context):
     ti = context['ti']
