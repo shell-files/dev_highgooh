@@ -11,7 +11,7 @@ from src.step04 import step04
 with DAG(
     dag_id='app01_dag',
     start_date=datetime(2026, 1, 1),
-    schedule=None,
+    schedule="0 2 * * *",
     catchup=False
 ) as app01_dag:
     
